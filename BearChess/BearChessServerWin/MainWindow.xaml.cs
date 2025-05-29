@@ -103,7 +103,7 @@ namespace www.SoLaNoSoft.com.BearChessServerWin
 
         private void _bearChessController_ClientDisconnected(object sender, string e)
         {
-              var clientInfo =_tokenList.FirstOrDefault(t => t.Address.Equals(e));
+             var clientInfo =_tokenList.FirstOrDefault(t => t.Address.Equals(e));
              if (clientInfo != null)
              {
                  _tokenList.Remove(clientInfo);

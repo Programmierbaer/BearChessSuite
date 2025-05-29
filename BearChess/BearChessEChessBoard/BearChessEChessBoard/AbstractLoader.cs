@@ -401,6 +401,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         public string BatteryLevel => _eChessBoard.BatteryLevel;
         public string BatteryStatus => _eChessBoard.BatteryStatus;
         public string Information => _eChessBoard.Information;
+        public string DetailInformation => _eChessBoard.DetailInformation;
         public string Level => _eChessBoard.Level;
 
         public void AllowTakeBack(bool allowTakeBack)

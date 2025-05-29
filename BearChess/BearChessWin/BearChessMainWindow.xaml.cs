@@ -374,7 +374,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _sdiLayout = _configuration.GetBoolValue("sdiLayout", true);
             InitializeComponent();
             _withBCServer = _configuration.GetBoolValue("withBCServer", true);
-            _withBCServer = true;
+            _withBCServer = false;
             _configuration.SetBoolValue("checkForAlternateMoves", false);
             var fontSize = this.FontSize;
             var fontFamily = this.FontFamily;
@@ -2670,7 +2670,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     ActionCode = "FEN", Message = _chessBoard.GetFenPosition(),
                     Color = _chessBoard.EnemyColor == Fields.COLOR_WHITE ? "w" : "b",
-                    // AllMoves =  _chessBoard.GetPlayedBCServerMoveList().ToList().ToArray()
+                    AllMoves =  _chessBoard.GetPlayedBCServerMoveList().ToList().ToArray()
                 });
             }
 
@@ -5483,7 +5483,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         {
                             ActionCode = "FEN", Message = _chessBoard.GetFenPosition(),
                             Color = _chessBoard.EnemyColor == Fields.COLOR_WHITE ? "w" : "b",
-                            // AllMoves = _chessBoard.GetPlayedBCServerMoveList().ToList().ToArray()
+                            AllMoves = _chessBoard.GetPlayedBCServerMoveList().ToList().ToArray()
                         });
                     }
 
@@ -9662,7 +9662,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             if (_bearChessServerClient != null && _bearChessServerClient.IsSending)
             {
                 _bearChessServerClient?.SendToServer(new BearChessServerMessage() { ActionCode = "FEN", Message = _chessBoard.GetFenPosition(), Color = _chessBoard.EnemyColor == Fields.COLOR_WHITE ? "w" : "b" ,
-                    //AllMoves = _chessBoard.GetPlayedBCServerMoveList().ToList().ToArray()
+                    AllMoves = _chessBoard.GetPlayedBCServerMoveList().ToList().ToArray()
                     }
                 );
             }
@@ -10701,7 +10701,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void MenuItemInfo_OnClick(object sender, RoutedEventArgs e)
         {
-            var systemInfoWindow = new SystemInfoWindow(_configuration, _eChessBoard?.Information)
+            var systemInfoWindow = new SystemInfoWindow(_configuration, _eChessBoard?.Information, _eChessBoard?.DetailInformation)
                                    {
                                        Owner = this
                                    };

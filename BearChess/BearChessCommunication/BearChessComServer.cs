@@ -155,7 +155,7 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
 
                         //message has successfully been received
                         var msg = completeMessage.ToString();
-                        _logging?.LogDebug($"ComServer {addr}: Received: {msg}");
+                       // _logging?.LogDebug($"ComServer {addr}: Received: {msg}");
                         var msgArray = msg.Split("#".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                         for (int i = 0; i < msgArray.Length; i++)
                         {

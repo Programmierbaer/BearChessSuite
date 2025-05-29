@@ -134,6 +134,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         void Stop(bool stop);
         void Ignore(bool ignore);
         string Information { get; }
+        string DetailInformation { get; }
         void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack, int secondBlack);
         void StopClock();
         void StartClock(bool white);

@@ -175,9 +175,6 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
 
         }
 
-      
-      
-
         public object Clone()
         {
             return MemberwiseClone();

@@ -124,7 +124,18 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
             _bearChessController = bearChessController;
             _bearChessController.NewGame += _bearChessController_NewGame;
             _bearChessController.ClientMessage += _bearChessController_ClientMessage;
+            _bearChessController.ClientDisconnected += _bearChessController_ClientDisconnected;
         }
+
+        private void _bearChessController_ClientDisconnected(object sender, string e)
+        {
+            var clientInfo = _clientToken.FirstOrDefault(t => t.Equals(e));
+            if (clientInfo != null)
+            {
+                _clientToken.Remove(clientInfo);
+            }
+        }
+
         private void _bearChessController_ClientMessage(object sender, BearChessServerMessage e)
         {
             if (!_clientToken.Contains(e.Address))
@@ -165,6 +176,7 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
                         var detectedMove = _chessBoard.GetMove(e.Message, false);
                         if (string.IsNullOrWhiteSpace(detectedMove))
                         {
+                            _logging?.LogError($"Chessboard {BoardId}: No move detected for {e.Message}");
                             return;
                         }
 
@@ -172,7 +184,7 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
                         _chessBoard.MakeMove(detectedMove.Substring(0, 2), detectedMove.Substring(2, 2),
                             detectedMove.Length > 4 ? detectedMove.Substring(4, 1) : string.Empty);
 
-                        AllMoveClass allMove = _chessBoard.GetPrevMove();
+                        var allMove = _chessBoard.GetPrevMove();
                         lastMove = new BCServerMove(allMove.GetMove(_chessBoard.EnemyColor));
                     }
 

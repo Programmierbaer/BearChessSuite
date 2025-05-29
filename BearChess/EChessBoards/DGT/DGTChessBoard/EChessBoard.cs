@@ -24,16 +24,16 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
         private readonly byte[] _resetBoard = { 64 }; // @
         private readonly byte[] _dumpBoard = { 66 };  // B
         private readonly byte[] _startReading = { 68 }; // D
-        private readonly byte[] _serialNumber = { 69 }; // E
+        private readonly byte[] _requestSerialNumber = { 69 }; // E
         private readonly byte[] _unknown144 = { 70 }; // F
         private readonly byte[] _requestTrademark = { 71 }; // G
-        private readonly byte[] _hardwareVersion = { 72 }; // H
+        private readonly byte[] _requestHardwareVersion = { 72 }; // H
         private readonly byte[] _unknown143 = { 73 }; // I
         private readonly byte[] _startReadingNice = { 75 }; // I
         private readonly byte[] _batteryState = { 76 }; // L
 
         private readonly byte[] _requestVersion = { 77 }; // M
-        private readonly byte[] _serialNumberLong = { 85 }; // U
+        private readonly byte[] _requestSerialNumberLong = { 85 }; // U
         private readonly byte[] _unknown163 = { 86 }; // V
         private readonly byte[] _lockState = { 89 }; // Y
         private readonly byte[] _authorized = { 90 }; // Y
@@ -155,11 +155,13 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
         private bool _readingClock = false;
         private bool _readingClockTime = false;
         private bool _readingBlackTime = false;
+        private bool _readingTrademark = false;
         private int _readingClockIndex = 0;
         private int _currentColor;
         private readonly EChessBoardConfiguration _boardConfiguration;
         private string _lastDisplayString;
-        private bool _sendLEDCommands = false;
+        private string _trademark = string.Empty;
+        private readonly bool _sendLEDCommands = false;
 
 
         public EChessBoard(string basePath, ILogging logger, EChessBoardConfiguration configuration)
@@ -180,8 +182,10 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
             ValidForAnalyse = true;
             SelfControlled = false;
             Information = string.Empty;
+            DetailInformation = string.Empty;
             IsConnected = EnsureConnection();
             _serialCommunication.Send(_startReadingNice);
+            _serialCommunication.Send(_requestTrademark);
             _serialCommunication.Send(_dumpBoard);
             Information = Constants.DGT;
             _lastDisplayString = string.Empty;
@@ -452,6 +456,7 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                 {
                     if (strings[i] == "142")
                     {
+                        _readingTrademark = false;
                         var boardMove = new BoardMove();
                         boardMove.AddMoveByte(strings[i]);
                         _boardMoves.Add(boardMove);
@@ -470,10 +475,17 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
 
                         continue;
                     }
+                    if (strings[i] == "146")
+                    {
+                        _readingTrademark = true;
+                        continue;
+                    }
 
+                  
 
                     if (strings[i] == "134")
                     {
+                        _readingTrademark = false;
                         var boardDump = new BoardDump(_playWithWhite);
                         boardDump.AddBoardByte(strings[i]);
                         _boardDumps.Add(boardDump);
@@ -483,6 +495,7 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                     if (strings[i] == "141")
                     {
                         _waitingForClockMessage = false;
+                        _readingTrademark = false;
                         _readingClock = true;
                         _readingClockTime = false;
                         _clockHH = null;
@@ -490,6 +503,19 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                         _clockSS = null;
                         _readingClockIndex = 1;
                         _readingBlackTime = true;
+                        continue;
+                    }
+                    if (_readingTrademark)
+                    {
+                        if (int.TryParse(strings[i], out int number))
+                        {
+                            if (number >= 10)
+                            {
+                                _trademark += Convert.ToChar(number);
+                            }
+                        }
+
+                        DetailInformation = _trademark;
                         continue;
                     }
 

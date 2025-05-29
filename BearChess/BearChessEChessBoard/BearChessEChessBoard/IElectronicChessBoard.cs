@@ -244,6 +244,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         string BatteryLevel { get; }
         string BatteryStatus { get; }
         string Information { get; }
+        string DetailInformation { get; }
 
         string Level { get; }
         void AllowTakeBack(bool allowTakeBack);

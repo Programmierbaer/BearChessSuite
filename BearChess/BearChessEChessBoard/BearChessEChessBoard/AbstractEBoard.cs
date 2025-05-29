@@ -117,6 +117,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         public string BatteryLevel { get; protected set; }
         public string BatteryStatus { get; protected set; }
         public string Information { get; protected set; }
+        public string DetailInformation { get; protected set; }
         public string Level { get; protected set; }
 
 

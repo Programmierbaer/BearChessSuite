@@ -16,7 +16,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private readonly Configuration _configuration;
         private readonly ResourceManager _rm;
 
-        public SystemInfoWindow(Configuration configuration, string chessBoardInfo)
+        public SystemInfoWindow(Configuration configuration, string chessBoardInfo, string detailInformation)
         {
             InitializeComponent();
             _rm = SpeechTranslator.ResourceManager;
@@ -70,6 +70,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 if (chessBoardInfo.Equals(Constants.DGT))
                 {
                     imageDGT.Visibility = Visibility.Visible;
+                    if (!string.IsNullOrWhiteSpace(detailInformation))
+                    {
+                        textBlockBoard.Text = detailInformation;
+                    }
                     return;
                 }
 
