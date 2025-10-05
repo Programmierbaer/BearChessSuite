@@ -135,6 +135,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
             AddInternalMove(move);
         }
 
+        public Move[] GetAllMoves() => _moveList.ToArray();
+
         public void Clear()
         {
             stackPanelMoves.Children.Clear();

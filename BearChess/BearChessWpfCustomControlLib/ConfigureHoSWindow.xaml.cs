@@ -1,8 +1,10 @@
 ﻿
+using System;
 using System.IO;
 using System.Resources;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChess.HoSLoader;
 using www.SoLaNoSoft.com.BearChessBase;
@@ -49,6 +51,13 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             comboBoxComPorts.Items.Add("USB");
             comboBoxComPorts.SelectedIndex = _eChessBoardConfiguration.UseBluetooth ? 0 : 1;
             borderDelay.IsEnabled = _eChessBoardConfiguration.UseBluetooth;
+            CheckBoxUseClock.IsChecked = _eChessBoardConfiguration.UseClock;
+            RadioButtonUseExtern.IsChecked = _eChessBoardConfiguration.ClockUseExtern;
+            RadioButtonUseIntern.IsChecked = _eChessBoardConfiguration.ClockUseIntern;
+            RadioButtonUseExtern.IsEnabled = _eChessBoardConfiguration.UseClock;
+            RadioButtonUseIntern.IsEnabled = _eChessBoardConfiguration.UseClock;
+            checkBoxSwitchSide.IsChecked = !_eChessBoardConfiguration.ClockSwitchSide;
+            checkBoxSwitchSide.IsEnabled = _eChessBoardConfiguration.UseClock;
             SetScanText();
         }
         private void ButtonOk_OnClick(object sender, RoutedEventArgs e)
@@ -58,6 +67,10 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             _eChessBoardConfiguration.ShowPossibleMovesEval = checkBoxBestMove.IsChecked.HasValue && checkBoxBestMove.IsChecked.Value;
             _eChessBoardConfiguration.UseBluetooth = comboBoxComPorts.SelectedIndex == 0;
             _eChessBoardConfiguration.Debounce = (int)sliderScanTime.Value;
+            _eChessBoardConfiguration.UseClock = CheckBoxUseClock.IsChecked.HasValue && CheckBoxUseClock.IsChecked.Value;
+            _eChessBoardConfiguration.ClockUseExtern = RadioButtonUseExtern.IsChecked.HasValue && RadioButtonUseExtern.IsChecked.Value;
+            _eChessBoardConfiguration.ClockUseIntern = RadioButtonUseIntern.IsChecked.HasValue && RadioButtonUseIntern.IsChecked.Value;
+            _eChessBoardConfiguration.ClockSwitchSide = !(checkBoxSwitchSide.IsChecked.HasValue && checkBoxSwitchSide.IsChecked.Value);
             EChessBoardConfiguration.Save(_eChessBoardConfiguration, _fileName);
             DialogResult = true;
         }
@@ -111,6 +124,20 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         private void ComboBoxComPorts_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             borderDelay.IsEnabled = comboBoxComPorts.SelectedIndex == 0;
+        }
+
+        private void CheckBoxUseClock_OnChecked(object sender, RoutedEventArgs e)
+        {
+            RadioButtonUseExtern.IsEnabled = true;
+            RadioButtonUseIntern.IsEnabled = true;
+            checkBoxSwitchSide.IsEnabled = true;
+        }
+
+        private void CheckBoxUseClock_OnUnchecked(object sender, RoutedEventArgs e)
+        {
+            RadioButtonUseExtern.IsEnabled = false;
+            RadioButtonUseIntern.IsEnabled = false;
+            checkBoxSwitchSide.IsEnabled = false;
         }
     }
 }

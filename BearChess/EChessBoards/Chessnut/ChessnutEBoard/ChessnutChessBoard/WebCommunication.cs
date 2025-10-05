@@ -67,7 +67,6 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
                                 _logger?.LogDebug($"SC: Send {stringData}");
                                 _comPort.Write(stringData);
                             }
-
                         }
 
                     }

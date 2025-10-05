@@ -121,12 +121,13 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         public string Level { get; protected set; }
 
 
-        public abstract void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack,
-                                      int secondBlack);
+        public abstract void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack,
+                                      int secondBlack, int increments);
 
         public abstract void StopClock();
         public abstract void StartClock(bool white);
         public abstract void DisplayOnClock(string display);
+        public abstract void ResetClock();
         public abstract void SetCurrentColor(int currentColor);
         public abstract void SetEngineColor(int color);
 

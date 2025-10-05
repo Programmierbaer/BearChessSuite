@@ -4,8 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessServerWin"        
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessServerWin.Properties"        
-        Background="AliceBlue"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
+        Background="AliceBlue" Closing="MainWindow_OnClosing"
         mc:Ignorable="d" Icon="Assets/BearChessServer.ico" WindowStartupLocation="CenterOwner"
         Title="BearChess Server" Height="450" Width="900">
     <Grid>
@@ -15,28 +15,63 @@
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Menu Name="MenuMain" Grid.Row="0" Grid.Column="0"  Margin="5,0,5,0" Background="Transparent">
-            <MenuItem  Header="{x:Static p:Resources.Server}" >
-                <MenuItem Name="MenuItemOpen"  Header="{x:Static p:Resources.Start}" Click="MenuItemOpen_Click"></MenuItem>
-                <MenuItem Header="{x:Static p:Resources.Configure}" Click="MenuItemConfigure_Click"></MenuItem>
+            <MenuItem  Header="{x:Static p:Resources.ServerItem}" >
+                <MenuItem Name="MenuItemOpen"  Header="{x:Static p:Resources.StartStop}">
+                    <MenuItem Name="MenuItemOpenBCServer"  Header="{x:Static p:Resources.StartBCServer}" Click="MenuItemOpenBCServer_Click">
+                        <MenuItem.Icon>
+                            <Image Source="Assets/BearChessServer.ico" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Name="MenuItemOpenWebServer"  Header="{x:Static p:Resources.StartWebServer}" IsEnabled="False" Click="MenuItemOpenWebServer_Click">
+                        <MenuItem.Icon>
+                            <Image Source="Assets/world_go.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Name="MenuItemStartPublish"  Header="{x:Static p:Resources.PublishGame}" IsEnabled="false" Click="MenuItemPublishGame_Click">
+                        <MenuItem.Icon>
+                            <Image Source="Assets/ftp.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
             </MenuItem>
-            <MenuItem Header="{x:Static p:Resources.Tournaments}">
-                <MenuItem Header="Neues Turnier" Click="MenItemNewTournament_Click"></MenuItem>
-                <MenuItem Header="Turnier speichern"></MenuItem>
+            <MenuItem Name="MenuItemTournaments"  Header="{x:Static p:Resources.Tournaments}" >
+                <MenuItem Header="{x:Static p:Resources.NewTournament}" Click="MenuItemNewTournament_Click"></MenuItem>
+                <MenuItem Header="{x:Static p:Resources.SaveTournament}"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="{x:Static p:Resources.Configure}">
+                <MenuItem Header="{x:Static p:Resources.ConfigureBCServer}" Click="MenuItemConfigure_Click"></MenuItem>
+                <MenuItem Header="{x:Static p:Resources.ConfigureFTP}" Click="MenuItemConfigurePublish_Click"></MenuItem>
+            </MenuItem>
+            <MenuItem Name="MenuItemEngine"  Header="{x:Static p:Resources.Engine}">
+                <MenuItem Header="{x:Static p:Resources.LoadAndManageEngines}" Click="MenuItemSelectEngine_Click"></MenuItem>
             </MenuItem>
         </Menu>
-        <TabControl Name="tabControlTournaments"  Grid.Row="1" Margin="5"/>
+        <ListBox Name="listBoxLog" Grid.Row="1" Margin="5"></ListBox>
+        
 
         <StatusBar Grid.Row="2" VerticalAlignment="Bottom"  Background="AliceBlue" BorderThickness="1" BorderBrush="Gray">
-            <StatusBarItem>
-                <TextBlock Name="textBlockRunningMode" Text="Initial" />
-            </StatusBarItem>
-            <Separator />
+           
 
+            <StatusBarItem>
+                <Image Name="imageServer" Width="16" Height="16" Source="Assets/BearChessServer.ico"  />
+            </StatusBarItem>
             <StatusBarItem>
                 <TextBlock Name="textBlockServer" Text="{x:Static p:Resources.Closed}" />
             </StatusBarItem>
+            <Separator />
+
+
             <StatusBarItem>
-                <Image Name="imageServer" Width="16" Height="16" Source="Assets/server_go.png"  />
+                <Image Name="imageWebServer" Width="16" Height="16" Source="Assets/world_go.png"  />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Name="textBlockWebServer" Text="{x:Static p:Resources.Closed}" />
+            </StatusBarItem>
+            <StatusBarItem>
+                <Image Name="imageFTP" Width="16" Height="16" Source="Assets/ftp.png"  />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Name="textBlockPublish" Text="{x:Static p:Resources.Closed}" />
             </StatusBarItem>
         </StatusBar>
     </Grid>

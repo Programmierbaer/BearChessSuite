@@ -6,7 +6,7 @@
         xmlns:bearChessWin="clr-namespace:www.SoLaNoSoft.com.BearChessWin"
         Icon="../Assets/Icons/robot.png"
         mc:Ignorable="d" Closing="SelectInstalledEngineWindow_OnClosing" 
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Properties"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
         Title="{x:Static p:Resources.LoadAndManageEngines}" Height="390" Width="550"  MinWidth="500" >
     <Window.Resources>
         <bearChessWin:BoolToContentConverter x:Key="BoolToContentConverter" />

@@ -1837,7 +1837,7 @@
     <value>Keinen COM-Port gefunden. Überprüfen sie die Verbindung zum Schachbrett.</value>
   </data>
   <data name="EngineTournamentInfo" xml:space="preserve">
-    <value>Schachprogramm-Tturnier Informationen</value>
+    <value>Schachprogramm-Turnier Informationen</value>
   </data>
   <data name="StopCurrentTournament" xml:space="preserve">
     <value>Aktuelles Turnier anhalten</value>
@@ -2753,5 +2753,86 @@
   </data>
   <data name="HalfSeconds" xml:space="preserve">
     <value>halbe Sekunden</value>
+  </data>
+  <data name="SaveTournament" xml:space="preserve">
+    <value>Turnier Speichern</value>
+  </data>
+  <data name="Position" xml:space="preserve">
+    <value>Position</value>
+  </data>
+  <data name="FenCopy" xml:space="preserve">
+    <value>Kopiere FEN-Position</value>
+  </data>
+  <data name="FenPaste" xml:space="preserve">
+    <value>Einfügen FEN-Position</value>
+  </data>
+  <data name="LoadLastFenOnStartup" xml:space="preserve">
+    <value>Letzte Position beim Start laden</value>
+  </data>
+  <data name="Training" xml:space="preserve">
+    <value>Trainieren</value>
+  </data>
+  <data name="ChessOpening" xml:space="preserve">
+    <value>Starte Eröffnungstraining</value>
+  </data>
+  <data name="ModeTrainingOpening" xml:space="preserve">
+    <value>Modus: Eröffnungstraining</value>
+  </data>
+  <data name="ChessOpeningStop" xml:space="preserve">
+    <value>Beende Eröffnungstraining</value>
+  </data>
+  <data name="ChangeParticipants" xml:space="preserve">
+    <value>Teilnehmer ändern</value>
+  </data>
+  <data name="NoFigure" xml:space="preserve">
+    <value>Keine Figur</value>
+  </data>
+  <data name="LoadLastOrDefaultBook" xml:space="preserve">
+    <value>Letztes oder Standard-Eröffnungsbuch automatisch laden</value>
+  </data>
+  <data name="InvalidForReplace" xml:space="preserve">
+    <value>Üngültig für Änderung</value>
+  </data>
+  <data name="TorunamentInvalidForReplace" xml:space="preserve">
+    <value>Du kannst einen Teilnehmer nur Ändern, wenn das Turnier ab der BearChess Version 1.3 erstellt wurde.</value>
+  </data>
+  <data name="CreateNewTorunament" xml:space="preserve">
+    <value>Ersetzen und ein neues Turnier anlegen</value>
+  </data>
+  <data name="ReplaceOverrideTournament" xml:space="preserve">
+    <value>Ersetzen und Turnier überschreiben</value>
+  </data>
+  <data name="ClearLogFiles" xml:space="preserve">
+    <value>Alle Logdateien beim Neustart löschen</value>
+  </data>
+  <data name="ClearLogFilesTip" xml:space="preserve">
+    <value>Löscht beim Neustart von BearChess einmalig alle Logdateien</value>
+  </data>
+  <data name="ClockIsOnTheLeftSide" xml:space="preserve">
+    <value>Uhr ist auf der linken Seite</value>
+  </data>
+  <data name="ClockIsOntheRightSide" xml:space="preserve">
+    <value>Uhr ist auf der rechten Seite</value>
+  </data>
+  <data name="Publish" xml:space="preserve">
+    <value>Veröffentlichen</value>
+  </data>
+  <data name="ConnectFirstQuery" xml:space="preserve">
+    <value>Sie sind aktuell nicht mit einem Schachbrett verbunden. Möchten sie trotzdem weitermachen?</value>
+  </data>
+  <data name="PlayCasualGame" xml:space="preserve">
+    <value>Möchten Sie ein einfaches Spiel gegen eine Engine starten?</value>
+  </data>
+  <data name="PlayWithWhite" xml:space="preserve">
+    <value>Möchten sie mit Weiß spielen?</value>
+  </data>
+  <data name="MinimumValue" xml:space="preserve">
+    <value>Minimaler Wert für</value>
+  </data>
+  <data name="MaximumValue" xml:space="preserve">
+    <value>Maximaler Wert für</value>
+  </data>
+  <data name="SkillLevel" xml:space="preserve">
+    <value>Spielstärke</value>
   </data>
 </root>

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using www.SoLaNoSoft.com.BearChess.BearChessCommunication;
 using www.SoLaNoSoft.com.BearChess.CommonUciWrapper;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChess.FicsClient;
@@ -17,6 +18,8 @@ using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 using www.SoLaNoSoft.com.BearChessTools;
 using www.SoLaNoSoft.com.BearChessWpfCustomControlLib;
+using Move = www.SoLaNoSoft.com.BearChessBase.Implementations.Move;
+using TimeControl = www.SoLaNoSoft.com.BearChessBase.Implementations.TimeControl;
 
 namespace www.SoLaNoSoft.com.BearChessWin
 {
@@ -266,6 +269,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
             return true;
         }
 
+        public bool LoadUciEngine(UciInfo uciInfo, IBearChessServerClient serverCient, Move[] playedMoves,
+            bool lookForBookMoves, int color, string gameNumber)
+        {
+            return true;
+        }
         public bool LoadUciEngine(UciInfo uciInfo, IFICSClient ficsClient, Move[] playedMoves, bool lookForBookMoves,
                                   int color,
                                   string gameNumber)

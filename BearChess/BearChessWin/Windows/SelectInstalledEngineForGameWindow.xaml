@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" Icon="../Assets/Icons/robot.png"
         mc:Ignorable="d" Closing="SelectInstalledEngineForGameWindow_OnClosing" PreviewKeyDown="SelectInstalledEngineForGameWindow_OnPreviewKeyDown"
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Properties"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
         Title="{x:Static p:Resources.LoadUCIEngine}" Height="390" Width="500"  MinWidth="500" >
     <Grid>
         <Grid.RowDefinitions>

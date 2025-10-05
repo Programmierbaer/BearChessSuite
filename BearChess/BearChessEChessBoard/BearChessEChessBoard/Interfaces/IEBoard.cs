@@ -135,10 +135,12 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         void Ignore(bool ignore);
         string Information { get; }
         string DetailInformation { get; }
-        void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack, int secondBlack);
+        void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments);
         void StopClock();
         void StartClock(bool white);
         void DisplayOnClock(string display);
+
+        void ResetClock();
 
         void SetCurrentColor(int currentColor);
         void SetEngineColor(int color);

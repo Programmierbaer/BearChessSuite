@@ -211,7 +211,7 @@ namespace www.SoLaNoSoft.com.BearChess.SquareOffChessBoard
             //
         }
 
-        public override void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack, int secondBlack)
+        public override void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments)
         {
             //
         }
@@ -227,6 +227,10 @@ namespace www.SoLaNoSoft.com.BearChess.SquareOffChessBoard
         }
 
         public override void DisplayOnClock(string display)
+        {
+            //
+        }
+        public override void ResetClock()
         {
             //
         }

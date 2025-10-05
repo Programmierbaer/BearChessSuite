@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using www.SoLaNoSoft.com.BearChessWpfCustomControlLib;
 
 namespace www.SoLaNoSoft.com.BearChessWin
 {

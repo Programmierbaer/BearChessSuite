@@ -7,12 +7,15 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using www.SoLaNoSoft.com.BearChess.BearChessCommunication;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChess.FicsClient;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using Configuration = www.SoLaNoSoft.com.BearChessBase.Configuration;
+using Move = www.SoLaNoSoft.com.BearChessBase.Implementations.Move;
+using TimeControl = www.SoLaNoSoft.com.BearChessBase.Implementations.TimeControl;
 
 namespace www.SoLaNoSoft.com.BearChessWin
 {
@@ -249,25 +252,29 @@ namespace www.SoLaNoSoft.com.BearChessWin
         public bool LoadUciEngine(UciInfo uciInfo, string fenPosition, Move[] playedMoves, bool lookForBookMoves,
                                   int color = Fields.COLOR_EMPTY)
         {
-            return LoadUciEngine(uciInfo, null, null, fenPosition, playedMoves, lookForBookMoves, color, string.Empty);
+            return LoadUciEngine(uciInfo, null, null, fenPosition, playedMoves, lookForBookMoves, color, string.Empty, null);
         }
 
         public bool LoadUciEngine(UciInfo uciInfo, Move[] playedMoves, bool lookForBookMoves,
                                   int color = Fields.COLOR_EMPTY)
         {
-            return LoadUciEngine(uciInfo, null, null, string.Empty, playedMoves, lookForBookMoves, color, string.Empty);
+            return LoadUciEngine(uciInfo, null, null, string.Empty, playedMoves, lookForBookMoves, color, string.Empty, null);
         }
 
         public bool LoadUciEngine(UciInfo uciInfo, IFICSClient ficsClient, Move[] playedMoves, bool lookForBookMoves,
                                   int color, string gameNumber)
         {
-            return LoadUciEngine(uciInfo, ficsClient, null, string.Empty, playedMoves, lookForBookMoves, color, gameNumber);
+            return LoadUciEngine(uciInfo, ficsClient, null, string.Empty, playedMoves, lookForBookMoves, color, gameNumber, null);
         }
 
-        public bool LoadUciEngine(UciInfo uciInfo, IElectronicChessBoard chessBoard, Move[] playedMoves, bool lookForBookMoves,
-                                  int color)
+        public bool LoadUciEngine(UciInfo uciInfo, IBearChessServerClient serverClient, Move[] playedMoves, bool lookForBookMoves, int color, string gameNumber)
         {
-            return LoadUciEngine(uciInfo, null, chessBoard, string.Empty, playedMoves, lookForBookMoves, color, string.Empty);
+            return LoadUciEngine(uciInfo, null, null, string.Empty, playedMoves, lookForBookMoves, color, gameNumber, serverClient);
+        }
+
+        public bool LoadUciEngine(UciInfo uciInfo, IElectronicChessBoard chessBoard, Move[] playedMoves, bool lookForBookMoves, int color)
+        {
+            return LoadUciEngine(uciInfo, null, chessBoard, string.Empty, playedMoves, lookForBookMoves, color, string.Empty, null);
         }
 
 
@@ -829,9 +836,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         {
         }
 
-        private bool LoadUciEngine(UciInfo uciInfo, IFICSClient ficsClient, IElectronicChessBoard chessBoard, string fenPosition, Move[] playedMoves,
-                                   bool lookForBookMoves,
-                                   int color, string gameNumber)
+        private bool LoadUciEngine(UciInfo uciInfo, IFICSClient ficsClient, IElectronicChessBoard chessBoard, string fenPosition, Move[] playedMoves, bool lookForBookMoves, int color, string gameNumber, IBearChessServerClient serverClient)
         {
             try
             {
@@ -849,11 +854,18 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 UciLoader uciLoader = null;
                 for (var i = 1; i < 4; i++)
                 {
-                    uciLoader = uciInfo.IsChessServer
-                                    ? new UciLoader(uciInfo, fileLogger, ficsClient, gameNumber)
-                                    : uciInfo.IsChessComputer
-                                        ? new UciLoader(uciInfo, fileLogger, chessBoard, uciInfo.Name)
-                                        : new UciLoader(uciInfo, fileLogger, _configuration, lookForBookMoves);
+                    if (uciInfo.IsBCChessServer)
+                    {
+                        uciLoader = new UciLoader(uciInfo, serverClient, fileLogger);
+                    }
+                    else
+                    {
+                        uciLoader = uciInfo.IsChessServer
+                            ? new UciLoader(uciInfo, fileLogger, ficsClient, gameNumber)
+                            : uciInfo.IsChessComputer
+                                ? new UciLoader(uciInfo, fileLogger, chessBoard, uciInfo.Name)
+                                : new UciLoader(uciInfo, fileLogger, _configuration, lookForBookMoves);
+                    }
                     if (uciLoader.IsLoaded)
                     {
                         break;

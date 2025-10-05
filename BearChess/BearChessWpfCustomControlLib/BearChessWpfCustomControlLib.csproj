@@ -35,6 +35,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -54,6 +55,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CalibrateBaseWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ChessClockUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -101,6 +106,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ConfigureSentioSpectrumWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ConfigureSentioWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -133,6 +142,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="MaterialUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MessageWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MoveListPlainUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -145,9 +162,21 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="OpeningTrainingStartWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PositionSetupWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="ProgressWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PublishConfigureWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="QueryDialogWindow.xaml">
       <SubType>Designer</SubType>
@@ -161,6 +190,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="SelectFileAndParameterWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SimpleChessboardUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="SplashProgressControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -168,6 +205,26 @@
     <Page Include="SplashWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UciButtonUserControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UciCheckBoxUserControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UciComboBoxUserControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UciNumericUpdownUserControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UciTextBoxUserControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +234,9 @@
     </Compile>
     <Compile Include="CalibrateBaseWindow.xaml.cs">
       <DependentUpon>CalibrateBaseWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ChessClockUserControl.xaml.cs">
+      <DependentUpon>ChessClockUserControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="COMPortSearchWindow.xaml.cs">
       <DependentUpon>COMPortSearchWindow.xaml</DependentUpon>
@@ -211,6 +271,9 @@
     <Compile Include="ConfigurePegasusWindow.xaml.cs">
       <DependentUpon>ConfigurePegasusWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ConfigureSentioSpectrumWindow.xaml.cs">
+      <DependentUpon>ConfigureSentioSpectrumWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ConfigureSentioWindow.xaml.cs">
       <DependentUpon>ConfigureSentioWindow.xaml</DependentUpon>
     </Compile>
@@ -241,6 +304,13 @@
     <Compile Include="InfoWindow.xaml.cs">
       <DependentUpon>InfoWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="IUciConfigUserControl.cs" />
+    <Compile Include="MaterialUserControl.xaml.cs">
+      <DependentUpon>MaterialUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MessageWindow.xaml.cs">
+      <DependentUpon>MessageWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MoveListPlainUserControl.xaml.cs">
       <DependentUpon>MoveListPlainUserControl.xaml</DependentUpon>
     </Compile>
@@ -249,6 +319,12 @@
     </Compile>
     <Compile Include="NumericUpDownUserControl.xaml.cs">
       <DependentUpon>NumericUpDownUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OpeningTrainingStartWindow.xaml.cs">
+      <DependentUpon>OpeningTrainingStartWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PositionSetupWindow.xaml.cs">
+      <DependentUpon>PositionSetupWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ProgressWindow.xaml.cs">
       <DependentUpon>ProgressWindow.xaml</DependentUpon>
@@ -271,6 +347,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="PublishConfigureWindow.xaml.cs">
+      <DependentUpon>PublishConfigureWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="QueryDialogWindow.xaml.cs">
       <DependentUpon>QueryDialogWindow.xaml</DependentUpon>
     </Compile>
@@ -280,12 +359,34 @@
     <Compile Include="SelectFigureWindow.xaml.cs">
       <DependentUpon>SelectFigureWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SelectFileAndParameterWindow.xaml.cs">
+      <DependentUpon>SelectFileAndParameterWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SimpleChessboardUserControl.xaml.cs">
+      <DependentUpon>SimpleChessboardUserControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SplashProgressControl.xaml.cs">
       <DependentUpon>SplashProgressControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="SplashProgressControlEventArgs.cs" />
     <Compile Include="SplashWindow.xaml.cs">
       <DependentUpon>SplashWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UciButtonUserControl.xaml.cs">
+      <DependentUpon>UciButtonUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UciCheckBoxUserControl.xaml.cs">
+      <DependentUpon>UciCheckBoxUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UciComboBoxUserControl.xaml.cs">
+      <DependentUpon>UciComboBoxUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UciConfigValue.cs" />
+    <Compile Include="UciNumericUpdownUserControl.xaml.cs">
+      <DependentUpon>UciNumericUpdownUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UciTextBoxUserControl.xaml.cs">
+      <DependentUpon>UciTextBoxUserControl.xaml</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Properties\Resources.de.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
@@ -309,6 +410,7 @@
     <Resource Include="Assets\Fonts\MERIFONT.TTF" />
     <Resource Include="Assets\Fonts\MISCHESS.TTF" />
     <Resource Include="Assets\Fonts\MVALFONT.TTF" />
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -510,6 +612,10 @@
       <Project>{60232d5e-5f8a-48d8-8429-b5003dc3e844}</Project>
       <Name>BearChessBTTools</Name>
     </ProjectReference>
+    <ProjectReference Include="..\BearChessCommunication\BearChessCommunication.csproj">
+      <Project>{a8118cc3-827d-4635-8613-345b190ee763}</Project>
+      <Name>BearChessCommunication</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BearChessEChessBoard\BearChessEChessBoard\BearChessEChessBoard.csproj">
       <Project>{a6bcdc78-1edc-40c7-936f-880423360ba3}</Project>
       <Name>BearChessEChessBoard</Name>
@@ -668,6 +774,125 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Icons\sound_delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\BryanWhitby\Dali\BishopB.png" />
+    <Resource Include="Assets\BryanWhitby\Dali\BishopW.png" />
+    <Resource Include="Assets\BryanWhitby\Dali\KingB.png" />
+    <Resource Include="Assets\BryanWhitby\Dali\KingW.png" />
+    <Resource Include="Assets\BryanWhitby\Dali\KnightB.png" />
+    <Resource Include="Assets\BryanWhitby\Dali\KnightW.png" />
+    <Resource Include="Assets\BryanWhitby\Dali\PawnB.png" />
+    <Resource Include="Assets\BryanWhitby\Dali\PawnW.png" />
+    <Resource Include="Assets\BryanWhitby\Dali\QueenB.png" />
+    <Resource Include="Assets\BryanWhitby\Dali\QueenW.png" />
+    <Resource Include="Assets\BryanWhitby\Dali\RookB.png" />
+    <Resource Include="Assets\BryanWhitby\Dali\RookW.png" />
+    <Resource Include="Assets\BryanWhitby\Italian\BishopB.png" />
+    <Resource Include="Assets\BryanWhitby\Italian\BishopW.png" />
+    <Resource Include="Assets\BryanWhitby\Italian\KingB.png" />
+    <Resource Include="Assets\BryanWhitby\Italian\KingW.png" />
+    <Resource Include="Assets\BryanWhitby\Italian\KnightB.png" />
+    <Resource Include="Assets\BryanWhitby\Italian\KnightW.png" />
+    <Resource Include="Assets\BryanWhitby\Italian\PawnB.png" />
+    <Resource Include="Assets\BryanWhitby\Italian\PawnW.png" />
+    <Resource Include="Assets\BryanWhitby\Italian\QueenB.png" />
+    <Resource Include="Assets\BryanWhitby\Italian\QueenW.png" />
+    <Resource Include="Assets\BryanWhitby\Italian\RookB.png" />
+    <Resource Include="Assets\BryanWhitby\Italian\RookW.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\bb.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\bk.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\Black Bishop.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\Black King.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\Black Knight.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\Black Pawn.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\Black Queen.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\Black Rook.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\bn.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\bp.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\bq.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\br.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\wb.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\wk.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\wn.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\wp.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\wq.png" />
+    <Resource Include="Assets\BryanWhitby\Modern\wr.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalBrown\BishopW.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalBrown\KingW.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalBrown\KnightW.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalBrown\PawnW.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalBrown\QueenW.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalBrown\RookW.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalGold\BishopB.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalGold\BishopW.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalGold\KingB.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalGold\KingW.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalGold\KnightB.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalGold\KnightW.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalGold\PawnB.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalGold\PawnW.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalGold\QueenB.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalGold\QueenW.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalGold\RookB.png" />
+    <Resource Include="Assets\BryanWhitby\RoyalGold\RookW.png" />
+    <Resource Include="Assets\Certabo\bishopB.png" />
+    <Resource Include="Assets\Certabo\bishopW.png" />
+    <Resource Include="Assets\Certabo\black.png" />
+    <Resource Include="Assets\Certabo\kingB.png" />
+    <Resource Include="Assets\Certabo\kingW.png" />
+    <Resource Include="Assets\Certabo\knightB.png" />
+    <Resource Include="Assets\Certabo\knightW.png" />
+    <Resource Include="Assets\Certabo\pawnB.png" />
+    <Resource Include="Assets\Certabo\pawnW.png" />
+    <Resource Include="Assets\Certabo\queenB.png" />
+    <Resource Include="Assets\Certabo\queenW.png" />
+    <Resource Include="Assets\Certabo\rookB.png" />
+    <Resource Include="Assets\Certabo\rookW.png" />
+    <Resource Include="Assets\Certabo\white.png" />
+    <Resource Include="Assets\TabuTronic\bishopB.png" />
+    <Resource Include="Assets\TabuTronic\bishopW.png" />
+    <Resource Include="Assets\TabuTronic\black.png" />
+    <Resource Include="Assets\TabuTronic\kingB.png" />
+    <Resource Include="Assets\TabuTronic\kingW.png" />
+    <Resource Include="Assets\TabuTronic\knightB.png" />
+    <Resource Include="Assets\TabuTronic\knightW.png" />
+    <Resource Include="Assets\TabuTronic\pawnB.png" />
+    <Resource Include="Assets\TabuTronic\pawnW.png" />
+    <Resource Include="Assets\TabuTronic\queenB.png" />
+    <Resource Include="Assets\TabuTronic\queenW.png" />
+    <Resource Include="Assets\TabuTronic\rookB.png" />
+    <Resource Include="Assets\TabuTronic\rookW.png" />
+    <Resource Include="Assets\TabuTronic\white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Stone\black.png" />
+    <Resource Include="Assets\Stone\Symbol\BishopB.png" />
+    <Resource Include="Assets\Stone\Symbol\BishopW.png" />
+    <Resource Include="Assets\Stone\Symbol\GreenBorder.png" />
+    <Resource Include="Assets\Stone\Symbol\KingB.png" />
+    <Resource Include="Assets\Stone\Symbol\KingW.png" />
+    <Resource Include="Assets\Stone\Symbol\KnightB.png" />
+    <Resource Include="Assets\Stone\Symbol\KnightW.png" />
+    <Resource Include="Assets\Stone\Symbol\PawnB.png" />
+    <Resource Include="Assets\Stone\Symbol\PawnW.png" />
+    <Resource Include="Assets\Stone\Symbol\QueenB.png" />
+    <Resource Include="Assets\Stone\Symbol\QueenW.png" />
+    <Resource Include="Assets\Stone\Symbol\RookB.png" />
+    <Resource Include="Assets\Stone\Symbol\RookW.png" />
+    <Resource Include="Assets\Stone\white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\chess-clock_5077244.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\chess-clock.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\ftp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\world_go.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

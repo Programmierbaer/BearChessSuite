@@ -11,6 +11,8 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
     {
         public string PortName { get; }
         public string Baud { get; }
+        public int DeviceIndex { get; set; }
+
         public string DeviceName => string.Empty;
 
         private ServerPipe _serverPipe;        
@@ -21,6 +23,7 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
 
         public SerialComportForByteArraySim(string comport, ILogging logger)
         {
+            DeviceIndex = -1;
             PortName = comport;
             _serverPipe = null;
             _logger = logger;

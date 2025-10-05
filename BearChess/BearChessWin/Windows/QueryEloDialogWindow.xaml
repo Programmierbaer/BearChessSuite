@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWin"
         mc:Ignorable="d" SizeToContent="WidthAndHeight" WindowStyle="None" Loaded="Window_Loaded" FontSize="20"
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Properties" WindowStartupLocation="CenterOwner"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
+        WindowStartupLocation="CenterOwner"
         Title="QueryEloDialogWindow" Height="450" Width="800">
     <StackPanel FocusManager.FocusedElement="{Binding ElementName=numericUpDownUserControl}">
         <TextBlock Margin="10" Name="TextBlockMinValue"></TextBlock>

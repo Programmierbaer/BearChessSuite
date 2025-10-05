@@ -62,6 +62,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         public EngineInfoUserControl(UciInfo uciInfo, int color, string hideInfo, Configuration configuration) : this()
         {
+            if (uciInfo.IsBCChessServer)
+            {
+                Background = new SolidColorBrush(Colors.LavenderBlush);
+                borderAll.Visibility = Visibility.Collapsed;
+                this.Width = 0;
+                this.Height = 0;
+            }
+
             if (uciInfo.IsBuddy && color==Fields.COLOR_EMPTY)
             {
                 Background = new SolidColorBrush(Colors.LavenderBlush);

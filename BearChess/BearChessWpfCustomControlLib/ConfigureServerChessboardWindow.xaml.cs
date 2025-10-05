@@ -70,6 +70,11 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         public IElectronicChessBoard WhiteEBoard { get; private set; }
         public IElectronicChessBoard BlackEBoard { get; private set; }
 
+        public string WhitePlayerName => TextBoxPlayerWhite.Text.Trim();
+        public string BlackPlayerName => TextBoxPlayerBlack.Text.Trim();
+
+        public bool SameConnection { get; private set; }
+
         public ConfigureServerChessboardWindow(string serverBoardId, BearChessClientInformation[] bcClientToken, ILogging logging)
         {
             InitializeComponent();
@@ -429,7 +434,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
 
         private void ButtonOk_OnClick(object sender, RoutedEventArgs e)
         {
-            var sameConnection = CheckBoxSameConnection.IsChecked.HasValue && CheckBoxSameConnection.IsChecked.Value;
+            SameConnection = CheckBoxSameConnection.IsChecked.HasValue && CheckBoxSameConnection.IsChecked.Value;
             if (radioButtonWhiteConnectedViaBC.IsChecked.HasValue && radioButtonWhiteConnectedViaBC.IsChecked.Value)
             {
                 if (comboboxWhiteBCNames?.SelectedItem != null)
@@ -437,7 +442,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
                     WhiteConnectionId = (comboboxWhiteBCNames.SelectedItem as BearChessClientInformation).Address;
                 }
             }
-            if (sameConnection)
+            if (SameConnection)
             {
                 BlackConnectionId = WhiteConnectionId;
                 if (WhiteEBoard != null)
@@ -457,6 +462,10 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             }
 
             if (string.IsNullOrWhiteSpace(WhiteConnectionId) || string.IsNullOrWhiteSpace(BlackConnectionId))
+            {
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(TextBoxPlayerWhite.Text) || string.IsNullOrWhiteSpace(TextBoxPlayerBlack.Text))
             {
                 return;
             }

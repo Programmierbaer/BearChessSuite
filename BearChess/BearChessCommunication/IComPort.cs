@@ -6,6 +6,7 @@
         string PortName { get; }
         string DeviceName { get; }
         string Baud { get; }
+        int DeviceIndex { get; set; }
         void Open();
         void Close();
         bool IsOpen { get; }

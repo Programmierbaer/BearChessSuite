@@ -7,7 +7,8 @@
         Activated="BearChessMainWindow_OnActivated"
         mc:Ignorable="d" Closing="BearChessMainWindow_OnClosing"  Background="WhiteSmoke"
         LocationChanged="BearChessMainWindow_OnLocationChanged" KeyDown="BearChessMainWindow_OnKeyDown"
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Properties"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
+        PreviewKeyDown="BearChessMainWindow_OnPreviewKeyDown"
         xmlns:bearChessWpfCustomControlLib="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib;assembly=BearChessWpfCustomControlLib"
         Width="1400"
         Title="BearChess" MinHeight="660" MinWidth="600">
@@ -136,6 +137,21 @@
                             <Image Source="Assets/Icons/robot.png" />
                         </MenuItem.Icon>
                     </MenuItem>
+                    <MenuItem Name="menuItemTraining"  Header="{x:Static p:Resources.Training}">
+                        <MenuItem.Icon>
+                            <Image Source="Assets/brain_trainer.png" />
+                        </MenuItem.Icon>
+                        <MenuItem Name="menuItemTrainStartOpening" Click="MenuItemTrainOpening_OnClick" Header="{x:Static p:Resources.ChessOpening}">
+                            <MenuItem.Icon>
+                                <Image Source="Assets/Icons/book_open.png" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Visibility="Collapsed" Name="menuItemTrainStopOpening" Click="MenuItemTrainOpening_OnClick" Header="{x:Static p:Resources.ChessOpeningStop}">
+                            <MenuItem.Icon>
+                                <Image Source="Assets/Icons/book.png" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
                     <MenuItem Header="{x:Static p:Resources.Duel}" Name="menuItemDuel">
                         <MenuItem.Icon>
                             <Image Source="Assets/Icons/6-2-chess-png.png" />
@@ -184,15 +200,38 @@
                             </MenuItem.Icon>
                         </MenuItem>
                     </MenuItem>
-
-                    <MenuItem Tag="SetupPosition" Header="{x:Static p:Resources.SetupPosition}"
-                              Name="menuItemSetupPosition"
-                              Click="MenuItemSetupPosition_OnClick">
+                    <MenuItem  Name="menuItemPosition" Header="{x:Static p:Resources.Position}">
                         <MenuItem.Icon>
                             <Image Source="Assets/Icons/chess_board.png" />
                         </MenuItem.Icon>
-                    </MenuItem>
+                        <MenuItem Tag="SetupPosition" Header="{x:Static p:Resources.SetupPosition}"
+                                  Name="menuItemSetupPosition" Click="MenuItemSetupPosition_OnClick">
+                          <MenuItem.Icon>
+                              <Image Source="Assets/Icons/chess_board.png" />
+                          </MenuItem.Icon>
+                      </MenuItem>
+                        <MenuItem Click="MenuItemCopyPosition_OnClick"
+                                  Header="{x:Static p:Resources.FenCopy}">
+                            <MenuItem.Icon>
+                                <Image Source="Assets/Icons/clipboard_sign_out.png"  />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem  Click="MenuItemPastePosition_OnClick"
+                                   Header="{x:Static p:Resources.FenPaste}">
+                            <MenuItem.Icon>
+                                <Image Source="Assets/Icons/clipboard_sign.png"  />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="{x:Static p:Resources.LoadLastFenOnStartup}"
+                                  Click="MenuItemloadLastFen_OnClick" KeyDown="MenuItemloadLastFen_OnKeyDown">
 
+                            <MenuItem.Icon>
+                                <Image Name="imageLoadLastFen" Source="Assets/Icons/tick.png" />
+                            </MenuItem.Icon>
+
+                        </MenuItem>
+
+                    </MenuItem>
                     <MenuItem Header="{x:Static p:Resources.ConnectToFICS}" Name="menuItemConnectFics"
                               Click="MenuItemConnectFics_OnClick">
                         <MenuItem.Icon>
@@ -270,7 +309,7 @@
                         </MenuItem>
                     </MenuItem>
                 </MenuItem>
-                <MenuItem Header="{x:Static p:Resources.Engines}">
+                <MenuItem Name="menuItemEngines"  Header="{x:Static p:Resources.Engines}">
                     <MenuItem Tag="LoadManageEngines" Header="{x:Static p:Resources.LoadAndManageEngines}"
                               Name="menuItemEngineLoad" InputGestureText="Ctrl+E"
                               Click="MenuItemEngineLoad_OnClick">
@@ -384,7 +423,7 @@
                        
                     </MenuItem>
                 </MenuItem>
-                <MenuItem Header="{x:Static p:Resources.Books}" >
+                <MenuItem Name="menuItemBooks"  Header="{x:Static p:Resources.Books}" >
 
                     <MenuItem Tag="LoadManageBooks" Header="{x:Static p:Resources.LoadAndManageBooks}"
                               Name="menuItemLoadBook"
@@ -403,6 +442,12 @@
                               Click="MenuItemLoadDefaultBook_OnClick">
                         <MenuItem.Icon>
                             <Image Name="imageLoadDefaultBook" Source="Assets/Icons/tick.png" Visibility="Hidden" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Name="menuItemLoadlastOrDefaultBook" Header="{x:Static p:Resources.LoadLastOrDefaultBook}"
+                              Click="MenuItemLoadLastOrDefaultBook_OnClick">
+                        <MenuItem.Icon>
+                            <Image Name="imageLoadLastOrDefaultBook" Source="Assets/Icons/tick.png" Visibility="Hidden" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="{x:Static p:Resources.BestMove}">
@@ -452,7 +497,7 @@
                                 <Image Name="imageShowBestMove" Source="Assets/Icons/tick.png" Visibility="Hidden" />
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="{x:Static p:Resources.PossibleMoves}">
+                        <MenuItem Name="menuItemPossibleMoves"  Header="{x:Static p:Resources.PossibleMoves}">
                             <MenuItem Name="menuItemShowPossibleMoves"
                                       Header="{x:Static p:Resources.ShowPossibleMoves}"
                                       ToolTip="{x:Static p:Resources.ShowPossibleMovesTip}"
@@ -593,7 +638,7 @@
                             <Image Source="Assets/Icons/FicsLogo.png" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Name="menuItemBCServer" Header="{x:Static p:Resources.BearChessServer}" Click="MenuItemBCServer_OnClick"
+                    <MenuItem Name="menuItemBCServer" Header="{x:Static p:Resources.ConfigureBCSandFTP}" Click="MenuItemBCServer_OnClick"
            ToolTip="{x:Static p:Resources.BearChessServerTip}" Visibility="Visible">
                         <MenuItem.Icon>
                             <Image Source="Assets/BearChessServer.png" />
@@ -777,18 +822,18 @@
                                 </MenuItem.Icon>
                             </MenuItem>
                         </MenuItem>
-                        <MenuItem Name="menuItemSentioSpectrum" Header="Sentio Spectrum" Visibility="Collapsed">
+                        <MenuItem Name="menuItemSentioSpectrum" Header="Sentio Spectrum" Visibility="Visible">
                             <MenuItem.Icon>
                                 <Image Source="Assets/tabutronic_logo_def.png" />
                             </MenuItem.Icon>
                             <MenuItem Name="menuItemConnectToSentioSpectrum" Header="{x:Static p:Resources.Connect}"
-                                      Click="MenuItemConnectSentio_OnClick">
+                                      Click="MenuItemConnectSentioSpectrum_OnClick">
                                 <MenuItem.Icon>
                                     <Image Source="Assets/Icons/connect.png" />
                                 </MenuItem.Icon>
                             </MenuItem>
                             <MenuItem Name="menuItemConfigureSentioSpectrum" Header="{x:Static p:Resources.Configure}"
-                                      Click="MenuItemConfigureSentio_OnClick">
+                                      Click="MenuItemConfigureSentioSpectrum_OnClick">
                                 <MenuItem.Icon>
                                     <Image Source="Assets/Icons/cog.png" />
                                 </MenuItem.Icon>
@@ -796,7 +841,7 @@
                             <MenuItem Name="menuItemBluetoothSentioSpectrum" Header="{x:Static p:Resources.BTClassic}"
                                       Visibility="Visible"
                                       ToolTip="{x:Static p:Resources.BTClassicTip}"
-                                      Click="MenuItemBluetoothSentio_OnClick">
+                                      Click="MenuItemBluetoothSentioSpectrum_OnClick">
                                 <MenuItem.Icon>
                                     <Image Name="imageSentioSpectrumBluetooth" Source="Assets/Icons/tick.png"
                                            Visibility="Hidden" />
@@ -1237,7 +1282,7 @@
             <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left">
                 <Grid Name="GridClockAndMoves">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="450"></ColumnDefinition>
+                        <ColumnDefinition Width="430"></ColumnDefinition>
                         <ColumnDefinition Width="Auto"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
@@ -1254,10 +1299,10 @@
                         </StackPanel>
                     </Border>
                         <TabControl  Background="WhiteSmoke" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" MinWidth="400">
-                            <TabItem Header="{x:Static p:Resources.Moves}" >
+                            <TabItem Name="TabItemMoves"  Header="{x:Static p:Resources.Moves}" >
                                 <bearChessWpfCustomControlLib:MoveListPlainUserControl HorizontalAlignment="Left" x:Name="moveListPlainUserControl"/>
                             </TabItem>
-                            <TabItem Header="{x:Static p:Resources.Books}" >
+                            <TabItem Name="TabItemBooks" Header="{x:Static p:Resources.Books}" >
                                 <Grid >
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"></RowDefinition>

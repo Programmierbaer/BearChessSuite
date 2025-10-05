@@ -15,6 +15,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         void SetTime(ClockTime clockTime, int extraSeconds = 0);
         void SetTime(int hh, int mm, int ss, int extraSeconds = 0);
         void CorrectTime(int hh, int mm, int ss);
+        void OverrideTime(int hh, int mm, int ss);
         void SetContinueTime(ClockTime clockTime, int extraSeconds = 0);
         void SetTooltip(string tooltip);
         void SetInfo(string info);
@@ -25,6 +26,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         void Hide();
         void Close();
         bool CountDown { get; set; }
+        bool SimpleClockMode { get; set; }
         event CancelEventHandler Closing;
         event EventHandler Closed;
         double Top { get; set; }

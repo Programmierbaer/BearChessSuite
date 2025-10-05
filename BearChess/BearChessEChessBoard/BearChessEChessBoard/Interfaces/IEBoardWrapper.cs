@@ -40,7 +40,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
 
         void ShowMove(string allMoves, string fenStartPosition, SetLEDsParameter setLeDsParameter, bool waitFor);
 
-        void ShowMove(SetLEDsParameter setLeDsParameter);
+        void ShowMove(SetLEDsParameter setLEDsParameter);
         
         void SetLedsFor(SetLEDsParameter setLeDsParameter);
 
@@ -155,6 +155,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         event EventHandler HelpRequestedEvent;
         event EventHandler ProbeMoveEndingEvent;
         event EventHandler<string> GameEndEvent;
+        event EventHandler<ClockFromBoard> ClockEvent;
 
         /// <summary>
         /// Return a best move
@@ -208,11 +209,13 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         bool PieceRecognition { get; }
         void Ignore(bool ignore);
 
-        void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack, int secondBlack);
+        void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments);
 
         void StopClock();
         void StartClock(bool white);
         void DisplayOnClock(string display);
+
+        void ResetClock();
 
         bool MultiColorLEDs { get; }
 

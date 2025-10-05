@@ -9,11 +9,16 @@ namespace www.SoLaNoSoft.com.BearChess.HidDriver
     public class DeviceHandling
     {
         private readonly ILogging _logger;
+        private int _readDataIDevice = -1;
+        private int _writeDataIDevice = -1;
+
+        public int DeviceId => _readDataIDevice == -1 ? _writeDataIDevice : _readDataIDevice;
 
         public DeviceHandling(ILogging logger)
         {
             _logger = logger;
         }
+
         public void Write(byte[] data)
         {
             if (!Definitions.HIDWriteData.State)
@@ -21,38 +26,52 @@ namespace www.SoLaNoSoft.com.BearChess.HidDriver
                 return;
             }
 
-            var HID_Report = new byte[Definitions.HIDWriteData.Device[Definitions.HIDWriteData.iDevice].Caps.OutputReportByteLength];
-
-            for (int i = 0; i < data.Length; i++)
+            var hidReport = new byte[Definitions.HIDWriteData.Device[_writeDataIDevice].Caps.OutputReportByteLength];
+            var varA = 0U;
+            bool send = false;
+            int j = -1;
+            for (var i = 0; i < data.Length; i++)
             {
-                if (i < HID_Report.Length)
+                j++;
+                if (j >= hidReport.Length)
                 {
-                    HID_Report[i] = data[i];
+                    j = 0;
+                    send = true;
+                    Definitions.WriteFile(Definitions.HIDWriteData.Device[_writeDataIDevice].Pointer, hidReport, (uint)hidReport.Length, ref varA, IntPtr.Zero);
+                }
+                //if (j < hidReport.Length)
+                {
+                    send = false;
+                    hidReport[j] = data[i];
                 }
             }
-            var varA = 0U;
-            Definitions.WriteFile(Definitions.HIDWriteData.Device[Definitions.HIDWriteData.iDevice].Pointer, HID_Report, (uint)HID_Report.Length, ref varA, IntPtr.Zero);
-            
+
+            if (!send)
+            {
+                Definitions.WriteFile(Definitions.HIDWriteData.Device[_writeDataIDevice].Pointer,
+                    hidReport, (uint)hidReport.Length, ref varA, IntPtr.Zero);
+            }
+
         }
 
         public byte[] Read()
         {
-            List<byte> result = new List<byte>();
+            var result = new List<byte>();
             if (!Definitions.HIDReadData.State)
             {
                 return result.ToArray();
             }
-            var HID_Report = new byte[Definitions.HIDReadData.Device[Definitions.HIDReadData.iDevice].Caps.InputReportByteLength];
+            var hidReport = new byte[Definitions.HIDReadData.Device[_readDataIDevice].Caps.InputReportByteLength];
 
-            if (HID_Report.Length > 0)
+            if (hidReport.Length > 0)
             {
                 var varA = 0U;
-                Definitions.ReadFile(Definitions.HIDReadData.Device[Definitions.HIDReadData.iDevice].Pointer, HID_Report, Definitions.HIDReadData.Device[Definitions.HIDReadData.iDevice].Caps.InputReportByteLength, ref varA, IntPtr.Zero);
+                Definitions.ReadFile(Definitions.HIDReadData.Device[_readDataIDevice].Pointer, hidReport, Definitions.HIDReadData.Device[Definitions.HIDReadData.iDevice].Caps.InputReportByteLength, ref varA, IntPtr.Zero);
 
 
-                for (var Index = 0; Index < Definitions.HIDReadData.Device[Definitions.HIDReadData.iDevice].Caps.InputReportByteLength; Index++)
+                for (var index = 0; index < Definitions.HIDReadData.Device[_readDataIDevice].Caps.InputReportByteLength; index++)
                 {
-                    result.Add(HID_Report[Index]);
+                    result.Add(hidReport[index]);
 
                 }
             }
@@ -128,32 +147,50 @@ namespace www.SoLaNoSoft.com.BearChess.HidDriver
             return Index;
         }
 
-        public bool FindReadDevice(ushort vendorID, ushort productID = (ushort)0)
+        public bool FindReadDevice(ushort vendorId, string productName, List<int> ignoreIds, ushort productId = (ushort)0)
         {
             Definitions.HIDReadData.State = false;
-            if (vendorID == 0)
+            if (vendorId == 0)
             {
                 return Definitions.HIDReadData.State;
             }
-            _logger?.LogDebug($"HID: FindReadDevice for vendor id {vendorID}");
+            _logger?.LogDebug($"HID: FindReadDevice for vendor id {vendorId}");
             var numberOfDevices = GetNumberOfDevices();
             _logger?.LogDebug($"HID: Number of devices: {numberOfDevices}");
             Definitions.HIDReadData.Device = new Definitions.HID_DEVICE[numberOfDevices];
             FindKnownHIDDevices(ref Definitions.HIDReadData.Device);
+            for (var index = 0; index < numberOfDevices; index++)
+            {
+                _logger?.LogDebug($"HID: {index}. vendor id: {Definitions.HIDReadData.Device[index].Attributes.VendorID}");
+                _logger?.LogDebug($"HID: {index}. manufacturer: {Definitions.HIDReadData.Device[index].Manufacturer}");
+                _logger?.LogDebug($"HID: {index}. product: {Definitions.HIDReadData.Device[index].Product}");
+                _logger?.LogDebug($"HID: {index}. serial number: {Definitions.HIDReadData.Device[index].SerialNumber}");
+                _logger?.LogDebug($"HID: {index}. version number: {Definitions.HIDReadData.Device[index].VersionNumber}");
+                _logger?.LogDebug($"HID: {index}. OpenedForRead: {Definitions.HIDReadData.Device[index].OpenedForRead}");
+                _logger?.LogDebug($"HID: {index}. OpenedForWrite: {Definitions.HIDReadData.Device[index].OpenedForWrite}");
+            }
 
             for (var index = 0; index < numberOfDevices; index++)
             {
                 _logger?.LogDebug($"HID: {index}. vendor id: {Definitions.HIDReadData.Device[index].Attributes.VendorID}");
                 _logger?.LogDebug($"HID: {index}. manufacturer: {Definitions.HIDReadData.Device[index].Manufacturer}");
                 _logger?.LogDebug($"HID: {index}. product: {Definitions.HIDReadData.Device[index].Product}");
-                if (Definitions.HIDReadData.Device[index].Attributes.VendorID == vendorID)
+                if (ignoreIds.Contains(index))
                 {
-                    if (productID==0 || Definitions.HIDReadData.Device[index].Attributes.ProductID == productID)
+                    _logger?.LogDebug($"HID: {index} part of ignore list");
+                    continue;
+                }
+                if (Definitions.HIDReadData.Device[index].Attributes.VendorID == vendorId)
+                {
+                    if ( (productId==0 || Definitions.HIDReadData.Device[index].Attributes.ProductID == productId)
+                        && (string.IsNullOrWhiteSpace(Definitions.HIDReadData.Device[index].Product) 
+                            || Definitions.HIDReadData.Device[index].Product.StartsWith(productName)))
                     {
                         Definitions.HIDReadData.ProductID = Definitions.HIDReadData.Device[index].Attributes.ProductID;
-                        Definitions.HIDReadData.VendorID = vendorID;
+                        Definitions.HIDReadData.VendorID = vendorId;
                         Definitions.HIDReadData.iDevice = index;
                         Definitions.HIDReadData.State = true;
+                        _readDataIDevice = index;
                         break;
                     }
                 }
@@ -163,32 +200,39 @@ namespace www.SoLaNoSoft.com.BearChess.HidDriver
             return Definitions.HIDReadData.State;
         }
 
-        public bool FindWriteDevice(ushort vendorID, ushort usagePage)
+        public bool FindWriteDevice(ushort vendorId, string productName, ushort usagePage, List<int> ignoreIds)
         {
             Definitions.HIDWriteData.State = false;
-            if (vendorID == 0 || usagePage == 0)
+            if (vendorId == 0 || usagePage == 0)
             {
                 return Definitions.HIDWriteData.State;
             }
-            _logger?.LogDebug($"HID: FindWriteDevice for vendor id {vendorID} and usage page {usagePage}");
+            _logger?.LogDebug($"HID: FindWriteDevice for vendor id {vendorId} and usage page {usagePage}");
             var numberOfDevices = GetNumberOfDevices();
             _logger?.LogDebug($"HID: Number of devices: {numberOfDevices}");
             Definitions.HIDWriteData.Device = new Definitions.HID_DEVICE[numberOfDevices];
             FindKnownHIDDevices(ref Definitions.HIDWriteData.Device);
-
             for (var index = 0; index < numberOfDevices; index++)
             {
                 _logger?.LogDebug($"HID: {index}. vendor id: {Definitions.HIDWriteData.Device[index].Attributes.VendorID} usagePage: {Definitions.HIDWriteData.Device[index].Caps.UsagePage} ");
                 _logger?.LogDebug($"HID: {index}. manufacturer: {Definitions.HIDWriteData.Device[index].Manufacturer}");
                 _logger?.LogDebug($"HID: {index}. product: {Definitions.HIDWriteData.Device[index].Product}");
-                if ((Definitions.HIDWriteData.Device[index].Attributes.VendorID == vendorID) &&
+                if (ignoreIds.Contains(index))
+                {
+                    _logger?.LogDebug($"HID: {index} part of ignore list");
+                    continue;
+                }
+                if ((Definitions.HIDWriteData.Device[index].Attributes.VendorID == vendorId) &&
                     (Definitions.HIDWriteData.Device[index].Attributes.ProductID == Definitions.HIDReadData.ProductID) &&
-                    (Definitions.HIDWriteData.Device[index].Caps.UsagePage == usagePage) )
+                    (Definitions.HIDWriteData.Device[index].Caps.UsagePage == usagePage) &&
+                    (string.IsNullOrWhiteSpace(Definitions.HIDReadData.Device[index].Product)
+                     || Definitions.HIDReadData.Device[index].Product.StartsWith(productName)))
                 {
                     Definitions.HIDWriteData.ProductID = Definitions.HIDReadData.ProductID;
-                    Definitions.HIDWriteData.VendorID = vendorID;
+                    Definitions.HIDWriteData.VendorID = vendorId;
                     Definitions.HIDWriteData.iDevice = index;
                     Definitions.HIDWriteData.State = true;
+                    _writeDataIDevice = index;
                     break;
                 }
 
@@ -215,13 +259,13 @@ namespace www.SoLaNoSoft.com.BearChess.HidDriver
             var index = 0;
             while (Definitions.SetupDiEnumDeviceInterfaces(Definitions.HardwareDeviceInfo, IntPtr.Zero, ref hidGuid, index, ref deviceInfoData))
             {
-                var RequiredLength = 0;
+                var requiredLength = 0;
 
                 //
                 // Allocate a function class device data structure to receive the
                 // goods about this particular device.
                 //
-                Definitions.SetupDiGetDeviceInterfaceDetail(Definitions.HardwareDeviceInfo, ref deviceInfoData, IntPtr.Zero, 0, ref RequiredLength, IntPtr.Zero);
+                Definitions.SetupDiGetDeviceInterfaceDetail(Definitions.HardwareDeviceInfo, ref deviceInfoData, IntPtr.Zero, 0, ref requiredLength, IntPtr.Zero);
 
                 if (IntPtr.Size == 8)
                 {
@@ -235,7 +279,7 @@ namespace www.SoLaNoSoft.com.BearChess.HidDriver
                 //
                 // Retrieve the information from Plug and Play.
                 //
-                Definitions.SetupDiGetDeviceInterfaceDetail(Definitions.HardwareDeviceInfo, ref deviceInfoData, ref functionClassDeviceData, RequiredLength, ref RequiredLength, IntPtr.Zero);
+                Definitions.SetupDiGetDeviceInterfaceDetail(Definitions.HardwareDeviceInfo, ref deviceInfoData, ref functionClassDeviceData, requiredLength, ref requiredLength, IntPtr.Zero);
 
                 //
                 // Open device with just generic query abilities to begin with
@@ -248,35 +292,35 @@ namespace www.SoLaNoSoft.com.BearChess.HidDriver
             return index;
         }
 
-        private void OpenHIDDevice(string DevicePath, ref Definitions.HID_DEVICE[] HID_Device, int index)
+        private void OpenHIDDevice(string devicePath, ref Definitions.HID_DEVICE[] hidDevice, int index)
         {
-            HID_Device[index].DevicePath = DevicePath;
+            hidDevice[index].DevicePath = devicePath;
 
-            Definitions.CloseHandle(HID_Device[index].Pointer);
-            HID_Device[index].Pointer = Definitions.CreateFile(HID_Device[index].DevicePath, Definitions.GENERIC_READ | Definitions.GENERIC_WRITE, Definitions.FILE_SHARE_READ | Definitions.FILE_SHARE_WRITE, 0, Definitions.OPEN_EXISTING, 0, IntPtr.Zero);
-            HID_Device[index].Caps = new Definitions.HIDP_CAPS();
-            HID_Device[index].Attributes = new Definitions.HIDD_ATTRIBUTES();
+            Definitions.CloseHandle(hidDevice[index].Pointer);
+            hidDevice[index].Pointer = Definitions.CreateFile(hidDevice[index].DevicePath, Definitions.GENERIC_READ | Definitions.GENERIC_WRITE, Definitions.FILE_SHARE_READ | Definitions.FILE_SHARE_WRITE, 0, Definitions.OPEN_EXISTING, 0, IntPtr.Zero);
+            hidDevice[index].Caps = new Definitions.HIDP_CAPS();
+            hidDevice[index].Attributes = new Definitions.HIDD_ATTRIBUTES();
 
-            Definitions.HidD_FreePreparsedData(ref HID_Device[index].Ppd);
-            HID_Device[index].Ppd = IntPtr.Zero;
+            Definitions.HidD_FreePreparsedData(ref hidDevice[index].Ppd);
+            hidDevice[index].Ppd = IntPtr.Zero;
 
-            Definitions.HidD_GetPreparsedData(HID_Device[index].Pointer, ref HID_Device[index].Ppd);
-            Definitions.HidD_GetAttributes(HID_Device[index].Pointer, ref HID_Device[index].Attributes);
-            Definitions.HidP_GetCaps(HID_Device[index].Ppd, ref HID_Device[index].Caps);
+            Definitions.HidD_GetPreparsedData(hidDevice[index].Pointer, ref hidDevice[index].Ppd);
+            Definitions.HidD_GetAttributes(hidDevice[index].Pointer, ref hidDevice[index].Attributes);
+            Definitions.HidP_GetCaps(hidDevice[index].Ppd, ref hidDevice[index].Caps);
 
             var Buffer = Marshal.AllocHGlobal(126);
             {
-                if (Definitions.HidD_GetManufacturerString(HID_Device[index].Pointer, Buffer, 126))
+                if (Definitions.HidD_GetManufacturerString(hidDevice[index].Pointer, Buffer, 126))
                 {
-                    HID_Device[index].Manufacturer = Marshal.PtrToStringAuto(Buffer);
+                    hidDevice[index].Manufacturer = Marshal.PtrToStringAuto(Buffer);
                 }
-                if (Definitions.HidD_GetProductString(HID_Device[index].Pointer, Buffer, 126))
+                if (Definitions.HidD_GetProductString(hidDevice[index].Pointer, Buffer, 126))
                 {
-                    HID_Device[index].Product = Marshal.PtrToStringAuto(Buffer);
+                    hidDevice[index].Product = Marshal.PtrToStringAuto(Buffer);
                 }
-                if (Definitions.HidD_GetSerialNumberString(HID_Device[index].Pointer, Buffer, 126))
+                if (Definitions.HidD_GetSerialNumberString(hidDevice[index].Pointer, Buffer, 126))
                 {
-                    int.TryParse(Marshal.PtrToStringAuto(Buffer), out HID_Device[index].SerialNumber);
+                    int.TryParse(Marshal.PtrToStringAuto(Buffer), out hidDevice[index].SerialNumber);
                 }
             }
             Marshal.FreeHGlobal(Buffer);

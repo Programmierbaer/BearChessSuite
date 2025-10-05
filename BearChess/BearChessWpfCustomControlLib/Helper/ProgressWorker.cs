@@ -114,15 +114,12 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             if (owner != null)
             {
                 splash.Owner = owner as Window;
-                var ownerTop = splash.Owner.Top + splash.Owner.Height - 130;
-                
-                splash.SetStartupLocation(splash.Owner.Left+100,ownerTop);
+                splash.SetStartupLocation(WindowStartupLocation.CenterOwner);
             }
             else
             {
                 splash.SetStartupLocation(WindowStartupLocation.CenterScreen);
             }
-
             splash.Title = _title;
             splash.OnCancelClick += Splash_OnCancelClick;
             splash.Loaded += (_, args) =>

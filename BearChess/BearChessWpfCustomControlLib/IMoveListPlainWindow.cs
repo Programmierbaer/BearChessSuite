@@ -21,6 +21,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         void SetResult(string result);
         void AddMove(Move move);
         void AddMove(Move move, bool tournamentMode);
+        Move[] GetAllMoves();
         void Clear();
         void SetDisplayTypes(DisplayFigureType displayFigureType, DisplayMoveType displayMoveType, DisplayCountryType displayCountryType);
         void SetShowForWhite(bool showForWhite);

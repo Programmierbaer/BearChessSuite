@@ -1,10 +1,12 @@
 ﻿using System;
+using www.SoLaNoSoft.com.BearChess.BearChessCommunication;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChess.FicsClient;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
-using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessTools;
+using Move = www.SoLaNoSoft.com.BearChessBase.Implementations.Move;
+using TimeControl = www.SoLaNoSoft.com.BearChessBase.Implementations.TimeControl;
 
 namespace www.SoLaNoSoft.com.BearChessWin
 {
@@ -30,6 +32,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         bool LoadUciEngine(UciInfo uciInfo, string fenPosition, Move[] playedMoves, bool lookForBookMoves, int color = Fields.COLOR_EMPTY);
         bool LoadUciEngine(UciInfo uciInfo, Move[] playedMoves, bool lookForBookMoves, int color = Fields.COLOR_EMPTY);
         bool LoadUciEngine(UciInfo uciInfo, IFICSClient ficsClient, Move[] playedMoves, bool lookForBookMoves, int color, string gameNumber);
+        bool LoadUciEngine(UciInfo uciInfo, IBearChessServerClient serverClient, Move[] playedMoves, bool lookForBookMoves, int color, string gameNumber);
         bool LoadUciEngine(UciInfo uciInfo, IElectronicChessBoard chessBoard, Move[] playedMoves, bool lookForBookMoves, int color);
         void ShowTeddy(bool showTeddy);
         void SetOptions();

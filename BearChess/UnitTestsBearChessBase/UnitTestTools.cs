@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessTools;
+using www.SoLaNoSoft.com.BearChessWin;
 
 namespace UnitTestsBearChessBase
 {
@@ -17,11 +18,17 @@ namespace UnitTestsBearChessBase
         }
 
         [TestMethod]
-        public void Excel()
+        public void EloSplit()
         {
-            var excelHelper = new ExcelHelper(@"d:\downloads\BearChessWin\lars.xlsx");
-            excelHelper.AddMove("d4",1,(decimal)2.0);
-            excelHelper.Close();
+            int minValue = 1350;
+            int maxValue = 2850;
+            var splits = EloValueSplitter.GetSplitArray(minValue, maxValue, 20);
+            Assert.AreEqual(21, splits.Length);
+            Assert.AreEqual(minValue, splits[0]);
+            Assert.AreEqual(maxValue, splits[20]);
+            Assert.AreEqual(0, EloValueSplitter.GetSplitValue(splits, 1350));
+            Assert.AreEqual(10, EloValueSplitter.GetSplitValue(splits, splits[10]));
         }
+
     }
 }

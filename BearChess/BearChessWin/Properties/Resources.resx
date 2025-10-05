@@ -376,7 +376,7 @@
     <value>Configure TabuTronic Tactum chessboard</value>
   </data>
   <data name="ConfigureTactumSpeech" xml:space="preserve">
-    <value>This is the TabuTronic Tactum configuration window</value>
+    <value>TabuTronic Tactum configuration window</value>
   </data>
   <data name="ConfigureWhiteButton" xml:space="preserve">
     <value>Button to configure white engine</value>
@@ -2758,5 +2758,86 @@
   </data>
   <data name="HalfSeconds" xml:space="preserve">
     <value>half seconds</value>
+  </data>
+  <data name="SaveTournament" xml:space="preserve">
+    <value>Save tournament</value>
+  </data>
+  <data name="Position" xml:space="preserve">
+    <value>Position</value>
+  </data>
+  <data name="FenCopy" xml:space="preserve">
+    <value>Copy FEN position</value>
+  </data>
+  <data name="FenPaste" xml:space="preserve">
+    <value>Paste FEN position</value>
+  </data>
+  <data name="LoadLastFenOnStartup" xml:space="preserve">
+    <value>Load last position on start</value>
+  </data>
+  <data name="Training" xml:space="preserve">
+    <value>Training</value>
+  </data>
+  <data name="ChessOpening" xml:space="preserve">
+    <value>Start opening training</value>
+  </data>
+  <data name="ModeTrainingOpening" xml:space="preserve">
+    <value>Mode: Opening Training</value>
+  </data>
+  <data name="ChessOpeningStop" xml:space="preserve">
+    <value>Stop opening training</value>
+  </data>
+  <data name="ChangeParticipants" xml:space="preserve">
+    <value>Change participants</value>
+  </data>
+  <data name="NoFigure" xml:space="preserve">
+    <value>No figure</value>
+  </data>
+  <data name="LoadLastOrDefaultBook" xml:space="preserve">
+    <value>Load last or default book on start</value>
+  </data>
+  <data name="InvalidForReplace" xml:space="preserve">
+    <value>Invalid for replace</value>
+  </data>
+  <data name="TorunamentInvalidForReplace" xml:space="preserve">
+    <value>You can only change a participant if the tournament was created in BearChess version 1.3 or higher.</value>
+  </data>
+  <data name="CreateNewTorunament" xml:space="preserve">
+    <value>Replace and create a new tournament</value>
+  </data>
+  <data name="ReplaceOverrideTournament" xml:space="preserve">
+    <value>Replace and override tournament</value>
+  </data>
+  <data name="ClearLogFiles" xml:space="preserve">
+    <value>Delete all log files on next start</value>
+  </data>
+  <data name="ClearLogFilesTip" xml:space="preserve">
+    <value>Deletes all log files once when BearChess is restarted</value>
+  </data>
+  <data name="ClockIsOnTheLeftSide" xml:space="preserve">
+    <value>Clock is on the left side</value>
+  </data>
+  <data name="ClockIsOntheRightSide" xml:space="preserve">
+    <value>Clock is on the right side</value>
+  </data>
+  <data name="Publish" xml:space="preserve">
+    <value>Publish</value>
+  </data>
+  <data name="ConnectFirstQuery" xml:space="preserve">
+    <value>You are currently not connected to a chessboard. Would you like to continue anyway?</value>
+  </data>
+  <data name="PlayCasualGame" xml:space="preserve">
+    <value>Would you like to start a simple game against an engine?</value>
+  </data>
+  <data name="PlayWithWhite" xml:space="preserve">
+    <value>Would you like to play with white?</value>
+  </data>
+  <data name="MinimumValue" xml:space="preserve">
+    <value>Minimum value for</value>
+  </data>
+  <data name="MaximumValue" xml:space="preserve">
+    <value>Maximum value for</value>
+  </data>
+  <data name="SkillLevel" xml:space="preserve">
+    <value>Skill level</value>
   </data>
 </root>

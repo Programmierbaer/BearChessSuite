@@ -308,25 +308,45 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             return bookMoves;
         }
 
-        public IBookMoveBase[] GetMoveList(string fenPosition)
+        public IBookMoveBase[] GetMoveList(string fenPosition, Dictionary<string, EcoCode> ecoCodes, string ecoCode)
         {
             IBookMoveBase[] bookMoves = null;
+            var validBookMoves = new List<IBookMoveBase>();
             if (_polyglotReader != null)
                 bookMoves = _polyglotReader.GetMoves(fenPosition);
             if (_ctgReader != null)
                 bookMoves = _ctgReader.GetMoves(fenPosition);
             if (bookMoves == null)
                 bookMoves = Array.Empty<IBookMoveBase>();
-            if (bookMoves.Length>0)
+            if (bookMoves.Length > 0)
             {
                 var fastChessBoard = new FastChessBoard();
                 fastChessBoard.SetDisplayTypes(_displayFigureType, _displayMoveType, _displayCountryType);
                 var chessBoard = new ChessBoard();
-                fastChessBoard.Init(fenPosition,Array.Empty<string>());
+                fastChessBoard.Init(fenPosition, Array.Empty<string>());
                 chessBoard.NewGame();
                 chessBoard.SetPosition(fenPosition);
                 foreach (var bookMove in bookMoves)
                 {
+                    if (!string.IsNullOrWhiteSpace(ecoCode))
+                    {
+                        var chessBoard2 = new ChessBoard();
+                        chessBoard2.NewGame();
+                        chessBoard2.Init();
+                        chessBoard2.SetPosition(fenPosition);
+                        chessBoard2.MakeMove(bookMove.FromField, bookMove.ToField);
+                        var bookFenPos = chessBoard2.GetFenPosition();
+                        if (!ecoCodes.ContainsKey(bookFenPos) || !ecoCodes[bookFenPos].Code.Equals(ecoCode))
+                        {
+                            continue;
+                        }
+                        validBookMoves.Add(bookMove);
+                    }
+                    else
+                    {
+                        validBookMoves.Add(bookMove);
+                    }
+
                     bookMove.MoveText = fastChessBoard.GetMoveString($"{bookMove.FromField}{bookMove.ToField}");
                     bookMove.MoveText += $"{bookMove.Annotation} ";
                     if (bookMove.FromField.Equals("e1") && bookMove.ToField.Equals("h1"))
@@ -334,7 +354,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                         var chessFigure = chessBoard.GetFigureOn(Fields.FE1);
                         if (chessFigure.GeneralFigureId == FigureId.KING)
                         {
-                            bookMove.MoveText = "0-0"+ $"{bookMove.Annotation} ";
+                            bookMove.MoveText = "0-0" + $"{bookMove.Annotation} ";
                             bookMove.ToField = "g1";
                         }
                     }
@@ -369,10 +389,15 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                         }
                     }
                 }
-                
+
             }
 
-            return bookMoves;
+            return validBookMoves.ToArray();
+        }
+
+        public IBookMoveBase[] GetMoveList(string fenPosition)
+        {
+            return GetMoveList(fenPosition, null, null);
         }
 
         public IBookMoveBase[] GetMoveList()
@@ -384,6 +409,42 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
         public IBookMoveBase[] GetCandidateMoveList()
         {
             return GetCandidates(GetMoveList());
+        }
+
+        public static IBookMoveBase[] GetCandidates(IBookMoveBase[] moves, VariationsEnum variation)
+        {
+            var candidates = new List<IBookMoveBase>();
+            if (variation == VariationsEnum.BestMove || moves.Length == 1)
+            {
+                return new IBookMoveBase[] { moves[0] };
+            }
+            float sumWeights = moves.Sum(w => w.Weight);
+            if (sumWeights == 0)
+            {
+                sumWeights = 1;
+            }
+            foreach (var bookMove in moves)
+            {
+                if (variation == VariationsEnum.Wide)
+                {
+                    candidates.Add(bookMove);
+                    continue;
+
+                }
+                float moveWeight = 100 * bookMove.Weight / sumWeights;
+                if (variation == VariationsEnum.Flexible && moveWeight <= 5)
+                {
+                    continue;
+                }
+
+
+                for (int i = 0; i < moveWeight; i++)
+                {
+                    candidates.Add(bookMove);
+                }
+            }
+
+            return candidates.Count == 0 ? moves : candidates.ToArray();
         }
 
         #region private

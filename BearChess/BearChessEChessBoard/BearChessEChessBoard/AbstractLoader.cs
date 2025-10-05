@@ -26,6 +26,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         public event EventHandler HelpRequestedEvent;
         public event EventHandler ProbeMoveEndingEvent;
         public event EventHandler<string> GameEndEvent;
+        public event EventHandler<ClockFromBoard> ClockEvent;
 
         public void SetReplayMode(bool inReplayMode)
         {
@@ -100,7 +101,15 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             _eChessBoard.ProbeMoveEvent += EChessBoard_ProbeMoveEvent;
             _eChessBoard.ProbeMoveEndingEvent += EChessBoard_ProbeMoveEndingEvent; ;
             _eChessBoard.GameEndEvent += _eChessBoard_GameEndEvent;
+            _eChessBoard.ClockEvent += _eChessBoard_ClockEvent;
         }
+
+        private void _eChessBoard_ClockEvent(object sender, ClockFromBoard e)
+        {
+            ClockEvent?.Invoke(sender,e);
+        }
+            
+            
 
         private void _eChessBoard_GameEndEvent(object sender, string e)
         {
@@ -421,9 +430,9 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             _eChessBoard.Ignore(ignore);
         }
 
-        public void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack, int secondBlack)
+        public void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments)
         {
-            _eChessBoard.SetClock(hourWhite, minuteWhite, secWhite, hourBlack, minuteBlack, secondBlack);
+            _eChessBoard.SetClock(hourWhite, minuteWhite, secondWhite, hourBlack, minuteBlack, secondBlack, increments);
         }
 
         public void StopClock()
@@ -439,6 +448,11 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         public void DisplayOnClock(string display)
         {
             _eChessBoard.DisplayOnClock(display);
+        }
+
+        public void ResetClock()
+        {
+            _eChessBoard.ResetClock();
         }
 
         public void AcceptProbingMoves(bool acceptProbingMoves)

@@ -138,7 +138,7 @@ namespace www.SoLaNoSoft.com.BearChess.TabuTronic.Tactum.ChessBoard
             }
         }
 
-        public override void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack, int secondBlack)
+        public override void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments)
         {
             //
         }
@@ -157,7 +157,10 @@ namespace www.SoLaNoSoft.com.BearChess.TabuTronic.Tactum.ChessBoard
         {
             //
         }
-
+        public override void ResetClock()
+        {
+            //
+        }
         public override void SetCurrentColor(int currentColor)
         {
             //

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Windows"
         xmlns:gl="clr-namespace:System.Globalization;assembly=mscorlib"
         xmlns:bearChessWin="clr-namespace:www.SoLaNoSoft.com.BearChessWin"
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Properties"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
         mc:Ignorable="d" Closing="TournamentWindow_OnClosing" WindowStyle="SingleBorderWindow" 
         Title="{x:Static p:Resources.EngineTournament}" Height="450" Width="800">
     <Window.Resources>
@@ -45,6 +45,11 @@
                     <MenuItem Header="{x:Static p:Resources.RenameTournament}" Name="menuItemRename" Click="ButtonRename_OnClick">
                         <MenuItem.Icon>
                             <Image Source="../Assets/Icons/text_replace.png"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{x:Static p:Resources.ChangeParticipants}" Name="menuItemChangeParticipant" Click="MenuItemChangeParticipant_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="../Assets/Icons/table_refresh.png"></Image>
                         </MenuItem.Icon>
                     </MenuItem>
                 </ContextMenu>

@@ -42,7 +42,9 @@ namespace www.SoLaNoSoft.com.BearChess.ChessUpChessBoard
             "103 1 2 3 4 5 3 2 1 0 0 0 0 0 0 0 0 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 8 8 8 8 8 8 8 8 9 10 11 12 13 11 10 9";
 
 
-      
+
+        private bool _whiteKingOnBasePosition = false;
+        private bool _blackKingOnBasePosition = false;
 
         public override event EventHandler BasePositionEvent;
         public override event EventHandler NewGamePositionEvent;
@@ -134,7 +136,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessUpChessBoard
             }
         }
 
-        public override void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack, int secondBlack)
+        public override void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments)
         {
             //
         }
@@ -150,6 +152,10 @@ namespace www.SoLaNoSoft.com.BearChess.ChessUpChessBoard
         }
 
         public override void DisplayOnClock(string display)
+        {
+            //
+        }
+        public override void ResetClock()
         {
             //
         }

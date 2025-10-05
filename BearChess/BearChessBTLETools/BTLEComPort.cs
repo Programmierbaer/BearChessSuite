@@ -70,11 +70,13 @@ namespace www.SoLaNoSoft.com.BearChessBTLETools
 
         public string PortName => "BTLE";
         public string Baud => string.Empty;
+        public int DeviceIndex { get; set; }
 
         public string DeviceName => _deviceName;
 
         public BTLEComPort(string deviceId,string deviceName, ILogging logging)
         {
+            DeviceIndex = -1;
             _deviceId = deviceId;
             _logging = logging;
             _deviceName = deviceName;

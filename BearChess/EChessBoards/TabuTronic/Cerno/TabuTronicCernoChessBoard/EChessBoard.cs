@@ -6,6 +6,7 @@ using System.Threading;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
+using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 
 namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
@@ -63,6 +64,9 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
         private bool _release = false;
         private readonly bool _showMoveLine;
         private readonly EChessBoardConfiguration _boardConfiguration;
+        private string _prevFenLine = string.Empty;
+        private bool _whiteKingOnBasePosition = false;
+        private bool _blackKingOnBasePosition = false;
 
         public EChessBoard(string basePath, ILogging logger, EChessBoardConfiguration configuration)
         {
@@ -616,9 +620,44 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
                         Array.Copy(dataArray, 0, codes, 0, 40);
                         fenLine += GetFenLine(codes, out _).Replace("/", string.Empty);
                     }
+                    if (!fenLine.Contains("k") || !fenLine.Contains("K"))
+                    {
+                        return new DataFromBoard(
+                            fenLine.Contains(UnknownPieceCode) ? string.Empty : fenLine,
+                            boardData.Repeated);
+                    }
+                    if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(fenLine))
+                    {
 
-                    return new DataFromBoard(fenLine.Contains(UnknownPieceCode) ? string.Empty : fenLine,
-                        boardData.Repeated);
+                        var fastChessBoard = new FastChessBoard();
+                        fastChessBoard.Init(fenLine, Array.Empty<string>());
+                        if (_whiteKingOnBasePosition)
+                        {
+                            if (fastChessBoard.WhiteKingOnCastleMove())
+                            {
+                                return new DataFromBoard(
+                                    _prevFenLine.Contains(UnknownPieceCode) ? string.Empty : _prevFenLine,
+                                    boardData.Repeated);
+                            }
+                        }
+
+                        if (_blackKingOnBasePosition)
+                        {
+                            if (fastChessBoard.BlackKingOnCastleMove())
+                            {
+                                return new DataFromBoard(
+                                    _prevFenLine.Contains(UnknownPieceCode) ? string.Empty : _prevFenLine,
+                                    boardData.Repeated);
+                            }
+                        }
+                        _whiteKingOnBasePosition = fastChessBoard.WhiteKingOnBasePosition();
+                        _blackKingOnBasePosition = fastChessBoard.BlackKingOnBasePosition();
+                    }
+                    if (fenLine.Contains(UnknownPieceCode))
+                    {
+                        return new DataFromBoard(_prevFenLine, boardData.Repeated);
+                    }
+                    _prevFenLine = fenLine;
                 }
                 catch (Exception ex) 
                 {
@@ -636,6 +675,9 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
         protected override void SetToNewGame()
         {
             _probingFields.TryDequeue(out _);
+            _prevFenLine = string.Empty;
+            _whiteKingOnBasePosition = true;
+            _blackKingOnBasePosition = true;
             SetAllLEDsOff(true);
         }
 
@@ -682,12 +724,14 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
         public override event EventHandler HelpRequestedEvent;
         public override event EventHandler<string> GameEndEvent;
 
-        public override void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack, int secondBlack)
+        public override void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments)
         {
             //
         }
-
-
+        public override void ResetClock()
+        {
+            //
+        }
         #region private
 
         private bool Calibrate(CalibrateData codes)

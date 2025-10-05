@@ -8,14 +8,16 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Sentio.ChessBoard
 {
     public class SerialCommunication : AbstractSerialCommunication
     {
+        private readonly bool _isSpectrum;
+        private volatile bool _LEDConfirmRead = true;
 
-        
-        public SerialCommunication(ILogging logger, string portName, bool useBluetooth) : base(logger, portName, Constants.TabutronicSentio)
+
+        public SerialCommunication(ILogging logger, string portName, bool useBluetooth, string boardName) : base(logger, portName, boardName)
         {
             _useBluetooth = useBluetooth;
+            _isSpectrum = boardName.Equals(Constants.TabutronicSentioSpectrum);
         }
 
-       
 
         public override string GetRawFromBoard(string param)
         {
@@ -61,7 +63,7 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Sentio.ChessBoard
                     _byteDataToBoard.TryDequeue(out _);
                 }
 
-                if (_byteDataToBoard.TryDequeue(out var data))
+                if (_LEDConfirmRead && _byteDataToBoard.TryDequeue(out var data))
                 {
 
                     var s = BitConverter.ToString(data.Data);
@@ -69,6 +71,7 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Sentio.ChessBoard
                     _logger?.LogDebug($"SC: As byte array: {s}");
                     _comPort.Write(data.Data, 0, data.Data.Length);
                     //_logger?.LogDebug($"SC: bytes send");
+                    _LEDConfirmRead = !_isSpectrum;
                     Thread.Sleep(50);
 
                 }
@@ -133,7 +136,12 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Sentio.ChessBoard
                                                 {
                                                     continue;
                                                 }
-
+                                                if (s.Equals("68"))
+                                                {
+                                                    //  _logger?.LogDebug("BTLE: D found");
+                                                    _LEDConfirmRead = true;
+                                                    //continue;
+                                                }
                                                 readLine += Convert.ToChar(Convert.ToInt32(s));
                                             }
                                             catch
@@ -185,6 +193,13 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Sentio.ChessBoard
                                 //_logger?.LogDebug("SC: read from port:" + readLine);
                                 if (!string.IsNullOrWhiteSpace(readLine))
                                 {
+                                    if (readLine.Contains("D"))
+                                    {
+                                        _LEDConfirmRead = true;
+                                        //  _logger?.LogDebug("USB: D found");
+                                        readLine = readLine.Replace("D", string.Empty).Trim();
+                                    }
+
                                     var strings = readLine.Split(Environment.NewLine.ToCharArray(),
                                         StringSplitOptions.RemoveEmptyEntries);
                                     if (strings.Length > 0)

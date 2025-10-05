@@ -13,12 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using www.SoLaNoSoft.com.BearChessBase;
-using www.SoLaNoSoft.com.BearChessServerLib;
-using www.SoLaNoSoft.com.BearChessBase.Interfaces;
-using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
-using Move = www.SoLaNoSoft.com.BearChessBase.Implementations.Move;
+using www.SoLaNoSoft.com.BearChessBase.Implementations;
+using www.SoLaNoSoft.com.BearChessBase.Implementations.pgn;
+using www.SoLaNoSoft.com.BearChessBase.Interfaces;
+using www.SoLaNoSoft.com.BearChessServerLib;
+using www.SoLaNoSoft.com.BearChessServerWin.Windows;
 using www.SoLaNoSoft.com.BearChessWpfCustomControlLib;
+using Move = www.SoLaNoSoft.com.BearChessBase.Implementations.Move;
 
 namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
 {
@@ -31,9 +33,12 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
         public string BoardId { get; }
 
         private IBearChessController _bearChessController;
-        private HashSet<string> _clientToken = new HashSet<string>();
+        private bool _publishGame = false;
+        private string _tournamentName = "BearChess";
+        private readonly HashSet<string> _clientToken = new HashSet<string>();
         private readonly IChessBoard _chessBoard;
         private ILogging _logging;
+        private BoardDetailWindow _boardDetailWindow;
         private static readonly Dictionary<int, string> _figureIdToResource = new Dictionary<int, string>()
                                                                                {
                                                                                    {
@@ -99,7 +104,6 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
                                                                                    },
 
                                                                                };
-
         public SmallChessboardUserControl()
         {
             InitializeComponent();
@@ -112,8 +116,13 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
         public void SetLogging(ILogging logging)
         {
             _logging = logging;
+            _logging?.LogDebug($"New chessboard: {BoardId}");
         }
 
+        public Move[] GetPlayedMoveList()
+        {
+            return _chessBoard.GetPlayedMoveList();
+        }
 
         public void SetBearChessController(IBearChessController bearChessController)
         {
@@ -127,11 +136,26 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
             _bearChessController.ClientDisconnected += _bearChessController_ClientDisconnected;
         }
 
+        public void SetPublishGame(bool publishGame)
+        {
+            _publishGame = publishGame;
+        }
+
+        public void SetTournamentName(string tournamentName)
+        {
+            if (string.IsNullOrWhiteSpace(tournamentName))
+            {
+                return;
+            }
+            _tournamentName = tournamentName;
+        }
+
         private void _bearChessController_ClientDisconnected(object sender, string e)
         {
             var clientInfo = _clientToken.FirstOrDefault(t => t.Equals(e));
             if (clientInfo != null)
             {
+                _logging?.LogDebug($"Chessboard {BoardId}: client disconnected: {e}");
                 _clientToken.Remove(clientInfo);
             }
         }
@@ -170,6 +194,15 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
                             _chessBoard.MakeMove(eAllMove.FromFieldName,eAllMove.ToFieldName,eAllMove.PromotedFigure);
                             lastMove = eAllMove;
                         }
+
+                        if (lastMove != null)
+                        {
+                            _logging?.LogDebug($"Chessboard {BoardId}: last move: {lastMove.FromFieldName}{lastMove.ToFieldName}");
+                        }
+                        else
+                        {
+                            _logging?.LogDebug($"Chessboard {BoardId}: no last move");
+                        } 
                     }
                     else
                     {
@@ -196,9 +229,41 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
                             ident = s;
                         }
                     }
+                    _logging?.LogDebug($"Chessboard {BoardId}: Move made for BCC: {lastMove.FromFieldName}{lastMove.ToFieldName}");
+                    string pgn = string.Empty;
+                    if (_publishGame)
+                    {
+                        var playedMoveList = _chessBoard.GetPlayedMoveList();
+                        if (playedMoveList.Length > 0)
+                        {
+                            var pgnCreator = new PgnCreator(Configuration.Instance.GetPgnConfiguration());
+                            foreach (var move in playedMoveList)
+                            {
+                                pgnCreator.AddMove(move);
+                            }
 
-                    _bearChessController.MoveMade(ident, lastMove.FromFieldName, lastMove.ToFieldName, _chessBoard.GetFenPosition(), _chessBoard.CurrentColor);
+                            var pgnGame = new PgnGame
+                            {
+                                GameEvent = _tournamentName,
+                                PlayerWhite = PlayerWhite,
+                                PlayerBlack = PlayerBlack,
+                                Result = "*",
+                                GameDate = DateTime.Now.ToString("yyyy.MM.dd"),
+                                Round = "1",
+                                WhiteElo = "0",
+                                BlackElo = "0",
+                            };
+                            foreach (var move in pgnCreator.GetAllMoves())
+                            {
+                                pgnGame.AddMove(move);
+                            }
+
+                            pgn = pgnGame.GetGame();
+                        }
+                    }
+                    _bearChessController.MoveMade(ident, lastMove.FromFieldName, lastMove.ToFieldName, _chessBoard.GetFenPosition(),pgn, _chessBoard.CurrentColor);
                     //_chessBoard.SetPosition(e.Message,false);
+                    _logging?.LogDebug($"Chessboard {BoardId}: Repaint board");
                     RepaintBoard(_chessBoard);
 
                 });
@@ -244,6 +309,7 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
             {
                 return;
             }
+            _logging?.LogDebug($"Chessboard {BoardId}: add client token: {clientToken}");
             _clientToken.Add(clientToken);
             Dispatcher?.Invoke(() =>
             {
@@ -257,6 +323,7 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
             {
                 return;
             }
+            _logging?.LogDebug($"Chessboard {BoardId}: remove client token: {clientToken}");
             _clientToken.Remove(clientToken);
             if (_clientToken.Count == 0)
             {
@@ -265,6 +332,34 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
                     Background = new SolidColorBrush(Colors.LightBlue);
                 });
             }
+        }
+
+        public string PlayerWhite => textBlockWhitePlayer.Text;
+        public string PlayerBlack => textBlockBlackPlayer.Text;
+
+        public void WhitePlayerName(string playerName)
+        {
+            if (string.IsNullOrWhiteSpace(playerName))
+            {
+                return;
+            }
+            Dispatcher?.Invoke(() =>
+            {
+                
+                textBlockWhitePlayer.Text = playerName;
+            });
+        }
+
+        public void BlackPlayerName(string playerName)
+        {
+            if (string.IsNullOrWhiteSpace(playerName))
+            {
+                return;
+            }
+            Dispatcher?.Invoke(() =>
+            {
+                textBlockBlackPlayer.Text = playerName;
+            });
         }
 
         private BitmapImage GetResourceBitmap(IChessFigure figure)
@@ -287,6 +382,7 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
         public void RepaintBoard()
         {
             RepaintBoard(_chessBoard);
+          
         }
         public void RepaintBoard(IChessBoard chessboard)
         {
@@ -361,6 +457,10 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
             textBlockBlackClock.Visibility = chessboard.CurrentColor == Fields.COLOR_BLACK
                                                  ? Visibility.Visible
                                                  : Visibility.Hidden;
+            if (_boardDetailWindow != null && _boardDetailWindow.IsVisible)
+            {
+                _boardDetailWindow.RepaintBoard(_chessBoard);
+            }
         }
 
         private void ButtonConfig_OnClick(object sender, RoutedEventArgs e)
@@ -370,7 +470,26 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
 
         private void ButtonInfo_OnClick(object sender, RoutedEventArgs e)
         {
-            //
+            if (_boardDetailWindow != null && _boardDetailWindow.IsVisible)
+            {
+                _boardDetailWindow.RepaintBoard(_chessBoard);
+                return;
+            }
+
+            if (_boardDetailWindow == null)
+            {
+                _boardDetailWindow = new BoardDetailWindow(_bearChessController);
+                _boardDetailWindow.Closed += _boardDetailWindow_Closed;
+            }
+
+            _boardDetailWindow.SetPlayerNames(textBlockWhitePlayer.Text, textBlockBlackPlayer.Text);
+            _boardDetailWindow.Show();
+            _boardDetailWindow.RepaintBoard(_chessBoard);
+        }
+
+        private void _boardDetailWindow_Closed(object sender, EventArgs e)
+        {
+           _boardDetailWindow = null;   
         }
     }
 }

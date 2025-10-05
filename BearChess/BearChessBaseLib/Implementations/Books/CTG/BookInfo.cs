@@ -18,7 +18,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.CTG
         public int GamesCount { get; set; }
 
         public bool IsInternalBook { get; set; }
-        public bool IsHidddenInternalBook { get; set; }
+        public bool IsHiddenInternalBook { get; set; }
 
         public bool IsDefaultBook
         {

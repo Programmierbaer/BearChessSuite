@@ -12,7 +12,6 @@ using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Implementations.pgn;
 using www.SoLaNoSoft.com.BearChessBaseLib.Definitions;
 using www.SoLaNoSoft.com.BearChessDatabase;
-using www.SoLaNoSoft.com.BearChessTools;
 using www.SoLaNoSoft.com.BearChessTournament;
 
 namespace www.SoLaNoSoft.com.BearChessWin
@@ -37,6 +36,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
           
         };
 
+       
         public UciInfo[] Participants => _uciInfosPlayer.ToArray();
         public TournamentTypeEnum TournamentType => (TournamentTypeEnum)comboBoxTournamentType.SelectedItem;
         public int Cycles => numericUpDownUserControlNumberOfGames.Value;
@@ -93,6 +93,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
             SetTimeControl(currentTournament.TimeControl);
             UpdateNumberOfGames();
         }
+
+     
 
         private void SetTimeControls()
         {
@@ -492,5 +494,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
             dataGridEngine.ItemsSource = _uciInfos.OrderBy(u => u.Name);
         }
+
+     
     }
 }

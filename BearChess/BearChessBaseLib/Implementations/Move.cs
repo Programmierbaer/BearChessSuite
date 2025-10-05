@@ -127,7 +127,13 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             set;
         }
 
-      
+        public string CurrentClockTime
+        {
+            get;
+            set;
+        }
+
+
         [XmlIgnore]
         public string Fen
         {
@@ -171,6 +177,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             OwnSymbol = move.OwnSymbol;
             ShortMoveIdentifier = move.ShortMoveIdentifier;
             ElapsedMoveTime = move.ElapsedMoveTime;
+            CurrentClockTime = move.ClockTime;
             Fen = move.Fen;
 
         }
@@ -319,6 +326,12 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             set;
         }
 
+        public string ClockTime
+        {
+            get;
+            set;
+        }
+
         public string BuddyEngine
         {
             get;
@@ -389,6 +402,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             ElapsedMoveTime = string.Empty;
             Fen = string.Empty;
             BestLineBuddy = string.Empty;
+            ClockTime = string.Empty;
         }
 
         public Move(int fromField, int toField, int color, int figureId, IChessFigure capturedFigure) : this(fromField,
@@ -465,6 +479,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             ElapsedMoveTime = move.ElapsedMoveTime;
             Fen = move.Fen;
             BestLineBuddy = move.BestLineBuddy;
+            ClockTime = move.ClockTime;
         }
 
         private string GetPGNMove()

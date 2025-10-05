@@ -16,6 +16,7 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
         private readonly ILogging _logging;
         public string PortName { get; }
         public string Baud { get; }
+        public int DeviceIndex { get; set; }
 
         private SerialPort _serialPort;
         private int _serialPortWriteTimeout;
@@ -25,6 +26,7 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
 
         public SerialComPortByteBased(string comport, int baud, Parity parity, ILogging logging)
         {
+            DeviceIndex = -1;
             _baud = baud;
             _parity = parity;
             _dataBits = 8;
@@ -41,6 +43,7 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
 
         public SerialComPortByteBased(string comport, int baud, Parity parity, int dataBits, StopBits stopBits, ILogging logging)
         {
+            DeviceIndex = -1;
             _baud = baud;
             _parity = parity;
             _dataBits = dataBits;

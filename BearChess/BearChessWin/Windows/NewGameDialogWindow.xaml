@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Windows"
         mc:Ignorable="d"  WindowStartupLocation="CenterOwner" Loaded="Window_Loaded"
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Properties"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
         Title="{x:Static p:Resources.NewGame}" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>

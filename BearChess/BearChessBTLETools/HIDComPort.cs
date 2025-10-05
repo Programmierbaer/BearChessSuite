@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Shapes;
 using www.SoLaNoSoft.com.BearChess.BearChessCommunication;
 using www.SoLaNoSoft.com.BearChess.HidDriver;
+using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Interfaces;
+using Path = System.IO.Path;
 
 
 namespace www.SoLaNoSoft.com.BearChessBTLETools
@@ -13,6 +19,8 @@ namespace www.SoLaNoSoft.com.BearChessBTLETools
         public string PortName => "HID";
         public string DeviceName { get; }
         public string Baud => string.Empty;
+        public int DeviceIndex { get; set; }
+
         private readonly DeviceHandling _device = null;
 
 
@@ -24,24 +32,32 @@ namespace www.SoLaNoSoft.com.BearChessBTLETools
 
         public static IComPort GetComPort(ushort vendorId, ushort usagePage, string deviceName, ILogging logger)
         {
-            
+            var fPath = Configuration.Instance.DeviceIndexPath;
+            var strings = Directory.GetFiles(fPath, "*.devIndex", SearchOption.TopDirectoryOnly);
+            var ignoreIds = new List<int>();
+            foreach (var s in strings)
+            {
+                var fi = new FileInfo(s);
+                ignoreIds.Add(int.Parse(fi.Name.Split(".".ToCharArray())[0]));
+            }
             var deviceHandling = new DeviceHandling(logger);
-            var findDevice = deviceHandling.FindReadDevice(vendorId);
-            if (findDevice && deviceHandling.FindWriteDevice(vendorId, usagePage))
+            var findDevice = deviceHandling.FindReadDevice(vendorId, deviceName, ignoreIds);
+            if (findDevice && deviceHandling.FindWriteDevice(vendorId, deviceName, usagePage, ignoreIds))
             {
              
                 var productName = deviceHandling.GetProduct();
-                return new HIDComPort(deviceHandling, string.IsNullOrWhiteSpace(productName) ? deviceName : productName, logger);
+                return new HIDComPort(deviceHandling, string.IsNullOrWhiteSpace(productName) ? deviceName : productName, logger, deviceHandling.DeviceId);
             }
             return null;
         }
 
-        public HIDComPort(DeviceHandling device, string deviceName, ILogging logger)
+        public HIDComPort(DeviceHandling device, string deviceName,  ILogging logger, int deviceIndex)
         {
             _isOpen = false;
             _device = device;
             DeviceName = deviceName;
             _logger = logger;
+            DeviceIndex = deviceIndex;
         }
 
 
@@ -56,7 +72,7 @@ namespace www.SoLaNoSoft.com.BearChessBTLETools
                         var buffer = _device.Read();
                         if (buffer.Length > 0)
                         {
-                           _logger.LogDebug($"HID: Reading {buffer.Length} bytes");
+                         //  _logger.LogDebug($"HID: Reading {buffer.Length} bytes");
                            _byteArrayQueue.Enqueue(buffer);
                         }
 
@@ -74,6 +90,15 @@ namespace www.SoLaNoSoft.com.BearChessBTLETools
         {
             try
             {
+                var fPath = Configuration.Instance.DeviceIndexPath;
+                try
+                {
+                    File.WriteAllText(Path.Combine(fPath, $"{DeviceIndex}.devIndex"), DeviceName);
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogError($"Cannot create device index file {DeviceIndex}.devIndex",ex);
+                }
                 _isOpen = true;
                 _stopReading = false;
                 _readingThread = new Thread(ReadFromDevice) { IsBackground = true };
@@ -87,6 +112,15 @@ namespace www.SoLaNoSoft.com.BearChessBTLETools
 
         public void Close()
         {
+            var fPath = Configuration.Instance.DeviceIndexPath;
+            try
+            {
+                File.Delete(Path.Combine(fPath, $"{DeviceIndex}.devIndex"));
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError($"Cannot delete device index file {DeviceIndex}.devIndex", ex);
+            }
             _stopReading = true;
             _isOpen = false;
         }

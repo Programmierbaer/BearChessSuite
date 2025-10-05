@@ -5,11 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Windows"
         xmlns:bearChessWin="clr-namespace:www.SoLaNoSoft.com.BearChessWin" Closing="WinConfigureBearChess_OnClosing"
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Properties" KeyDown="WinConfigureBearChess_OnKeyDown"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
+        KeyDown="WinConfigureBearChess_OnKeyDown"
         mc:Ignorable="d" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" SizeToContent="Height"
-        Title="{x:Static p:Resources.BearChessConfiguration}" Height="570" Width="320">
+        Title="{x:Static p:Resources.BearChessConfiguration}" Height="730" Width="360">
     <StackPanel>
-        <GroupBox Width="300" Margin="5" Name="GroupBoxLayout" Header="{x:Static p:Resources.Layout}" HorizontalAlignment="Left">
+        <GroupBox Width="330" Margin="5" Name="GroupBoxLayout" Header="{x:Static p:Resources.Layout}" FontWeight="SemiBold" HorizontalAlignment="Left">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition></ColumnDefinition>
@@ -26,7 +27,7 @@
                 </RadioButton>
             </Grid>
         </GroupBox>
-        <GroupBox Width="300" Margin="5" Header="{x:Static p:Resources.Language}" HorizontalAlignment="Left" >
+        <GroupBox Width="330" Margin="5" Header="{x:Static p:Resources.Language}" FontWeight="SemiBold" HorizontalAlignment="Left" >
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition></ColumnDefinition>
@@ -51,9 +52,11 @@
                 </RadioButton>
             </Grid>
         </GroupBox>
-        <GroupBox Width="300" Margin="5" Header="{x:Static p:Resources.Blind}" HorizontalAlignment="Left">
+        <GroupBox Width="330" Margin="5" Header="{x:Static p:Resources.Blind}" FontWeight="SemiBold" HorizontalAlignment="Left">
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
@@ -62,16 +65,33 @@
 
                 <CheckBox Name="checkBoxBlind" Margin="5" Grid.Column="0" Grid.Row="0" GotFocus="CheckBox_OnGotFocus" Checked="CheckBox_OnChecked" Unchecked="CheckBox_OnUnchecked"
                           AutomationProperties.HelpText="{x:Static p:Resources.IAmBlind}"
-                          Content="{x:Static p:Resources.IAmBlind}" />
+                          Content="{x:Static p:Resources.IAmBlind}"  FontWeight="Normal" />
                 <CheckBox Name="checkBoxBlindSayMoveTime" Margin="5" Grid.Column="0" Grid.Row="2" GotFocus="CheckBox_OnGotFocus" Checked="CheckBox_OnChecked" Unchecked="CheckBox_OnUnchecked"
                           AutomationProperties.HelpText="{x:Static p:Resources.BlindSayMoveTime}"
-                          Content="{x:Static p:Resources.BlindSayMoveTime}" />
-                <CheckBox Name="checkBoxBlindSayFIDERules" Margin="5" Grid.Column="0" Grid.Row="3" GotFocus="CheckBox_OnGotFocus" Checked="CheckBox_OnChecked" Unchecked="CheckBox_OnUnchecked"
-                          AutomationProperties.HelpText="{x:Static p:Resources.FIDERulesForMove}"
-                          Content="{x:Static p:Resources.FIDERulesForMove}" />
+                          Content="{x:Static p:Resources.BlindSayMoveTime}"  FontWeight="Normal"  />
+                <GroupBox  Margin="5" Grid.Column="0" Grid.Row="3" Header="{x:Static p:Resources.TypeMoveAnnouncement}" HorizontalAlignment="Left"  FontWeight="Normal" >
+                    <StackPanel Grid.Column="0" Grid.Row="3">
+
+                        <RadioButton GroupName="moveType" Margin="15,5,5,5" Name="radioButtonBlindSayLong" IsChecked="True"  Content="{x:Static p:Resources.KnightG1F3}"
+                                     AutomationProperties.HelpText="{x:Static p:Resources.KnightG1F3}" GotFocus="CheckBox_OnGotFocus" Checked="CheckBox_OnChecked" Unchecked="CheckBox_OnUnchecked"/>
+                        <RadioButton GroupName="moveType" Margin="15,5,5,5" Name="radioButtonBlindSayShort" Content="{x:Static p:Resources.KnightF3}" GotFocus="CheckBox_OnGotFocus" Checked="CheckBox_OnChecked" Unchecked="CheckBox_OnUnchecked"
+                                     AutomationProperties.HelpText="{x:Static p:Resources.KnightF3}"/>
+                        <RadioButton  GroupName="moveType" Name="radioButtonBlindSayFIDERules" Margin="15,5,5,5" Grid.Column="0" Grid.Row="3" GotFocus="CheckBox_OnGotFocus" Checked="CheckBox_OnChecked" Unchecked="CheckBox_OnUnchecked"
+                                      AutomationProperties.HelpText="{x:Static p:Resources.FIDERulesForMove}"
+                                      Content="{x:Static p:Resources.FIDERulesForMove}" />
+
+                    </StackPanel>
+                </GroupBox>
+                <CheckBox Name="checkBoxSaveBlindGames" Margin="5" Grid.Column="0" Grid.Row="4" GotFocus="CheckBox_OnGotFocus"
+                          Content="{x:Static p:Resources.SaveBlindGamesAutomatically}"  FontWeight="Normal" 
+                          AutomationProperties.HelpText="{x:Static p:Resources.SaveBlindGamesAutomatically}" />
+                <CheckBox Name="checkBoxBlindNoEBoard" Margin="5" Grid.Column="0" Grid.Row="5" GotFocus="CheckBox_OnGotFocus" Checked="CheckBox_OnChecked" Unchecked="CheckBox_OnUnchecked"
+                          AutomationProperties.HelpText="{x:Static p:Resources.BlindUserNoBoard}"
+                          Content="{x:Static p:Resources.BlindUserNoBoard}"  FontWeight="Normal"  />
+               
             </Grid>
         </GroupBox>
-        <GroupBox Name="GroupBoxGames" Width="300" Margin="5" Header="{x:Static p:Resources.Games}" HorizontalAlignment="Left">
+        <GroupBox Name="GroupBoxGames" Width="330" Margin="5" Header="{x:Static p:Resources.Games}" FontWeight="SemiBold" HorizontalAlignment="Left">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition></RowDefinition>
@@ -79,11 +99,11 @@
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
 
-                <CheckBox Name="checkBoxStartBasePosition" Margin="5" Grid.Column="0" Grid.Row="0"
+                <CheckBox Name="checkBoxStartBasePosition" Margin="5" Grid.Column="0" Grid.Row="0"  FontWeight="Normal" 
                           Content="{x:Static p:Resources.StartOnBasePosition}" />
-                <CheckBox Name="checkBoxSaveGames" Margin="5" Grid.Column="0" Grid.Row="1"
+                <CheckBox Name="checkBoxSaveGames" Margin="5" Grid.Column="0" Grid.Row="1"  FontWeight="Normal" 
                           Content="{x:Static p:Resources.SaveGamesAutomatically}" />
-                <GroupBox Margin="5" Grid.Row="2" Header="{x:Static p:Resources.AbortGames}">
+                <GroupBox Margin="5" Grid.Row="2" Header="{x:Static p:Resources.AbortGames}"  FontWeight="Normal" >
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition></RowDefinition>
@@ -106,8 +126,13 @@
                 </GroupBox>
             </Grid>
         </GroupBox>
-        <GroupBox Name="GroupBoxInternal" Width="300" Margin="5" Header="{x:Static p:Resources.Internal}" HorizontalAlignment="Left">
-            <CheckBox Name="checkBoxWriteLogFiles" Margin="5" Content="{x:Static p:Resources.WriteLogFiles}" />
+        <GroupBox Name="GroupBoxInternal" Width="330" Margin="5" Header="{x:Static p:Resources.Internal}" FontWeight="SemiBold" HorizontalAlignment="Left">
+            <StackPanel>
+                <CheckBox Name="checkBoxTournamentMode" Margin="5" Content="{x:Static p:Resources.TournamentMode}" FontWeight="Normal" />
+                <CheckBox Name="checkBoxWriteLogFiles" Margin="5" Content="{x:Static p:Resources.WriteLogFiles}"  FontWeight="Normal"  />
+                <CheckBox Name="checkBoxClearLogFiles" Margin="5" Content="{x:Static p:Resources.ClearLogFiles}"  FontWeight="Normal" 
+                          ToolTip="{x:Static p:Resources.ClearLogFilesTip}"/>
+            </StackPanel>
         </GroupBox>
         <DockPanel Margin="5" DockPanel.Dock="Bottom" LastChildFill="False">
             <Button Name="buttonOk" Margin="5,5,5,5" DockPanel.Dock="Left" Width="28" Height="28"

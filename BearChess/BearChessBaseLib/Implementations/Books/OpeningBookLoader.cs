@@ -71,7 +71,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                     Path.Combine(_binPath, Constants.InternalBookGUIDPerfectCTG, Constants.InternalBookFileNamePerfectCTG);
                 origConfig.Name = "Perfect 2023";
                 origConfig.IsInternalBook = true;
-                origConfig.IsHidddenInternalBook = false;
+                origConfig.IsHiddenInternalBook = false;
                 textReader.Close();
                 TextWriter textWriter = new StreamWriter(file.FullName, false);
                 serializer.Serialize(textWriter, origConfig);
@@ -109,7 +109,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                     Path.Combine(_binPath, Constants.InternalBookGUIDPerfectBIN, Constants.InternalBookFileNamePerfectBIN);
                 origConfig.Name = "Perfect 2023 Polyglot";
                 origConfig.IsInternalBook = true;
-                origConfig.IsHidddenInternalBook = true;
+                origConfig.IsHiddenInternalBook = true;
                 textReader.Close();
                 TextWriter textWriter = new StreamWriter(file.FullName, false);
                 serializer.Serialize(textWriter, origConfig);

@@ -323,6 +323,26 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     }
                 }
 
+                if (!TableExists("tournamentPairing"))
+                {
+                    var sql = "CREATE TABLE tournamentPairing " +
+                              "(id INTEGER PRIMARY KEY," +
+                              " tournament_id INTEGER NOT NULL, " +
+                              " pair1 INTEGER NOT NULL, " +
+                              " pair2 INTEGER NOT NULL,"+
+                              " game_id INTEGER NOT NULL);";
+                    using (var command = new SQLiteCommand(sql, _connection))
+                    {
+                        command.ExecuteNonQuery();
+                        sql = "CREATE INDEX idx_tournamentPairing_tournId ON tournamentGames(tournament_id);";
+                        command.CommandText = sql;
+                        command.ExecuteNonQuery();
+                        sql = "CREATE INDEX idx_tournamentPairing_gameId ON tournamentGames(game_id);";
+                        command.CommandText = sql;
+                        command.ExecuteNonQuery();
+                    }
+                }
+
                 if (!TableExists("duel"))
                 {
                     var sql = "CREATE TABLE duel " +
@@ -609,7 +629,28 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     }
                     infoWindow.Close();
                 }
+                if (_storageVersion == 5)
+                {
+                    var sql = "ALTER TABLE tournamentGames ADD COLUMN pair1 integer DEFAULT 0; ";
+                    using (var command = new SQLiteCommand(sql, _connection))
+                    {
+                        command.ExecuteNonQuery();
 
+                    }
+                    sql = "ALTER TABLE tournamentGames ADD COLUMN pair2 integer DEFAULT 0; ";
+                    using (var command = new SQLiteCommand(sql, _connection))
+                    {
+                        command.ExecuteNonQuery();
+
+                    }
+                    sql = "UPDATE storageVersion SET version=6; ";
+                    using (var command = new SQLiteCommand(sql, _connection))
+                    {
+                        command.ExecuteNonQuery();
+
+                    }
+
+                }
                 _dbExists = true;
                 Close();
                 return true;
@@ -727,6 +768,10 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
         public int Save(DatabaseGame databaseGame, bool updateGame, bool commitTransaction = true, int twicId = 0)
         {
+            if (databaseGame.CurrentGame != null)
+            {
+                databaseGame.CurrentGame.GameSaved = true;
+            }
             if (_inError)
             {
                 return -1;
@@ -1067,8 +1112,8 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                             }
                             else
                             {
-                                BinaryFormatter bf = new BinaryFormatter();
-                                using (MemoryStream memoryStream = new MemoryStream(rdr.GetValue(9) as byte[]))
+                                var bf = new BinaryFormatter();
+                                using (var memoryStream = new MemoryStream(rdr.GetValue(9) as byte[]))
                                 {
                                     databaseGame = bf.Deserialize(memoryStream) as DatabaseGame;
                                     databaseGame.Id = id;
@@ -1079,10 +1124,10 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                                         pgnCreator.AddMove(databaseGameAllMove);
                                     }
 
-                                    foreach (var move in pgnCreator.GetAllMoves())
-                                    {
-                                        databaseGame.PgnGame.AddMove(move);
-                                    }
+                                    //foreach (var move in pgnCreator.GetAllMoves())
+                                    //{
+                                    //    databaseGame.PgnGame.AddMove(move);
+                                    //}
                                 }
 
                             }
@@ -1125,7 +1170,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             DatabaseGameSimple[] allGames = null;
             _connection.Open();
             using (var cmd = new SQLiteCommand(
-                "SELECT g.id, g.white, g.black, g.event, g.site, g.result, g.gameDate, g.pgn, g.pgnXml, g.pgnHash, g.round, g.white_elo, g.black_elo, g.gameHash" +
+                "SELECT g.id, g.white, g.black, g.event, g.site, g.result, g.gameDate, g.pgn, g.pgnXml, g.pgnHash, g.round, g.white_elo, g.black_elo, g.gameHash, 0, 0" +
                 " FROM games as g JOIN fenToGames as fg ON (g.ID=fg.game_id) " +
                 " JOIN fens as f ON (fg.fen_id = f.id)" +
                 "WHERE f.shortFen=@shortFen;", _connection))
@@ -1166,7 +1211,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     if (string.IsNullOrWhiteSpace(fen))
                     {
                         return GetBySql(
-                            "SELECT id, white, black, event, site, result, gameDate, pgn, pgnXml, pgnHash, round, white_elo, black_elo, gameHash FROM games ORDER BY ID;");
+                            "SELECT id, white, black, event, site, result, gameDate, pgn, pgnXml, pgnHash, round, white_elo, black_elo, gameHash,0,0 FROM games ORDER BY ID;");
                     }
 
                     return FilterByFen(fen);
@@ -1208,7 +1253,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 DatabaseGameSimple[] allGames = null;
                 _connection.Open();
                 using (var cmd = new SQLiteCommand(
-                    "SELECT g.id, g.white, g.black, g.event, g.site, g.result, g.gameDate, g.pgn, g.pgnXml, g.pgnHash, g.round, g.white_elo, g.black_elo, g.gameHash " +
+                    "SELECT g.id, g.white, g.black, g.event, g.site, g.result, g.gameDate, g.pgn, g.pgnXml, g.pgnHash, g.round, g.white_elo, g.black_elo, g.gameHash, 0, 0 " +
                     " FROM games g  " +
                     fenSQl+
                     " WHERE g.Event LIKE @gameEvent" +
@@ -1299,7 +1344,9 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                                              WhiteElo = rdr.GetString(11),
                                              BlackElo = rdr.GetString(12),
                                              PgnHash = (ulong)pgnHash,
-                                             GameHash = (ulong)gameHash
+                                             GameHash = (ulong)gameHash,
+                                             Pair1 = rdr.GetInt32(14),
+                                             Pair2 = rdr.GetInt32(15)
                                          };
                 allGames.Add(databaseGameSimple);
             }
@@ -1915,7 +1962,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             DatabaseGameSimple[] allGames = null;
             _connection.Open();
             using (var cmd = new SQLiteCommand(
-                "SELECT g.id, g.white, g.black, g.event, g.site, g.result, g.gameDate, g.pgn, g.pgnXml, g.pgnHash, g.round, g.white_elo, g.black_elo,  g.gameHash" +
+                "SELECT g.id, g.white, g.black, g.event, g.site, g.result, g.gameDate, g.pgn, g.pgnXml, g.pgnHash, g.round, g.white_elo, g.black_elo,  g.gameHash, 0, 0" +
                 " FROM games as g  " +
                 " JOIN duelGames t ON (t.game_id=g.id)" +
                 "WHERE t.duel_id=@duelId;", _connection))
@@ -2004,7 +2051,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
         #endregion
 
         #region Tournament
-        public void SaveTournamentGamePair(int tournamentId, int gameId)
+        public void SaveTournamentGamePair(int tournamentId, int gameId, int[] pairing)
         {
             if (_inError)
             {
@@ -2022,10 +2069,21 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             _connection.Open();
             try
             {
-                var sql = @"INSERT INTO tournamentGames (tournament_id, game_id) VALUES (@tournament_id, @game_id); ";
+                var sql = @"INSERT INTO tournamentGames (tournament_id, game_id, pair1, pair2) VALUES (@tournament_id, @game_id, @pair1, @pair2); ";
                 using (var command2 = new SQLiteCommand(sql, _connection))
                 {
                     command2.Parameters.Add("@tournament_id", DbType.Int32).Value = tournamentId;
+                    command2.Parameters.Add("@game_id", DbType.Int32).Value = gameId;
+                    command2.Parameters.Add("@pair1", DbType.Int32).Value = pairing[0];
+                    command2.Parameters.Add("@pair2", DbType.Int32).Value = pairing[1];
+                    command2.ExecuteNonQuery();
+                }
+                sql = @"UPDATE tournamentPairing set game_id=@game_id where tournament_id=@tournament_id AND pair1=@pair1 AND pair2=@pair2; ";
+                using (var command2 = new SQLiteCommand(sql, _connection))
+                {
+                    command2.Parameters.Add("@tournament_id", DbType.Int32).Value = tournamentId;
+                    command2.Parameters.Add("@pair1", DbType.Int32).Value = pairing[0];
+                    command2.Parameters.Add("@pair2", DbType.Int32).Value = pairing[1];
                     command2.Parameters.Add("@game_id", DbType.Int32).Value = gameId;
                     command2.ExecuteNonQuery();
                 }
@@ -2089,7 +2147,72 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
         }
 
-        public int SaveTournament(CurrentTournament tournament, int gamesToPlay)
+
+        public int CloneTournament(int id)
+        {
+            if (_inError)
+            {
+                return -1;
+            }
+
+            if (!_dbExists)
+            {
+                if (!CreateTables())
+                {
+                    return -1;
+                }
+            }
+
+            var tournamentId = 0;
+            _connection.Open();
+            try
+            {
+
+                var sql = @"INSERT INTO tournament (event, eventDate, gamesToPlay, configXML)
+                           select event, eventDate, gamesToPlay, configXML from tournament where id=@id; ";
+                using (var command2 = new SQLiteCommand(sql, _connection))
+                {
+                    command2.Parameters.Add("@id", DbType.String).Value = id;
+                    command2.ExecuteNonQuery();
+                }
+
+                using (var command2 = new SQLiteCommand("SELECT LAST_INSERT_ROWID();", _connection))
+                {
+                    var executeScalar = command2.ExecuteScalar();
+                    tournamentId = int.Parse(executeScalar.ToString());
+                }
+                sql = @"INSERT INTO tournamentGames (tournament_id, game_id,pair1,pair2)
+                           select @newId, game_id,pair1,pair2 from tournamentGames where tournament_id=@id; ";
+                using (var command2 = new SQLiteCommand(sql, _connection))
+                {
+                    command2.Parameters.Add("@id", DbType.String).Value = id;
+                    command2.Parameters.Add("@newId", DbType.Int32).Value = tournamentId;
+                    command2.ExecuteNonQuery();
+                }
+                sql = @"INSERT INTO tournamentPairing (tournament_id, pair1,pair2, game_id)
+                           select @newId, pair1,pair2, game_id from tournamentPairing where tournament_id=@id; ";
+                using (var command2 = new SQLiteCommand(sql, _connection))
+                {
+                    command2.Parameters.Add("@id", DbType.String).Value = id;
+                    command2.Parameters.Add("@newId", DbType.Int32).Value = tournamentId;
+                    command2.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+
+                _logging?.LogError(ex);
+                return -1;
+            }
+            finally
+            {
+                _connection.Close();
+            }
+
+            return tournamentId;
+        }
+
+        public int SaveTournament(CurrentTournament tournament, int gamesToPlay, List<int[]> pairing)
         {
             if (_inError)
             {
@@ -2109,7 +2232,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
             try
             {
-
                 var aSerializer = new XmlSerializer(typeof(CurrentTournament));
                 var sb = new StringBuilder();
                 var sw = new StringWriter(sb);
@@ -2130,6 +2252,19 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 {
                     var executeScalar = command2.ExecuteScalar();
                     tournamentId = int.Parse(executeScalar.ToString());
+                }
+
+                foreach (var pairs in pairing)
+                {
+                    sql = @"INSERT INTO tournamentPairing (tournament_id, pair1, pair2, game_id)
+                           VALUES (@tournament_id, @pair1, @pair2, 0); ";
+                    using (var command2 = new SQLiteCommand(sql, _connection))
+                    {
+                        command2.Parameters.Add("@tournament_id", DbType.Int32).Value = tournamentId;
+                        command2.Parameters.Add("@pair1", DbType.Int32).Value = pairs[0];
+                        command2.Parameters.Add("@pair2", DbType.Int32).Value = pairs[1];
+                        command2.ExecuteNonQuery();
+                    }
                 }
             }
             catch (Exception ex)
@@ -2172,6 +2307,12 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 {
                     command.ExecuteNonQuery();
                 }
+                // if (!TableExists("tournamentPairing"))
+                sql = @"DELETE FROM tournamentPairing; ";
+                using (var command = new SQLiteCommand(sql, _connection))
+                {
+                    command.ExecuteNonQuery();
+                }
 
                 sql = @"DELETE FROM tournament; ";
                 using (var command = new SQLiteCommand(sql, _connection))
@@ -2193,6 +2334,71 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             }
         }
 
+        public void DeleteTournamentGamesWithPairing(int id, int pair)
+        {
+            _connection.Open();
+            try
+            {
+                var gamesIds = new List<int>();
+
+                var sql = @"select game_id from tournamentPairing where tournament_id=@id and (pair1=@pair or pair2=@pair)";
+                using (var cmd = new SQLiteCommand(sql, _connection))
+                {
+                    cmd.Parameters.Add("@id", DbType.Int32).Value = id;
+                    cmd.Parameters.Add("@pair", DbType.Int32).Value = pair;
+                    using (var rdr = cmd.ExecuteReader())
+                    {
+                        while (rdr.Read())
+                        {
+                            gamesIds.Add(rdr.GetInt32(0));
+                        }
+
+                        rdr.Close();
+                    }
+                }
+
+                foreach (var gamesId in gamesIds)
+                {
+                    sql = @"DELETE FROM fenToGames WHERE game_id = @game_id; ";
+                    using (var command = new SQLiteCommand(sql, _connection))
+                    {
+                        command.Parameters.Add("@game_id", DbType.Int32).Value = gamesId;
+                        command.ExecuteNonQuery();
+                    }
+
+                    sql = @"DELETE FROM games WHERE id = @game_id; ";
+                    using (var command = new SQLiteCommand(sql, _connection))
+                    {
+                        command.Parameters.Add("@game_id", DbType.Int32).Value = gamesId;
+                        command.ExecuteNonQuery();
+                    }
+
+                    sql = @"DELETE FROM tournamentGames  WHERE tournament_id=@id and game_id=@game_id; ";
+                    using (var command = new SQLiteCommand(sql, _connection))
+                    {
+                        command.Parameters.Add("@id", DbType.Int32).Value = id;
+                        command.Parameters.Add("@game_id", DbType.Int32).Value = gamesId;
+                        command.ExecuteNonQuery();
+                    }
+
+                    sql = @"UPDATE tournamentPairing set game_id=0 where tournament_id=@id and game_id=@game_id; ";
+                    using (var command2 = new SQLiteCommand(sql, _connection))
+                    {
+                        command2.Parameters.Add("@id", DbType.Int32).Value = id;
+                        command2.Parameters.Add("@game_id", DbType.Int32).Value = gamesId;
+                        command2.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logging?.LogDebug(ex.Message);
+            }
+            finally
+            {
+                _connection.Close();
+            }
+        }
         public void DeleteTournamentGames(int id)
         {
             try
@@ -2220,8 +2426,13 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     command.Parameters.Add("@id", DbType.Int32).Value = id;
                     command.ExecuteNonQuery();
                 }
+                sql = @"UPDATE tournamentPairing set game_id=0 where tournament_id=@id; ";
+                using (var command2 = new SQLiteCommand(sql, _connection))
+                {
+                    command2.Parameters.Add("@id", DbType.Int32).Value = id;
+                    command2.ExecuteNonQuery();
+                }
 
-        
 
             }
             catch (Exception ex)
@@ -2261,7 +2472,13 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     command.Parameters.Add("@id", DbType.Int32).Value = id;
                     command.ExecuteNonQuery();
                 }
-
+                // tournamentPairing
+                sql = @"DELETE FROM tournamentPairing  WHERE tournament_id=@id; ";
+                using (var command = new SQLiteCommand(sql, _connection))
+                {
+                    command.Parameters.Add("@id", DbType.Int32).Value = id;
+                    command.ExecuteNonQuery();
+                }
                 sql = @"DELETE FROM tournament  WHERE id=@id; ";
                 using (var command = new SQLiteCommand(sql, _connection))
                 {
@@ -2282,7 +2499,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
         public DatabaseTournament[] LoadTournament()
         {
-            List<DatabaseTournament> allTournaments = new List<DatabaseTournament>();
+            var allTournaments = new List<DatabaseTournament>();
             if (!_dbExists)
             {
                 if (!CreateTables())
@@ -2528,8 +2745,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
         public DatabaseGameSimple[] GetTournamentGames(int tournamentId)
         {
-
-
             if (_inError)
             {
                 return Array.Empty<DatabaseGameSimple>();
@@ -2538,8 +2753,8 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             DatabaseGameSimple[] allGames = null;
             _connection.Open();
             using (var cmd = new SQLiteCommand(
-                "SELECT g.id, g.white, g.black, g.event, g.site, g.result, g.gameDate, g.pgn, g.pgnXml, g.pgnHash, g.round, g.white_elo, g.black_elo,  g.gameHash" +
-                " FROM games as g  " +
+                "SELECT g.id, g.white, g.black, g.event, g.site, g.result, g.gameDate, g.pgn, g.pgnXml, g.pgnHash, g.round, g.white_elo, g.black_elo,  g.gameHash," +
+                " t.pair1, t.pair2 FROM games as g  " +
                 " JOIN tournamentGames t ON (t.game_id=g.id)" +
                 "WHERE t.tournament_id=@tournamentId;", _connection))
             {
@@ -2555,7 +2770,171 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             return allGames;
         }
 
+        public void ResetPairing(int tournamentId, int pair)
+        {
+            if (_inError)
+            {
+                return;
+            }
 
+            if (!_dbExists)
+            {
+                if (!CreateTables())
+                {
+                    return;
+                }
+            }
+            _connection.Open();
+            try
+            {
+
+                var sql =
+                    @"UPDATE tournamentPairing Set game_id=0 where tournament_id=@tournament_id AND (pair1=@pair OR pair2=@pair); ";
+                using (var command2 = new SQLiteCommand(sql, _connection))
+                {
+                    command2.Parameters.Add("@tournament_id", DbType.Int32).Value = tournamentId;
+                    command2.Parameters.Add("@pair", DbType.Int32).Value = pair;
+
+                    command2.ExecuteNonQuery();
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                _logging?.LogError(ex);
+
+            }
+            finally
+            {
+                _connection.Close();
+            }
+        }
+        public void ResetPairing(int tournamentId, int[] pairing)
+        {
+            if (_inError)
+            {
+                return;
+            }
+
+            if (!_dbExists)
+            {
+                if (!CreateTables())
+                {
+                    return;
+                }
+            }
+            _connection.Open();
+            try
+            {
+
+                var sql =
+                    @"UPDATE tournamentPairing Set game_id=0 where tournament_id=@tournament_id AND pair1=@pair1 AND pair2=@pair2; ";
+                using (var command2 = new SQLiteCommand(sql, _connection))
+                {
+                    command2.Parameters.Add("@tournament_id", DbType.Int32).Value = tournamentId;
+                    command2.Parameters.Add("@pair1", DbType.Int32).Value = pairing[0];
+                    command2.Parameters.Add("@pair2", DbType.Int32).Value = pairing[1];
+
+                    command2.ExecuteNonQuery();
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                _logging?.LogError(ex);
+
+            }
+            finally
+            {
+                _connection.Close();
+            }
+        }
+
+        public bool PairingExists(int tournamentId)
+        {
+            bool exists = false;
+            if (_inError)
+            {
+                return exists;
+            }
+            try
+            {
+                _connection.Open();
+
+                var sql = "SELECT count(*) FROM tournamentPairing WHERE tournament_id=@tournament_id;";
+
+                using (var cmd = new SQLiteCommand(sql, _connection))
+                {
+                    cmd.Parameters.Add("@tournament_id", DbType.Int32).Value = tournamentId;
+                    using (var rdr = cmd.ExecuteReader())
+                    {
+                        if (rdr.Read())
+                        {
+                            exists = rdr.GetInt32(0) > 0;
+                        }
+                        rdr.Close();
+                    }
+                }
+
+            }
+            catch
+            {
+                exists = false;
+            }
+            finally
+            {
+
+                _connection.Close();
+            }
+            return exists;
+        }
+
+        public int[] GetNextParing(int tournamentId)
+        {
+            int[] pairing = null;
+            if (_inError)
+            {
+                return null;
+            }
+
+            try
+            {
+                _connection.Open();
+
+                var sql =
+                    "SELECT pair1, pair2 FROM tournamentPairing WHERE tournament_id=@tournament_id AND game_id=0;";
+
+                using (var cmd = new SQLiteCommand(sql, _connection))
+                {
+                    cmd.Parameters.Add("@tournament_id", DbType.Int32).Value = tournamentId;
+                    using (var rdr = cmd.ExecuteReader())
+                    {
+                        if (rdr.Read())
+                        {
+                            pairing = new[] { 0, 0 };
+                            pairing[0] = rdr.GetInt32(0);
+                            pairing[1] = rdr.GetInt32(1);
+                        }
+
+                        rdr.Close();
+                    }
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+
+                _connection.Close();
+            }
+
+            return pairing;
+        }
         #endregion
 
         #region TWIC

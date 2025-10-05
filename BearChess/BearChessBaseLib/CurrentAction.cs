@@ -6,6 +6,7 @@
         InEasyPlayingMode,
         InRunningGame,
         InSetupMode,
-        InGameAnalyseMode
+        InGameAnalyseMode,
+        InTrainingSetupMode
     }
 }

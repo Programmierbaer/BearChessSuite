@@ -97,6 +97,9 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
 
 
         private string _currentFen;
+        private string _prevFenLine = string.Empty;
+        private bool _whiteKingOnBasePosition = false;
+        private bool _blackKingOnBasePosition = false;
 
         private class BoardMove
         {
@@ -657,6 +660,36 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                             try
                             {
                                 _currentFen = FenConversions.GetPiecesFen(boardMove.GetFenBytes, false, _playWithWhite);
+                                if (!_currentFen.Contains("k") || !_currentFen.Contains("K"))
+                                {
+                                    return new DataFromBoard(_currentFen,3);
+                                }
+                                if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(_currentFen))
+                                {
+
+                                    var fastChessBoard = new FastChessBoard();
+                                    fastChessBoard.Init(_currentFen, Array.Empty<string>());
+                                    if (_whiteKingOnBasePosition)
+                                    {
+                                        if (fastChessBoard.WhiteKingOnCastleMove())
+                                        {
+                                            return new DataFromBoard(
+                                                _prevFenLine.Contains(UnknownPieceCode) ? string.Empty : _prevFenLine,
+                                                3);
+                                        }
+                                    }
+                                    if (_blackKingOnBasePosition)
+                                    {
+                                        if (fastChessBoard.BlackKingOnCastleMove())
+                                        {
+                                            return new DataFromBoard(
+                                                _prevFenLine.Contains(UnknownPieceCode) ? string.Empty : _prevFenLine,
+                                                3);
+                                        }
+                                    }
+                                    _whiteKingOnBasePosition = fastChessBoard.WhiteKingOnBasePosition();
+                                    _blackKingOnBasePosition = fastChessBoard.BlackKingOnBasePosition();
+                                }
                                 //_currentFen = boardMove.GetFenCode;
                             }
                             catch (Exception ex)
@@ -664,7 +697,7 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                                 _logger?.LogError($"{ex.Message}: Fen: {boardMove.GetFenBytes}");
                                 _currentFen = string.Empty;
                             }
-                            
+                            _prevFenLine = _currentFen;
                             return new DataFromBoard(_currentFen, 3);
                         }
 
@@ -682,7 +715,8 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
 
         protected override void SetToNewGame()
         {
-           //
+          _whiteKingOnBasePosition = true;
+          _blackKingOnBasePosition = true;
         }
 
     
@@ -770,7 +804,7 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
         public override event EventHandler HelpRequestedEvent;
         public override event EventHandler<string> GameEndEvent;
 
-        public override void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack)
+        public override void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments)
         {
             if (_showOnlyMoves)
             {
@@ -879,6 +913,10 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
             allBytes.Add(0);
             allBytes.Add(DGT_CMD_CLOCK_END_MESSAGE);
             _clockQueue.Enqueue(allBytes);
+        }
+        public override void ResetClock()
+        {
+            //
         }
 
         private string ConvertFromRead(byte[] bArray)

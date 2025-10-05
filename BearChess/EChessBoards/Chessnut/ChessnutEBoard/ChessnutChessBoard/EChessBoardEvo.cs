@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
+using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 
 namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
@@ -95,7 +96,10 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
         private readonly ExtendedEChessBoardConfiguration _extendedConfiguration;
         private SetLEDsParameter _lastSendMoveParameters = new SetLEDsParameter();
         private SetLEDsParameter _lastSendThinkingParameters = new SetLEDsParameter();
-        HashSet<string> _lastSend = new HashSet<string>();
+        private bool _whiteKingOnBasePosition = false;
+        private bool _blackKingOnBasePosition = false;
+        private string _prevFenLine = string.Empty;
+        private HashSet<string> _lastSend = new HashSet<string>();
 
         public EChessBoardEvo(string basePath, ILogging logger, EChessBoardConfiguration configuration)
         {
@@ -144,7 +148,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
             _serialCommunication.Send(strings[0]);
         }
 
-        public override void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack, int secondBlack)
+        public override void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments)
         {
             //
         }
@@ -160,6 +164,11 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
         }
 
         public override void DisplayOnClock(string display)
+        {
+            //
+        }
+
+        public override void ResetClock()
         {
             //
         }
@@ -550,6 +559,29 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
         public override DataFromBoard GetPiecesFen()
         {
             var dataFromBoard = _serialCommunication.GetFromBoard();
+
+            if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(dataFromBoard.FromBoard))
+            {
+                var fastChessBoard = new FastChessBoard();
+                fastChessBoard.Init(dataFromBoard.FromBoard, Array.Empty<string>());
+                if (_whiteKingOnBasePosition)
+                {
+                    if (fastChessBoard.WhiteKingOnCastleMove())
+                    {
+                        return new DataFromBoard( _prevFenLine, 3);
+                    }
+                }
+                if (_blackKingOnBasePosition)
+                {
+                    if (fastChessBoard.BlackKingOnCastleMove())
+                    {
+                        return new DataFromBoard( _prevFenLine, 3);
+                    }
+                }
+                _whiteKingOnBasePosition = fastChessBoard.WhiteKingOnBasePosition();
+                _blackKingOnBasePosition = fastChessBoard.BlackKingOnBasePosition();
+            }
+            _prevFenLine = dataFromBoard.FromBoard;
             return dataFromBoard;
         }
 
@@ -565,6 +597,8 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
             {
                 FenString = FenCodes.BasePosition
             });
+            _whiteKingOnBasePosition = true;
+            _blackKingOnBasePosition = true;
         }
 
         public override void SpeedLeds(int level)

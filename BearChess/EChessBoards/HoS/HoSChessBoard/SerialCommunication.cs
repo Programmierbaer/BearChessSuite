@@ -74,7 +74,6 @@ namespace www.SoLaNoSoft.com.BearChess.HoSChessBoard
                     {
                         if (_byteDataToBoard.TryDequeue(out ByteDataWithInfo byteData))
                         {
-
                             convertFromRead = ConvertFromArray(byteData.Data);
                             bool force = false;
                             if (_forcedSend)
@@ -85,14 +84,15 @@ namespace www.SoLaNoSoft.com.BearChess.HoSChessBoard
                             if (!lastReadToSend.Equals(convertFromRead) || force)
                             {
                                 _forcedSend = false;
-                                _logger?.LogDebug($"SC: Send byteData {convertFromRead}");
+                                _logger?.LogDebug($"SC: Send  {convertFromRead}");
                                 _comPort.Write(byteData.Data, 0, byteData.Data.Length);
                                 lastReadToSend = convertFromRead;
-                                //Thread.Sleep(sleepTime);
                             }
-
+                            else
+                            {
+                                _logger?.LogDebug($"SC: Ignore as already send: {convertFromRead}");
+                            }
                         }
-
                     }
 
                     Thread.Sleep(5);
@@ -182,7 +182,7 @@ namespace www.SoLaNoSoft.com.BearChess.HoSChessBoard
                                     var convertFromRead = _useBluetooth ? ConvertFromBTRead(readByte) : ConvertFromUSBRead(readByte);
                                     readLine += convertFromRead;
 
-                                    _logger?.LogDebug($"SC: Read from board: {convertFromRead} => {readLine}");
+                                   // _logger?.LogDebug($"SC: Read from board: {convertFromRead} => {readLine}");
                                 }
                             }
                         }
@@ -211,7 +211,7 @@ namespace www.SoLaNoSoft.com.BearChess.HoSChessBoard
                         }
                         if (!readLine.Equals(prevLine))
                         {
-                            _logger?.LogDebug($"SC: Read changed {readLine.Length} bytes from board: {readLine}");
+                          //  _logger?.LogDebug($"SC: Read changed {readLine.Length} bytes from board: {readLine}");
                         }
 
                         prevLine = readLine;

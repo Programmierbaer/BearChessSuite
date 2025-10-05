@@ -61,6 +61,24 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Author ähnelt.
+        /// </summary>
+        public static string Author {
+            get {
+                return ResourceManager.GetString("Author", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Black ähnelt.
+        /// </summary>
+        public static string Black {
+            get {
+                return ResourceManager.GetString("Black", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Bluetooth ähnelt.
         /// </summary>
         public static string Bluetooth {
@@ -196,11 +214,47 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Connected ähnelt.
+        /// </summary>
+        public static string Connected {
+            get {
+                return ResourceManager.GetString("Connected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Current ähnelt.
+        /// </summary>
+        public static string Current {
+            get {
+                return ResourceManager.GetString("Current", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Depth ähnelt.
+        /// </summary>
+        public static string Depth {
+            get {
+                return ResourceManager.GetString("Depth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die DGT EBoard ähnelt.
         /// </summary>
         public static string DGTEBoard {
             get {
                 return ResourceManager.GetString("DGTEBoard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Disconnected ähnelt.
+        /// </summary>
+        public static string Disconnected {
+            get {
+                return ResourceManager.GetString("Disconnected", resourceCulture);
             }
         }
         
@@ -214,6 +268,15 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Elo ähnelt.
+        /// </summary>
+        public static string Elo {
+            get {
+                return ResourceManager.GetString("Elo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Error ähnelt.
         /// </summary>
         public static string Error {
@@ -223,11 +286,29 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Filter ähnelt.
+        /// </summary>
+        public static string Filter {
+            get {
+                return ResourceManager.GetString("Filter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die finished ähnelt.
         /// </summary>
         public static string Finished {
             get {
                 return ResourceManager.GetString("Finished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Information ähnelt.
+        /// </summary>
+        public static string Information {
+            get {
+                return ResourceManager.GetString("Information", resourceCulture);
             }
         }
         
@@ -268,11 +349,65 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Missing parameter ähnelt.
+        /// </summary>
+        public static string MissingParameter {
+            get {
+                return ResourceManager.GetString("MissingParameter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Black ähnelt.
+        /// </summary>
+        public static string na {
+            get {
+                return ResourceManager.GetString("na", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Name ähnelt.
+        /// </summary>
+        public static string Name {
+            get {
+                return ResourceManager.GetString("Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die New game ähnelt.
+        /// </summary>
+        public static string NewGame {
+            get {
+                return ResourceManager.GetString("NewGame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die You have not filled in all the input fields. ähnelt.
+        /// </summary>
+        public static string NotFilledAllFields {
+            get {
+                return ResourceManager.GetString("NotFilledAllFields", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Number of boards ähnelt.
         /// </summary>
         public static string NumberOfBoards {
             get {
                 return ResourceManager.GetString("NumberOfBoards", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Participants ähnelt.
+        /// </summary>
+        public static string Participants {
+            get {
+                return ResourceManager.GetString("Participants", resourceCulture);
             }
         }
         
@@ -286,11 +421,110 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Port BearChess Server ähnelt.
+        /// </summary>
+        public static string PortBC {
+            get {
+                return ResourceManager.GetString("PortBC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Port must be a number ähnelt.
         /// </summary>
         public static string PortMustBeANumber {
             get {
                 return ResourceManager.GetString("PortMustBeANumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The port numbers for the BearchChess Server and the web server must be different ähnelt.
+        /// </summary>
+        public static string PortsAreEqual {
+            get {
+                return ResourceManager.GetString("PortsAreEqual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Port web server ähnelt.
+        /// </summary>
+        public static string PortWeb {
+            get {
+                return ResourceManager.GetString("PortWeb", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Publish ähnelt.
+        /// </summary>
+        public static string Publish {
+            get {
+                return ResourceManager.GetString("Publish", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Publishing started ähnelt.
+        /// </summary>
+        public static string PublishingStarted {
+            get {
+                return ResourceManager.GetString("PublishingStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Publishing stopped ähnelt.
+        /// </summary>
+        public static string PublishingStopped {
+            get {
+                return ResourceManager.GetString("PublishingStopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Publish tournament ähnelt.
+        /// </summary>
+        public static string PublishTournament {
+            get {
+                return ResourceManager.GetString("PublishTournament", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die In order for the changes to take effect, you must restart BearChess Server ähnelt.
+        /// </summary>
+        public static string RestartBearChessServer {
+            get {
+                return ResourceManager.GetString("RestartBearChessServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Save ähnelt.
+        /// </summary>
+        public static string Save {
+            get {
+                return ResourceManager.GetString("Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Save entries anyway? ähnelt.
+        /// </summary>
+        public static string SaveEntriesAnyWay {
+            get {
+                return ResourceManager.GetString("SaveEntriesAnyWay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Save tournament ähnelt.
+        /// </summary>
+        public static string SaveTournament {
+            get {
+                return ResourceManager.GetString("SaveTournament", resourceCulture);
             }
         }
         
@@ -313,11 +547,56 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Server started ähnelt.
+        /// </summary>
+        public static string ServerStarted {
+            get {
+                return ResourceManager.GetString("ServerStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Server stopped ähnelt.
+        /// </summary>
+        public static string ServerStopped {
+            get {
+                return ResourceManager.GetString("ServerStopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Start ähnelt.
         /// </summary>
         public static string Start {
             get {
                 return ResourceManager.GetString("Start", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die BearChess Server ähnelt.
+        /// </summary>
+        public static string StartBCServer {
+            get {
+                return ResourceManager.GetString("StartBCServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Start/Stop ähnelt.
+        /// </summary>
+        public static string StartStop {
+            get {
+                return ResourceManager.GetString("StartStop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die BearChess Webserver ähnelt.
+        /// </summary>
+        public static string StartWebServer {
+            get {
+                return ResourceManager.GetString("StartWebServer", resourceCulture);
             }
         }
         
@@ -331,11 +610,29 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Do you want to stop the publishing? ähnelt.
+        /// </summary>
+        public static string StopPublishing {
+            get {
+                return ResourceManager.GetString("StopPublishing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Do you want to stop the server? ähnelt.
         /// </summary>
         public static string StopServer {
             get {
                 return ResourceManager.GetString("StopServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Do you want to stop the web server? ähnelt.
+        /// </summary>
+        public static string StopWebServer {
+            get {
+                return ResourceManager.GetString("StopWebServer", resourceCulture);
             }
         }
         
@@ -363,6 +660,33 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Properties {
         public static string Tournaments {
             get {
                 return ResourceManager.GetString("Tournaments", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Webserver started ähnelt.
+        /// </summary>
+        public static string WebServerStarted {
+            get {
+                return ResourceManager.GetString("WebServerStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Webserver stopped ähnelt.
+        /// </summary>
+        public static string WebServerStopped {
+            get {
+                return ResourceManager.GetString("WebServerStopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die White ähnelt.
+        /// </summary>
+        public static string White {
+            get {
+                return ResourceManager.GetString("White", resourceCulture);
             }
         }
     }

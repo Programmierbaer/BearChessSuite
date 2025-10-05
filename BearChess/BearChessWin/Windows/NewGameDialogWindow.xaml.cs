@@ -9,6 +9,7 @@ using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessTools;
 using www.SoLaNoSoft.com.BearChessWin.Windows;
 using www.SoLaNoSoft.com.BearChessWpfCustomControlLib;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 
 namespace www.SoLaNoSoft.com.BearChessWin
@@ -38,6 +39,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
         }
 
         public bool ContinueGame => false;
+        public bool CasualGame
+        {
+            get;
+            private set;
+        }
 
         public string PlayerBlack => PlayerBlackConfigValues?.Name;
 
@@ -48,6 +54,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
         public bool SeparateControl => _timeControlWhite.SeparateControl;
 
         public bool StartFromBasePosition => true;
+        public bool PublishGame => false;
+        public bool PublishGameContinuously => false;
+        public string GameEvent => Constants.BearChess;
 
         private readonly ISpeech _synthesizer;
         private readonly ResourceManager _rm;
@@ -55,12 +64,16 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private int _currentQueryIndex = 0;
         private bool _callPrevious = false;
         private UciInfo _player;
+        private string _bcsPlayerWhite;
+        private string _bcsPlayerBlack;
+        private int _bcsOwnColor;
 
         public NewGameDialogWindow(Configuration configuration, bool bcServerConnected)
         {
             _configuration = configuration;
             InitializeComponent();
             _bearChessServerConnected = bcServerConnected;
+            _functions.Add(QueryForCasualGame);
             _functions.Add(QueryForLastGame);
             _functions.Add(QueryForWhite);
             _functions.Add(QueryForWhiteElo);
@@ -75,7 +88,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _synthesizer?.SpeakAsync(_rm.GetString("NewGameWindowSpeech"));
         }
 
-        public void SetNames(UciInfo[] uciInfos, string lastSelectedEngineIdWhite, string lastSelectedEngineIdBlack)
+        public void SetNames(UciInfo[] uciInfos, string lastSelectedEngineIdWhite, string lastSelectedEngineIdBlack, bool allowEngines)
         {
             if (uciInfos.Length == 0)
             {
@@ -83,7 +96,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
 
             _allUciInfos.Clear();
-            _player = uciInfos.FirstOrDefault(u => u.IsPlayer);
+            _player = uciInfos.FirstOrDefault(u => u.IsPlayer && !u.IsBCChessServer);
             PlayerWhiteConfigValues = _player;
             PlayerBlackConfigValues = _player;
             var array = uciInfos.Where(u => u.IsActive && !u.IsProbing && !u.IsBuddy && !u.IsInternalBearChessEngine && !u.IsPlayer)
@@ -105,12 +118,22 @@ namespace www.SoLaNoSoft.com.BearChessWin
            
         }
 
+        public void SetBCServerPlayer(string bcsPlayerWhite, string bcsPlayerBlack, string tournamentName, int bcsOwnColor)
+        {
+            _bcsPlayerWhite = bcsPlayerWhite;
+            _bcsPlayerBlack = bcsPlayerBlack;
+            _bcsOwnColor = bcsOwnColor;
+            //
+        }
+
         public void SetTimeControlWhite(TimeControl timeControl)
         {
             _timeControlWhite = timeControl;
             _timeControlWhite.WaitForMoveOnBoard = true;
+            _timeControlWhite.AllowTakeBack = true;
             _timeControlBlack = timeControl;
             _timeControlBlack.WaitForMoveOnBoard = true;
+            _timeControlBlack.AllowTakeBack = true;
         }
 
         public void SetTimeControlBlack(TimeControl timeControl)
@@ -173,6 +196,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     _callPrevious = false;
                     if (_currentQueryIndex == 0 && result.Yes)
+                    {
+                        return result.Yes;
+                    }
+                    if (_currentQueryIndex == 1 && result.Yes)
                     {
                         return result.Yes;
                     }
@@ -339,9 +366,108 @@ namespace www.SoLaNoSoft.com.BearChessWin
             return dialog.QueryResult;
         }
 
+        private QueryDialogWindow.QueryDialogResult SetCasualConfigValues(UciInfo engineInfo, UciInfo playerInfo, int playerColor)
+        {
+            if (playerColor == Fields.COLOR_WHITE)
+            {
+                _timeControlWhite = TimeControlHelper.GetTrainingTimeControl();
+                _timeControlBlack = TimeControlHelper.GetAverageTimeControl();
+            }
+            else
+            {
+                _timeControlWhite = TimeControlHelper.GetAverageTimeControl();
+                _timeControlBlack = TimeControlHelper.GetTrainingTimeControl();
+            }
+            _timeControlWhite.SeparateControl = true;
+            _timeControlBlack.SeparateControl = true;
+            var maxElo = engineInfo.GetMaximumElo();
+            var minElo = engineInfo.GetMinimumElo();
+            var currentElo = _configuration.GetIntValue("casualElo", minElo + ((maxElo - minElo) / 2));
+            var splits = EloValueSplitter.GetSplitArray(minElo, maxElo, 20);
+            var splitValue = EloValueSplitter.GetSplitValue(splits, currentElo);
+            var valueDialog = new QueryValueDialogWindow(0, 20, splitValue, _rm.GetString("SkillLevel"))
+            {
+                Owner = this
+            };
+            valueDialog.ShowDialog();
+            if (valueDialog.QueryResult.Cancel || valueDialog.QueryResult.Previous)
+            {
+                return new QueryDialogWindow.QueryDialogResult() { No = false, Yes = false, Previous = valueDialog.QueryResult.Previous, Cancel = valueDialog.QueryResult.Cancel, Repeat = false };
+            }
+            if (valueDialog.QueryResult.Yes)
+            {
+                engineInfo.SetElo(splits[valueDialog.Value]);
+                var firstOrDefault = OpeningBookLoader.GetInstalledBookInfos().FirstOrDefault(b => b.IsDefaultBook);
+                if (firstOrDefault != null)
+                {
+                    engineInfo.OpeningBook = firstOrDefault.Name;
+                }
+                else
+                {
+                    firstOrDefault = OpeningBookLoader.GetInstalledBookInfos().FirstOrDefault(b => b.IsInternalBook &&  !b.IsHiddenInternalBook);
+                    if (firstOrDefault != null)
+                    {
+                        engineInfo.OpeningBook = firstOrDefault.Name;
+                    }
+                    else
+                    {
+                        engineInfo.OpeningBook = "Perfect 2023";
+                    }
+                }
+                engineInfo.OpeningBookVariation = "2";
+                _configuration.SetIntValue("casualElo", splits[valueDialog.Value]);
+                
+            }
+            if (!valueDialog.QueryResult.Cancel)
+            {
+                CasualGame = true;
+                return new QueryDialogWindow.QueryDialogResult() { No = false, Yes = true, Previous = false, Cancel = false, Repeat = false };
+            }
+            return valueDialog.QueryResult;
+        }
+
+        private QueryDialogWindow.QueryDialogResult QueryForCasualGame()
+        {
+            CasualGame = false;
+            var dialog = new QueryDialogWindow(_rm.GetString("PlayCasualGame"),
+                $"{_rm.GetString("CancelNewGameDialog")}?", true)
+            {
+                Owner = this
+            };
+            dialog.ShowDialog();
+            if (dialog.QueryResult.Yes)
+            {
+                 dialog = new QueryDialogWindow(_rm.GetString("PlayWithWhite"),
+                    $"{_rm.GetString("CancelNewGameDialog")}?", true)
+                {
+                    Owner = this
+                };
+                dialog.ShowDialog();
+                if (dialog.QueryResult.Cancel || dialog.QueryResult.Previous)
+                {
+                    return new QueryDialogWindow.QueryDialogResult() { No = false, Yes = false, Previous = false, Cancel = true, Repeat = false };
+                }
+                if (dialog.QueryResult.Yes)
+                {
+                    PlayerWhiteConfigValues = _player;
+                    PlayerBlackConfigValues = _allUciInfos.FirstOrDefault(u => u.Value.OriginName.StartsWith("stock", StringComparison.InvariantCultureIgnoreCase)).Value;
+                    return SetCasualConfigValues(PlayerBlackConfigValues, PlayerWhiteConfigValues, Fields.COLOR_WHITE);
+
+                } else if (dialog.QueryResult.No)
+                {
+                    PlayerWhiteConfigValues = _allUciInfos.FirstOrDefault(u => u.Value.OriginName.StartsWith("stock", StringComparison.InvariantCultureIgnoreCase)).Value; ;
+                    PlayerBlackConfigValues = _player;
+                    return SetCasualConfigValues(PlayerWhiteConfigValues, PlayerBlackConfigValues, Fields.COLOR_BLACK);
+
+                }
+
+            }
+            return dialog.QueryResult;
+        }
+
         private QueryDialogWindow.QueryDialogResult QueryForLastGame()
         {
-            return GameQuery(true);
+            return GameQuery(false);
         }
 
         private QueryDialogWindow.QueryDialogResult QueryForWhite()

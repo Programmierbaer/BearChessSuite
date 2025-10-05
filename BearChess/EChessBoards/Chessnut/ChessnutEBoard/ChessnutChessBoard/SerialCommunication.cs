@@ -184,7 +184,10 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
                                 continue;
                             }
                             if (!readLine.Equals(prevLine))
-                                _logger?.LogDebug($"SC: Read {readLine.Length} bytes from board: {readLine}");
+                            {
+                             //   _logger?.LogDebug($"SC: Read {readLine.Length} bytes from board: {readLine}");
+                            }
+
                             prevLine = readLine;
                             _dataFromBoard.Enqueue(readLine);
 

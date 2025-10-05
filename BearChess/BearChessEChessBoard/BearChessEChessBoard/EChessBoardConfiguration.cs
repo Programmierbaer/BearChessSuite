@@ -18,6 +18,8 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         public bool ClockSwitchSide { get; set; }
         public bool ClockUpperCase { get; set; }
         public bool ClockBeep { get; set; }
+        public bool ClockUseExtern { get; set; }
+        public bool ClockUseIntern { get; set; }
         public int BeepDuration { get; set; }
         public bool LongMoveFormat { get; set; }
         public int ScanTime { get; set; }
@@ -71,6 +73,8 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             WebSocketAddr = string.Empty;
             SayLiftUpDownFigure = false;
             SendLEDCommands = false;
+            ClockUseExtern = false;
+            ClockUseIntern = true;
         }
 
         public static EChessBoardConfiguration Load(string fileName)
@@ -118,6 +122,8 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                     configuration.WebSocketAddr = savedConfig.WebSocketAddr;
                     configuration.SayLiftUpDownFigure = savedConfig.SayLiftUpDownFigure;
                     configuration.SendLEDCommands = savedConfig.SendLEDCommands;
+                    configuration.ClockUseIntern = savedConfig.ClockUseIntern;
+                    configuration.ClockUseExtern = savedConfig.ClockUseExtern;
                 }
                 else
                 {

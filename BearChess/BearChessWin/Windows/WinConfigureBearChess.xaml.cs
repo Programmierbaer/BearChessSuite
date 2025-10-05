@@ -30,12 +30,26 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _blindUser = _configuration.GetBoolValue("blindUser", false);
             checkBoxBlind.IsChecked = _blindUser;
             checkBoxBlindSayMoveTime.IsChecked = _configuration.GetBoolValue("blindUserSayMoveTime", false);
-            checkBoxBlindSayFIDERules.IsChecked = _configuration.GetBoolValue("blindUserSayFideRules", true);
+            radioButtonBlindSayLong.IsChecked = _configuration.GetBoolValue("blindUserSayLong", false);
+            radioButtonBlindSayShort.IsChecked = _configuration.GetBoolValue("blindUserSayShort", false);
+            radioButtonBlindSayFIDERules.IsChecked = _configuration.GetBoolValue("blindUserSayFideRules", true);
+            if (!_configuration.GetBoolValue("blindUserSayMoveTime", false) && !_configuration.GetBoolValue(
+                                                                               "blindUserSayLong", false)
+                                                                           && !_configuration.GetBoolValue(
+                                                                               "blindUserSayFideRules", true))
+            {
+                radioButtonBlindSayFIDERules.IsChecked = true;
+                _configuration.SetBoolValue("blindUserSayFideRules", true);
+            }
+            checkBoxBlindNoEBoard.IsChecked = _configuration.GetBoolValue("blindUserNoBoard", false);
+            checkBoxSaveBlindGames.IsChecked = _configuration.GetBoolValue("blindAutoSaveGames", true);
             checkBoxStartBasePosition.IsChecked = _blindUser || _configuration.GetBoolValue("startFromBasePosition", true);
             checkBoxSaveGames.IsChecked =  _blindUser || _configuration.GetBoolValue("autoSaveGames", _blindUser);
             checkBoxAllowEarly.IsChecked = _configuration.GetBoolValue("allowEarly", true);
             numericUpDownUserControlEvaluation.Value = int.Parse(_configuration.GetConfigValue("earlyEvaluation", "4"));
+            checkBoxTournamentMode.IsChecked = _configuration.GetBoolValue("tournamentMode", false);
             checkBoxWriteLogFiles.IsChecked = _configuration.GetBoolValue("writeLogFiles",true);
+            checkBoxClearLogFiles.IsChecked = _configuration.ClearLogIsSet();
             radioButtonSDI.IsChecked = _configuration.GetBoolValue("sdiLayout",true) && !_blindUser;
             radioButtonMDI.IsChecked = !_configuration.GetBoolValue("sdiLayout", true) || _blindUser;
             GroupBoxLayout.Visibility = _blindUser ? Visibility.Collapsed : Visibility.Visible;
@@ -74,7 +88,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _configuration.SetConfigValue("blindUserSayMoveTime",
                 (checkBoxBlindSayMoveTime.IsChecked.HasValue && checkBoxBlindSayMoveTime.IsChecked.Value).ToString());
             _configuration.SetBoolValue("blindUserSayFideRules",
-                (checkBoxBlindSayFIDERules.IsChecked.HasValue && checkBoxBlindSayFIDERules.IsChecked.Value));
+                (radioButtonBlindSayFIDERules.IsChecked.HasValue && radioButtonBlindSayFIDERules.IsChecked.Value));
+
+            _configuration.SetBoolValue("blindUserSayLong", (radioButtonBlindSayLong.IsChecked.HasValue && radioButtonBlindSayLong.IsChecked.Value));
+            _configuration.SetBoolValue("blindUserSayShort", (radioButtonBlindSayShort.IsChecked.HasValue && radioButtonBlindSayShort.IsChecked.Value));
+            _configuration.SetBoolValue("blindAutoSaveGames",
+                (checkBoxSaveBlindGames.IsChecked.HasValue && checkBoxSaveBlindGames.IsChecked.Value));
+            _configuration.SetBoolValue("blindUserNoBoard", 
+                (checkBoxBlindNoEBoard.IsChecked.HasValue && checkBoxBlindNoEBoard.IsChecked.Value));
             _configuration.SetConfigValue("startFromBasePosition",
                 (checkBoxStartBasePosition.IsChecked.HasValue && checkBoxStartBasePosition.IsChecked.Value).ToString());
             _configuration.SetConfigValue("autoSaveGames",
@@ -84,6 +105,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _configuration.SetConfigValue("earlyEvaluation", numericUpDownUserControlEvaluation.Value.ToString());
             _configuration.SetConfigValue("writeLogFiles",
                 (checkBoxWriteLogFiles.IsChecked.HasValue && checkBoxWriteLogFiles.IsChecked.Value).ToString());
+            _configuration.SetConfigValue("tournamentMode",
+                            (checkBoxTournamentMode.IsChecked.HasValue && checkBoxTournamentMode.IsChecked.Value).ToString());
             if (!_blindUser)
             {
                 _configuration.SetBoolValue("sdiLayout",
@@ -136,6 +159,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         _configuration.SetConfigValue("selectedSpeech", firstOrDefault.VoiceInfo.Name);
                     }
                 }
+            }
+
+            if (checkBoxClearLogFiles.IsChecked.HasValue && checkBoxClearLogFiles.IsChecked.Value)
+            {
+                _configuration.SetClearLog();
+            }
+            else
+            {
+                _configuration.DeleteClearLog();
             }
             DialogResult = true;
         }
@@ -231,6 +263,12 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 if (sender is CheckBox checkBox)
                 {
                     var selected = checkBox.IsChecked.HasValue && checkBox.IsChecked.Value;
+                    helpText += selected ? _rm.GetString("IsSelected") : _rm.GetString("IsUnSelected");
+                }
+                if (sender is RadioButton radioButton)
+                {
+                    helpText = $"{_rm.GetString("TypeMoveAnnouncement")} {helpText}";
+                    var selected = radioButton.IsChecked.HasValue && radioButton.IsChecked.Value;
                     helpText += selected ? _rm.GetString("IsSelected") : _rm.GetString("IsUnSelected");
                 }
 

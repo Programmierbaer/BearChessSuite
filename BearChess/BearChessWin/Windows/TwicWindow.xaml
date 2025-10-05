@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Windows"
         xmlns:gl="clr-namespace:System.Globalization;assembly=mscorlib"
         xmlns:bearChessWin="clr-namespace:www.SoLaNoSoft.com.BearChessWin"
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Properties"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
         WindowStartupLocation="CenterOwner"
         mc:Ignorable="d" WindowStyle="SingleBorderWindow" Icon="../Assets/Icons/outlook_calendar_week.png"
         Title="The Week in Chess TWIC" Height="450" Width="800">

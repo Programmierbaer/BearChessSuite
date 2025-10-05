@@ -6,6 +6,7 @@
         private bool _includeMoveTime;
         private bool _includeEvaluation;
         private bool _includeSymbols;
+        private bool _includeClock;
         public bool PurePgn { get; set; }
 
         public bool IncludeComment 
@@ -30,6 +31,12 @@
         {
             get => _includeSymbols && !PurePgn;
             set => _includeSymbols = value;
+        }
+
+        public bool IncludeClock
+        {
+            get => _includeClock && !PurePgn;
+            set => _includeClock = value;
         }
 
 

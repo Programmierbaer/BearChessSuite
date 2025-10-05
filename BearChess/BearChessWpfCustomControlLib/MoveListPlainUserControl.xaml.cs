@@ -178,15 +178,25 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         }
         public void AddMove(Move move)
         {
+            if (move == null)
+            {
+                return;
+            }
             _moveList.Add(move);
             AddInternalMove(move);
         }
 
         public void AddMove(Move move, bool tournamentMode)
         {
+            if (move == null)
+            {
+                return;
+            }
             _moveList.Add(move);
             AddInternalMove(move);
         }
+
+        public Move[] GetAllMoves() => _moveList.ToArray();
 
         public void Clear()
         {

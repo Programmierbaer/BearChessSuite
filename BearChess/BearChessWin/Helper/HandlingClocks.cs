@@ -29,7 +29,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 var hour = timeControl.Value1 / 60;
                 var hourH = (timeControl.Value1 + timeControl.HumanValue) / 60;
-              
+
 
                 if (timeControl.HumanValue > 0 && whiteIsPlayer)
                 {
@@ -46,15 +46,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
                 hourWhite = hour;
                 minuteWhite = timeControl.Value1 - hour * 60;
-                
-              //  eChessBoard?.SetClock(hour, timeControl.Value1 - hour * 60,0,hourH, timeControl.Value1 - hour * 60,0);
+
+                //  eChessBoard?.SetClock(hour, timeControl.Value1 - hour * 60,0,hourH, timeControl.Value1 - hour * 60,0);
             }
 
             if (timeControl.TimeControlType == TimeControlEnum.TimePerGameIncrement)
             {
                 var hour = timeControl.Value1 / 60;
                 var hourH = (timeControl.Value1 + timeControl.HumanValue) / 60;
-              
+
                 if (timeControl.HumanValue > 0 && whiteIsPlayer)
                 {
                     chessClocksWindowWhite.SetTime(hourH, timeControl.Value1 + timeControl.HumanValue - hourH * 60,
@@ -70,15 +70,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 }
                 hourWhite = hour;
                 minuteWhite = timeControl.Value1 - hour * 60;
-                
-               // eChessBoard?.SetClock(hour, timeControl.Value1 - hour * 60, 0, hourH, timeControl.Value1 - hour * 60, 0);
+
+                // eChessBoard?.SetClock(hour, timeControl.Value1 - hour * 60, 0, hourH, timeControl.Value1 - hour * 60, 0);
             }
 
             if (timeControl.TimeControlType == TimeControlEnum.TimePerMoves)
             {
                 var hour = timeControl.Value2 / 60;
                 var hourH = (timeControl.Value2 + timeControl.HumanValue) / 60;
-             
+
 
                 if (timeControl.HumanValue > 0 && whiteIsPlayer)
                 {
@@ -94,7 +94,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 }
                 hourWhite = hour;
                 minuteWhite = timeControl.Value1 - hour * 60;
-                
+
                 //eChessBoard?.SetClock(hour, timeControl.Value2 - hour * 60, 0, hourH, timeControl.Value2 - hour * 60, 0);
             }
 
@@ -109,7 +109,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 chessClocksWindowWhite.SetTime(0, 0, 0);
                 chessClocksWindowWhite.CountDown = false;
-                
+
                 chessClocksWindowWhite.SetTooltip($"No control ");
             }
 
@@ -159,7 +159,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
                 hourBlack = hourH;
                 minuteBlack = timeControlBlack.Value1 - hour * 60;
-                
+
                 //eChessBoard?.SetClock(hour, timeControl.Value1 - hour * 60, 0, hourH, timeControlBlack.Value1 - hour * 60, 0);
             }
 
@@ -182,9 +182,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 }
                 hourBlack = hourH;
                 minuteBlack = timeControlBlack.Value1 - hour * 60;
-                
 
-               // eChessBoard?.SetClock(hour, timeControl.Value1 - hour * 60, 0, hourH, timeControl.Value1 - hour * 60, 0);
+
+                // eChessBoard?.SetClock(hour, timeControl.Value1 - hour * 60, 0, hourH, timeControl.Value1 - hour * 60, 0);
             }
 
             if (timeControlBlack.TimeControlType == TimeControlEnum.TimePerMoves)
@@ -207,8 +207,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
                 hourBlack = hourH;
                 minuteBlack = timeControlBlack.Value2 - hour * 60;
-                
-              //  eChessBoard?.SetClock(hour, timeControl.Value2 - hour * 60, 0, hourH, timeControl.Value2 - hour * 60, 0);
+
+                //  eChessBoard?.SetClock(hour, timeControl.Value2 - hour * 60, 0, hourH, timeControl.Value2 - hour * 60, 0);
             }
 
             if (timeControlBlack.TimeControlType == TimeControlEnum.AverageTimePerMove)
@@ -222,7 +222,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 chessClocksWindowBlack.SetTime(0, 0, 0);
                 chessClocksWindowBlack.CountDown = false;
-              
+
                 chessClocksWindowBlack.SetTooltip($"No control ");
             }
             if (timeControlBlack.TimeControlType == TimeControlEnum.Adapted)

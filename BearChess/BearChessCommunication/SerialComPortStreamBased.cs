@@ -18,6 +18,8 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
         // https://www.sparxeng.com/blog/software/must-use-net-system-io-ports-serialport
         public string PortName { get; }
         public string Baud { get; }
+        public int DeviceIndex { get; set; }
+
         public string DeviceName => string.Empty;
 
         private readonly SerialPort _serialPort;
@@ -28,6 +30,7 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
 
         public SerialComPortStreamBased(string comport, int baud, Parity parity)
         {
+            DeviceIndex = -1;
             PortName = comport;
             Baud = baud.ToString();
             _serialPort = new SerialPort(comport, baud, parity);
@@ -37,6 +40,7 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
 
         public SerialComPortStreamBased(string comport, int baud, Parity parity, int dataBits, StopBits stopBits, ILogging logging)
         {
+            DeviceIndex = -1;
             _logging = logging;
             PortName = comport;
             Baud = baud.ToString();

@@ -147,6 +147,7 @@
     <Compile Include="Interfaces\IUciWrapper.cs" />
     <Compile Include="MaterialHelper.cs" />
     <Compile Include="MoveLineHelper.cs" />
+    <Compile Include="OpeningTrainingConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpeechTranslator.cs" />
     <Compile Include="SpeechWrapper.cs" />

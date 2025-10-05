@@ -6,6 +6,7 @@ using System.Threading;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
+using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 
 namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
@@ -84,6 +85,8 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
         private ConcurrentQueue<string[]> _flashFields = new ConcurrentQueue<string[]>();
         private readonly ConcurrentQueue<ProbingMove[]> _probingFields = new ConcurrentQueue<ProbingMove[]>();
         private readonly EChessBoardConfiguration _boardConfiguration;
+        private bool _whiteKingOnBasePosition = false;
+        private bool _blackKingOnBasePosition = false;
 
         public EChessBoard(string boardName, ILogging logger, EChessBoardConfiguration configuration)
         {
@@ -484,12 +487,46 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
 
                  
                     result = GetPiecesFen(pLine, _playWithWhite);
-                    _lastResult = result;
                 }
             }
-         
-        
-           
+            if (!result.Contains("k") || !result.Contains("K"))
+            {
+                return new DataFromBoard(result, dataFromBoard.Repeated);
+            }
+            if (!string.IsNullOrWhiteSpace(_lastResult) && !_lastResult.Equals(result))
+            {
+
+                var fastChessBoard = new FastChessBoard();
+                fastChessBoard.Init(result, Array.Empty<string>());
+                if (_whiteKingOnBasePosition)
+                {
+                    if (fastChessBoard.WhiteKingOnCastleMove())
+                    {
+                        return new DataFromBoard(
+                            _lastResult.Contains(UnknownPieceCode) ? string.Empty : _lastResult,
+                            dataFromBoard.Repeated);
+                    }
+                }
+
+                if (_blackKingOnBasePosition)
+                {
+                    if (fastChessBoard.BlackKingOnCastleMove())
+                    {
+                        return new DataFromBoard(
+                            _lastResult.Contains(UnknownPieceCode) ? string.Empty : _lastResult,
+                            dataFromBoard.Repeated);
+                    }
+                }
+                _whiteKingOnBasePosition = fastChessBoard.WhiteKingOnBasePosition();
+                _blackKingOnBasePosition = fastChessBoard.BlackKingOnBasePosition();
+            }
+            if (result.Contains(UnknownPieceCode))
+            {
+                return new DataFromBoard(_lastResult, dataFromBoard.Repeated);
+            }
+            _lastResult = result;
+
+
             return new DataFromBoard(_lastResult, dataFromBoard.Repeated);
         }
 
@@ -556,7 +593,8 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
 
         protected override void SetToNewGame()
         {
-            //
+            _whiteKingOnBasePosition = true;
+            _blackKingOnBasePosition = true;
             _probingFields.TryDequeue(out _);
         }
 
@@ -572,7 +610,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
             //
         }
 
-        public override void SetClock(int hourWhite, int minuteWhite, int minuteSec, int hourBlack, int minuteBlack, int secondBlack)
+        public override void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments)
         {
             //
         }
@@ -588,6 +626,11 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
         }
 
         public override void DisplayOnClock(string display)
+        {
+            //
+        }
+
+        public override void ResetClock()
         {
             //
         }

@@ -16,5 +16,7 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
         void StopServer();
 
         int CurrentPortNumber { get; set; }
+
+        void SendToClient(string clientAddr, BearChessServerMessage message);
     }
 }

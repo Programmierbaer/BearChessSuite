@@ -940,7 +940,7 @@
     <value>Speichern als Start-Konfiguration</value>
   </data>
   <data name="SaveGamesAutomatically" xml:space="preserve">
-    <value>Partien automatisch speichern</value>
+    <value>Partien automatisch speichern (Datenbank)</value>
   </data>
   <data name="SayAllMovesSelectedFigure" xml:space="preserve">
     <value>Alle Züge für ausgewählte Figur ansagen</value>
@@ -1417,7 +1417,7 @@
     <value>Ungültiger Parameter</value>
   </data>
   <data name="PortMustBeANumber" xml:space="preserve">
-    <value>Port muss eine Zahl sein</value>
+    <value>Port darf nur eine Zahl sein</value>
   </data>
   <data name="MissingParameter" xml:space="preserve">
     <value>Fehlende Parameter</value>
@@ -2632,7 +2632,7 @@
     <value>Konfigurieren Sie die Verbindung zum BearChess Server</value>
   </data>
   <data name="ClientName" xml:space="preserve">
-    <value>Ihr Anmeldename</value>
+    <value>Ihr Anmeldename:</value>
   </data>
   <data name="ResetDefault2500" xml:space="preserve">
     <value>Auf Standardwert mit einer Verzögerung von 2500 ms zurücksetzen</value>
@@ -2696,5 +2696,212 @@
   </data>
   <data name="SendLEDCommandTip" xml:space="preserve">
     <value>Wenn dein Schachbrett LEDs unterstützt, z.B. das Revelation oder Elfacun-Modul</value>
+  </data>
+  <data name="PlayerWhite" xml:space="preserve">
+    <value>Name des Spielers für Weiß:</value>
+  </data>
+  <data name="PlayerBlack" xml:space="preserve">
+    <value>Name des Spielers für Schwarz:</value>
+  </data>
+  <data name="SaveTournament" xml:space="preserve">
+    <value>Turnier speichern</value>
+  </data>
+  <data name="OpeningTraining" xml:space="preserve">
+    <value>Eröffnungstraining</value>
+  </data>
+  <data name="ShowNextOpeningMove" xml:space="preserve">
+    <value>Zeige nächsten Zug nach</value>
+  </data>
+  <data name="ExecuteMoveAutomatically" xml:space="preserve">
+    <value>Führe Zug aus für:</value>
+  </data>
+  <data name="Selection" xml:space="preserve">
+    <value>Auswahl:</value>
+  </data>
+  <data name="AllowEcoChange" xml:space="preserve">
+    <value>Erlaube Eröffnungswechsel</value>
+  </data>
+  <data name="Training" xml:space="preserve">
+    <value>Trainieren</value>
+  </data>
+  <data name="ChessOpening" xml:space="preserve">
+    <value>Starte Eröffnungstraining</value>
+  </data>
+  <data name="ChessOpeningStop" xml:space="preserve">
+    <value>Beende Eröffnungstraining</value>
+  </data>
+  <data name="Position" xml:space="preserve">
+    <value>Position</value>
+  </data>
+  <data name="FenCopy" xml:space="preserve">
+    <value>Kopiere FEN-Position</value>
+  </data>
+  <data name="FenPaste" xml:space="preserve">
+    <value>Einfügen FEN-Position</value>
+  </data>
+  <data name="LoadLastFenOnStartup" xml:space="preserve">
+    <value>Letzte Position beim Start laden</value>
+  </data>
+  <data name="EnableInternalEngine" xml:space="preserve">
+    <value>Aktiviere BearChess-Schachprogramm</value>
+  </data>
+  <data name="ShowAnalysisBar" xml:space="preserve">
+    <value>Zeige Analysebalken</value>
+  </data>
+  <data name="ShowEvalutionsSymbols" xml:space="preserve">
+    <value>Bewertungssymbole anzeigen</value>
+  </data>
+  <data name="LoadLastOrDefaultBook" xml:space="preserve">
+    <value>Letztes oder Standard-Eröffnungsbuch automatisch laden</value>
+  </data>
+  <data name="HideClocks" xml:space="preserve">
+    <value>Uhren verbergen</value>
+  </data>
+  <data name="ConfigurePlayer" xml:space="preserve">
+    <value>Name des Spielers Konfigurieren</value>
+  </data>
+  <data name="SpeechRate" xml:space="preserve">
+    <value>Geschwindigkeit</value>
+  </data>
+  <data name="ShowHideBuddyBestLines" xml:space="preserve">
+    <value>Buddy-Kommentare anzeigen oder verbergen</value>
+  </data>
+  <data name="AlternateMove" xml:space="preserve">
+    <value>Nachträgliches Korrigieren erlaubt</value>
+  </data>
+  <data name="Queen" xml:space="preserve">
+    <value>Dame</value>
+  </data>
+  <data name="Rook" xml:space="preserve">
+    <value>Turm</value>
+  </data>
+  <data name="Knight" xml:space="preserve">
+    <value>Springer</value>
+  </data>
+  <data name="Bishop" xml:space="preserve">
+    <value>Läufer</value>
+  </data>
+  <data name="ChangeParticipants" xml:space="preserve">
+    <value>Teilnehmer ändern</value>
+  </data>
+  <data name="CreateNewTournament" xml:space="preserve">
+    <value>Ersetzen und ein neues Turnier anlegen</value>
+  </data>
+  <data name="ReplaceOverrideTournament" xml:space="preserve">
+    <value>Ersetzen und Turnier überschreiben</value>
+  </data>
+  <data name="DonateMe" xml:space="preserve">
+    <value>Spende zur Unterstützung von BearChess:</value>
+  </data>
+  <data name="FIDERulesForMove" xml:space="preserve">
+    <value>FIDE-Regeln für die Zugansage</value>
+  </data>
+  <data name="ClearLogFiles" xml:space="preserve">
+    <value>Alle Logdateien beim Neustart löschen</value>
+  </data>
+  <data name="ClearLogFilesTip" xml:space="preserve">
+    <value>Löscht beim Neustart von BearChess einmalig alle Logdateien</value>
+  </data>
+  <data name="AutoClockMode" xml:space="preserve">
+    <value>Automatischer Modus</value>
+  </data>
+  <data name="ClockUseExtern" xml:space="preserve">
+    <value>BearChess übernimmt die Zeit von der Uhr</value>
+  </data>
+  <data name="ClockUseIntern" xml:space="preserve">
+    <value>Die Uhrzeit wird von BearChess gesetzt</value>
+  </data>
+  <data name="UseClock" xml:space="preserve">
+    <value>Uhr benutzen</value>
+  </data>
+  <data name="ClockTime" xml:space="preserve">
+    <value>Uhrzeit</value>
+  </data>
+  <data name="ClockLeftWhite" xml:space="preserve">
+    <value>Weiß auf der linken Seite</value>
+  </data>
+  <data name="ClockLeftBlack" xml:space="preserve">
+    <value>Schwarz auf der linken Seite</value>
+  </data>
+  <data name="ClockIsOnTheLeftSide" xml:space="preserve">
+    <value>Uhr ist auf der linken Seite</value>
+  </data>
+  <data name="ClockIsOntheRightSide" xml:space="preserve">
+    <value>Die Uhr steht auf der Seite des Anschlusses</value>
+  </data>
+  <data name="EloPlayer" xml:space="preserve">
+    <value>ELO:</value>
+  </data>
+  <data name="Publish" xml:space="preserve">
+    <value>Veröffentlichen</value>
+  </data>
+  <data name="UploadPath" xml:space="preserve">
+    <value>Zielpfad:</value>
+  </data>
+  <data name="ConfigureFTP" xml:space="preserve">
+    <value>FTP Konfigurieren</value>
+  </data>
+  <data name="PublishGame" xml:space="preserve">
+    <value>Partie veröffentlichen</value>
+  </data>
+  <data name="Continuously" xml:space="preserve">
+    <value>...kontinuierlich</value>
+  </data>
+  <data name="Tournaments" xml:space="preserve">
+    <value>Turniere</value>
+  </data>
+  <data name="StartStop" xml:space="preserve">
+    <value>Start/Stopp</value>
+  </data>
+  <data name="StartBCServer" xml:space="preserve">
+    <value>BearChess Server</value>
+  </data>
+  <data name="StartWebServer" xml:space="preserve">
+    <value>BearChess Webserver</value>
+  </data>
+  <data name="Closed" xml:space="preserve">
+    <value>Geschlossen</value>
+  </data>
+  <data name="ServerItem" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="NewTournament" xml:space="preserve">
+    <value>Neues Turnier</value>
+  </data>
+  <data name="ConfigureBCServer" xml:space="preserve">
+    <value>BearChess Server</value>
+  </data>
+  <data name="FTP" xml:space="preserve">
+    <value>FTP</value>
+  </data>
+  <data name="ConfigureBCSandFTP" xml:space="preserve">
+    <value>BearChess Server / FTP</value>
+  </data>
+  <data name="SFTP" xml:space="preserve">
+    <value>SFTP:</value>
+  </data>
+  <data name="UseBCSforFTP" xml:space="preserve">
+    <value>Ersetzt FTP:</value>
+  </data>
+  <data name="ServerName" xml:space="preserve">
+    <value>Hostname:</value>
+  </data>
+  <data name="PortBC" xml:space="preserve">
+    <value>Port BearChess-Server:</value>
+  </data>
+  <data name="PortWeb" xml:space="preserve">
+    <value>Port Web-Server:</value>
+  </data>
+  <data name="PublishTournament" xml:space="preserve">
+    <value>Turnier veröffentlichen</value>
+  </data>
+  <data name="FileNameDialog" xml:space="preserve">
+    <value>Dateiname:</value>
+  </data>
+  <data name="BlindUserNoBoard" xml:space="preserve">
+    <value>Ich spiele ohne elektronisches Schachbrett.</value>
+  </data>
+  <data name="SaveBlindGamesAutomatically" xml:space="preserve">
+    <value>Partien automatisch speichern (Ordner Dokumente)</value>
   </data>
 </root>

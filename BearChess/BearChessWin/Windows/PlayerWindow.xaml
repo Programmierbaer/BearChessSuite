@@ -4,7 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" FontSize="16"
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Windows" SizeToContent="Height" Closing="PlayerWindow_OnClosing"
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Properties" PreviewKeyDown="PlayerWindow_OnPreviewKeyDown"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
+        PreviewKeyDown="PlayerWindow_OnPreviewKeyDown"
         mc:Ignorable="d"  WindowStartupLocation="CenterOwner" ResizeMode="NoResize" Icon="../Assets/Icons/user_silhouette.png"
         Title="{x:Static p:Resources.Player}" Height="140" Width="220">
     <Window.Resources>
@@ -27,12 +28,15 @@
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <TextBlock Margin="5" Grid.Column="0" Grid.Row="0" FontWeight="SemiBold" Text="{x:Static p:Resources.FirstName}" />
         <TextBox Margin="5" Name="textBlockFirstName" Grid.Column="1" Grid.Row="0" GotFocus="TextBlockFirstName_OnGotFocus" AutomationProperties.HelpText="{x:Static p:Resources.FirstName}"/>
         <TextBlock Margin="5" Grid.Column="0" Grid.Row="1" FontWeight="SemiBold" Text="{x:Static p:Resources.LastName}" />
         <TextBox Margin="5" Name="textBlockLastName" Grid.Column="1" Grid.Row="1"  GotFocus="TextBlockLastName_OnGotFocus" AutomationProperties.HelpText="{x:Static p:Resources.LastName}"/>
-        <DockPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="5" DockPanel.Dock="Bottom" LastChildFill="False">
+        <TextBlock Margin="5" Grid.Column="0" Grid.Row="2" FontWeight="SemiBold" Text="{x:Static p:Resources.EloPlayer}" />
+        <TextBox Margin="5" Name="textBlockElo" Grid.Column="1" Grid.Row="2"  GotFocus="TextBlockElo_OnGotFocus" AutomationProperties.HelpText="{x:Static p:Resources.Elo}"/>
+        <DockPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Margin="5" DockPanel.Dock="Bottom" LastChildFill="False">
             <Button Name="buttonOk" GotFocus="ButtonOk_OnGotFocus" Margin="5,5,5,5" DockPanel.Dock="Left"  Width="28" Height="28" Background="Transparent" BorderBrush="Transparent" IsDefault="True" Click="ButtonOk_OnClick"
                     ToolTip="{x:Static p:Resources.Ok}">
                 <Image Source="../Assets/Icons/accept_button.png" ></Image>

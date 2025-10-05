@@ -551,6 +551,10 @@ namespace www.SoLaNoSoft.com.BearChessBase.Definitions
 
         public static string GetFieldName(int field)
         {
+            if (field < 0)
+            {
+                return string.Empty;
+            }
             string[] row = { "", "A", "B", "C", "D", "E", "F", "G", "H" };
             var zehner = field / 10;
             var einer = field - zehner * 10;
@@ -572,7 +576,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Definitions
 
         public static int GetFieldNumber(string field)
         {
-            if (string.IsNullOrWhiteSpace(field) || field == "-" )
+            if (string.IsNullOrWhiteSpace(field) || field.Contains("-"))
             {
                 return Fields.COLOR_EMPTY;
             }
@@ -587,6 +591,54 @@ namespace www.SoLaNoSoft.com.BearChessBase.Definitions
                     return Fields.COLOR_EMPTY;
                 }
                 return s + r;
+            }
+            catch
+            {
+                return Fields.COLOR_EMPTY;
+            }
+        }
+
+        public static int GetBlindFieldNumber(string field)
+        {
+            if (string.IsNullOrWhiteSpace(field) || field.Contains("-"))
+            {
+                return Fields.COLOR_EMPTY;
+            }
+
+            try
+            {
+                string l = "a";
+                var s = Convert.ToInt32(field.Substring(0, 1));
+                if (s > 1)
+                {
+                    l = "b";
+                }
+                if (s > 2)
+                {
+                    l = "c";
+                }
+                if (s > 3)
+                {
+                    l = "d";
+                }
+                if (s > 4)
+                {
+                    l = "e";
+                }
+                if (s > 5)
+                {
+                    l = "f";
+                }
+                if (s > 6)
+                {
+                    l = "g";
+                }
+                if (s > 7)
+                {
+                    l = "h";
+                }
+
+                return GetFieldNumber(l + field.Substring(1, 1));
             }
             catch
             {

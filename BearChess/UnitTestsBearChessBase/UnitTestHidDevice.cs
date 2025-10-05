@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using www.SoLaNoSoft.com.BearChess.HidDriver;
 
 namespace UnitTestsBearChessBase
@@ -23,7 +24,7 @@ namespace UnitTestsBearChessBase
         public void FindChessnutDevice()
         {
             var deviceHandling = new DeviceHandling(null);
-            var findDeviceNumber = deviceHandling.FindReadDevice(vendorId, usagePage);
+            var findDeviceNumber = deviceHandling.FindReadDevice(vendorId, string.Empty, new List<int>(), usagePage);
             Assert.IsTrue(findDeviceNumber);
             var manufacturer = deviceHandling.GetManufacturer();
             Assert.IsTrue(!string.IsNullOrWhiteSpace(manufacturer));

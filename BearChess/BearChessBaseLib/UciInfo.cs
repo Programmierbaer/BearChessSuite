@@ -14,7 +14,6 @@ namespace www.SoLaNoSoft.com.BearChessBase
     public class UciInfo
     {
         private string _fileName;
-
         private int _playerElo;
 
         public string Id { get; set; }
@@ -64,6 +63,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
         public DateTime ChangeDateTime { get; set; }
         public bool IsPlayer { get; set; }
         public bool IsChessServer { get; set; }
+        public bool IsBCChessServer { get; set; }
         public bool IsChessComputer { get; set; }
         public bool IsActive { get; set; }
         public bool IsBuddy { get; set; }
@@ -103,6 +103,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
             ChangeDateTime = DateTime.MinValue;
             IsPlayer = false;
             IsChessServer = false;
+            IsBCChessServer = false;
             IsActive = true;
             _playerElo = 0;
             IsBuddy = false;
@@ -297,6 +298,11 @@ namespace www.SoLaNoSoft.com.BearChessBase
                 }
             }
             return maxValue;
+        }
+
+        public void SetElo(string elo)
+        {
+            SetElo(int.TryParse(elo, out int eloNumber) ? eloNumber : 0);
         }
 
         public void SetElo(int elo)

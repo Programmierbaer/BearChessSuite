@@ -1,11 +1,12 @@
-﻿using System;
+﻿using InTheHand.Net;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Xml.Serialization;
-using InTheHand.Net;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Implementations.pgn;
@@ -67,12 +68,24 @@ namespace www.SoLaNoSoft.com.BearChessBase
             get;
         }
 
+        private string OpeningTrainingConfigFileName
+        {
+            get;
+        }
+
+        private const string CLEARLOG_FILE = "clearlog.log";
+
         public const string STARTUP_WHITE_ENGINE_ID = "startupWhite.uci";
         public const string STARTUP_BLACK_ENGINE_ID = "startupBlack.uci";
 
         public const string MESSCHESS_LEVELS_FILE = "MessChessLevels.txt";
 
         public string FolderPath
+        {
+            get;
+        }
+
+        public string DeviceIndexPath
         {
             get;
         }
@@ -92,6 +105,19 @@ namespace www.SoLaNoSoft.com.BearChessBase
             get;
         }
 
+        public PgnConfiguration GetDefaultPgnConfiguration()
+        {
+            return new PgnConfiguration()
+            {
+                PurePgn = true,
+                IncludeComment = true,
+                IncludeEvaluation = true,
+                IncludeMoveTime = true,
+                IncludeSymbols = true,
+                IncludeClock = true,
+            };
+        }
+
         public PgnConfiguration GetPgnConfiguration()
         {
             return new PgnConfiguration()
@@ -101,6 +127,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
                 IncludeEvaluation = bool.Parse(GetConfigValue("gamesPGNExportEvaluation", "true")),
                 IncludeMoveTime = bool.Parse(GetConfigValue("gamesPGNExportMoveTime", "true")),
                 IncludeSymbols = bool.Parse(GetConfigValue("gamesPGNExportSymbols", "true")),
+                IncludeClock = bool.Parse(GetConfigValue("gamesPGNExportClock", "true")),
             };
         }
 
@@ -111,6 +138,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
             SetConfigValue("gamesPGNExportEvaluation", pgnConfiguration.IncludeEvaluation.ToString());
             SetConfigValue("gamesPGNExportMoveTime", pgnConfiguration.IncludeMoveTime.ToString());
             SetConfigValue("gamesPGNExportSymbols", pgnConfiguration.IncludeSymbols.ToString());
+            SetConfigValue("gamesPGNExportClock", pgnConfiguration.IncludeClock.ToString());
         }
 
         public static string BearChessProgramAssemblyName { get; set; }
@@ -133,8 +161,6 @@ namespace www.SoLaNoSoft.com.BearChessBase
             get;
         }
 
-        
-
         private Configuration()
         {
             RunOn64Bit = Environment.Is64BitProcess;
@@ -146,8 +172,10 @@ namespace www.SoLaNoSoft.com.BearChessBase
             BinPath = fileInfo.DirectoryName;
             var bearChessConst = IsBearChessServer ? Constants.BearChessServer : Constants.BearChess;
             FolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), bearChessConst);
+            DeviceIndexPath = FolderPath;
             var args = Environment.GetCommandLineArgs();
             Standalone = false;
+            bool clearPositions = false;
             for (var i = 1; i < args.Length; i++)
             {
                 if (args[i].Equals("-path", StringComparison.InvariantCultureIgnoreCase) && !Standalone)
@@ -167,9 +195,21 @@ namespace www.SoLaNoSoft.com.BearChessBase
 
                             else
                             {
-                                var pathName = Path.Combine(pathValue, bearChessConst);
-                                Directory.Exists(pathName);
-                                FolderPath = pathName;
+                                try
+                                {
+                                    if (int.TryParse(pathValue, out var value))
+                                    {
+                                        FolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), $"{bearChessConst}_{value}");
+                                    }
+                                    else
+                                    {
+                                        FolderPath = Path.Combine(pathValue, bearChessConst);
+                                    }
+                                }
+                                catch
+                                {
+                                    //
+                                }
                             }
                         }
                         catch
@@ -187,6 +227,10 @@ namespace www.SoLaNoSoft.com.BearChessBase
                     }
 
                     Standalone = true;
+                }
+                if (args[i].Equals("-clearPosition", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    clearPositions = true;
                 }
             }
 
@@ -211,6 +255,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
             ConfigFileName = Path.Combine(FolderPath, $"{bearChessConst}.xml");
             BTConfigFileName = "bearchess_bt.xml";
             DatabaseFilterFileName = Path.Combine(FolderPath, "bearchess_dbfilter.xml");
+            OpeningTrainingConfigFileName = Path.Combine(FolderPath, "bearchess_opening_training.xml");
             try
             {
                 if (File.Exists(ConfigFileName))
@@ -228,6 +273,50 @@ namespace www.SoLaNoSoft.com.BearChessBase
             catch
             {
                 _appSettings = new ConfigurationSettings<string, string>();
+            }
+
+            if (clearPositions)
+            {
+                var appSettingsKeys = _appSettings.Keys;
+                foreach (var appSettingsKey in appSettingsKeys)
+                {
+                    if (_appSettings[appSettingsKey].EndsWith("Top",StringComparison.OrdinalIgnoreCase))
+                    {
+                        _appSettings.Remove(appSettingsKey);
+                        continue;
+                    }
+                    if (_appSettings[appSettingsKey].EndsWith("Left", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _appSettings.Remove(appSettingsKey);
+                        continue;
+                    }
+                    if (_appSettings[appSettingsKey].EndsWith("Width", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _appSettings.Remove(appSettingsKey);
+                        continue;
+                    }
+                    if (_appSettings[appSettingsKey].EndsWith("Height", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _appSettings.Remove(appSettingsKey);
+                        continue;
+                    }
+                }
+            }
+
+            if (File.Exists(Path.Combine(FolderPath, CLEARLOG_FILE)))
+            {
+                var files = Directory.GetFiles(FolderPath, "*.log*", SearchOption.AllDirectories);
+                foreach (var file in files)
+                {
+                    try
+                    {
+                        File.Delete(file);
+                    }
+                    catch
+                    {
+                        //
+                    }
+                }
             }
         }
 
@@ -353,6 +442,46 @@ namespace www.SoLaNoSoft.com.BearChessBase
             }
 
             return new GamesFilter() { FilterIsActive = false };
+        }
+
+        public void SaveOpeningTrainingConfig(OpeningTrainingConfig trainingConfig)
+        {
+          
+                try
+                {
+                    var serializer = new XmlSerializer(typeof(OpeningTrainingConfig));
+                    TextWriter textWriter = new StreamWriter(OpeningTrainingConfigFileName, false);
+                    serializer.Serialize(textWriter, trainingConfig);
+                    textWriter.Close();
+                }
+                catch
+                {
+                    //
+                }
+         
+        }
+
+        public OpeningTrainingConfig LoadOpeningTrainingConfig()
+        {
+            if (!File.Exists(OpeningTrainingConfigFileName))
+            {
+                return new OpeningTrainingConfig();
+            }
+
+            try
+            {
+                var serializer = new XmlSerializer(typeof(OpeningTrainingConfig));
+                TextReader textReader = new StreamReader(OpeningTrainingConfigFileName);
+                var config = (OpeningTrainingConfig)serializer.Deserialize(textReader);
+                textReader.Close();
+                return config;
+            }
+            catch
+            {
+                //
+            }
+
+            return new OpeningTrainingConfig();
         }
 
         public void SaveBTAddress(string boardName, BluetoothAddress btAddress, string identifier = "0")
@@ -554,6 +683,47 @@ namespace www.SoLaNoSoft.com.BearChessBase
                 : defaultValue;
         }
 
+        public void SetClearLog()
+        {
+            try
+            {
+                File.AppendAllText(Path.Combine(FolderPath, CLEARLOG_FILE), "Clear log");
+            }
+            catch
+            {
+            
+                //
+            }
+        }
+
+        public void DeleteClearLog()
+        {
+            try
+            {
+                if (ClearLogIsSet())
+                {
+                    File.Delete(Path.Combine(FolderPath, CLEARLOG_FILE));
+                }
+            }
+            catch
+            {
+
+                //
+            }
+        }
+
+        public bool ClearLogIsSet()
+        {
+            try
+            {
+                return File.Exists(Path.Combine(FolderPath, CLEARLOG_FILE));
+            }
+            catch
+            {
+                //
+            }
+            return false;
+        }
 
         private string GetConfigValue(IReadOnlyDictionary<string, string> settings, string key, string defaultValue)
         {

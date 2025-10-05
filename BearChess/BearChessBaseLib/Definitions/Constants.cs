@@ -36,7 +36,9 @@
         public const string Exclusive = "Exclusive";
         public const string Supreme = "Supreme Tournament";
         public const string DGT = "DGT";
-        public const string Player = "Player";
+        public const string Player1 = "Player 1";
+        public const string Player2 = "Player 2";
+        public const string BCServerPlayer = "BearChess Server Player";
         public const string FICS = "FICS";
         public const string Guest = "guest";
         public const string BryanWhitbyDali = "BryanWhitbyDali";

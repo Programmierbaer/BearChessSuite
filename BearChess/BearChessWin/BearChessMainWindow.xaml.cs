@@ -1,5 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -46,6 +48,7 @@ using www.SoLaNoSoft.com.BearChessTools;
 using www.SoLaNoSoft.com.BearChessTournament;
 using www.SoLaNoSoft.com.BearChessWin.Windows;
 using www.SoLaNoSoft.com.BearChessWpfCustomControlLib;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 using Color = System.Drawing.Color;
 using Move = www.SoLaNoSoft.com.BearChessBase.Implementations.Move;
 using TimeControl = www.SoLaNoSoft.com.BearChessBase.Implementations.TimeControl;
@@ -167,6 +170,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private readonly Dictionary<string, DatabaseGameFenIndex> _databaseGameFen =
             new Dictionary<string, DatabaseGameFenIndex>();
 
+        private readonly ConcurrentQueue<IBookMoveBase> _openingTrainingMoves = new ConcurrentQueue<IBookMoveBase>();
+
         private readonly string _piecesPath;
         private readonly string _uciPath;
         private readonly string _binPath;
@@ -182,6 +187,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private int _currentMoveIndex;
         private string _currentWhitePlayer;
         private string _currentEvent;
+        private string _bcsTournament;
         private string _currentSite;
         private string _currentRound;
         private DatabaseWindow _databaseWindow;
@@ -198,6 +204,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private Move[] _playedMoveList;
         private PositionSetupWindow _positionSetupWindow;
         private string _prevFenPosition;
+        private string _prevTrainingFenPosition;
         private bool _pureEngineMatch;
         private bool _pureEngineMatchStoppedByBearChess;
         private CurrentAction _currentAction;
@@ -253,6 +260,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private bool _showHash;
         private bool _showForWhite;
         private string _playerName;
+        private string _playerElo;
         private DuelInfoWindow _duelInfoWindow;
         private int _currentDuelId;
         private DuelManager _duelManager;
@@ -278,16 +286,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private bool _activateWindow;
         private double _currentLeft;
         private double _currentTop;
-        private readonly string _playerElo;
         private bool _show50MovesRule;
         private int[] _currentPairing;
         private IFICSClient _ficsClient;
         private readonly string _ficsPath;
+        private readonly string _publishPath;
         private IMoveListPlainWindow _moveListWindow;
         private ISpeech _synthesizer;
         private string _speechLanguageTag;
         private bool _speechIsActive;
-        private bool _speechLongMove;
         private bool _speechOwnMove;
         private FicsWindow _ficsWindow;
         private bool _useBluetoothChessnutAir;
@@ -303,6 +310,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private bool _fastMoveInput;
         private bool _showLastMove;
         private bool _loadDefaultBook;
+        private bool _loadLastOrDefaultBook;
         private bool _showBestBookMove;
         private bool _showBestMove;
         private SolidColorBrush _arrowColor;
@@ -333,26 +341,45 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private bool _showProbing = false;
         private bool _canSend;
         private IBearChessServerClient _bearChessServerClient;
+        private GamePublisher _gamePublisher;
         private ResourceManager _rm;
         private bool _blindUser;
         private bool _blindUserSaySelection;
         private bool _blindUserSayBestBookMove;
         private bool _blindUserSayMoveTime;
+        private bool _blindUserNoBoard = false;
         private string _currentHelpText;
         private bool _newGamePositionEvent;
         private bool _sdiLayout;
-        private CultureInfo _currentThreadCurrentUiCulture;
+        private readonly CultureInfo _currentThreadCurrentUiCulture;
         private bool _gameJustFinished = false;
         private bool _freeAnalysisWhite = true;
         private bool _freeAnalysisBlack = true;
         private string _lastScoreString = string.Empty;
         private decimal _lastScore = 0;
         private bool _bearChessServerConnected = false;
-        private bool _withBCServer = false;
+        private readonly bool _withBCServer = false;
+        private string _bcsPlayerWhite = string.Empty;
+        private string _bcsPlayerBlack = string.Empty;
+        private int _bcsOwnColor;
         private string[] _getSaysForBoard = Array.Empty<string>();
         private int _getSaysForBoardIndex = 0;
         private bool _evaluateCastleRights = true;
         private List<Move> _alternateFenMoveList = new List<Move>();
+        private string _savedFenFileName = string.Empty;
+        private EcoCode _trainingEcoCode = null;
+        private BookInfo _trainingBookInfo = null;
+        private OpeningBook _trainingOpeningBook = null;
+        private Thread _trainingThread = null;
+        private bool _inTrainingMode = false;
+        private OpeningTrainingConfig _openingTrainingConfig;
+        private static readonly Random LineRandomness = new Random();
+        private string _blindQueryFieldNumber = string.Empty;
+        private string _blindMoveFieldInput = string.Empty;
+        private bool _clockUseExtern = false;
+        private string _oldPublishSend = string.Empty;
+        private readonly bool _tournamentMode = false;
+        private Dictionary<string, string> _trainingFenCodes = new Dictionary<string, string>();
 
 
         public BearChessMainWindow()
@@ -374,7 +401,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _sdiLayout = _configuration.GetBoolValue("sdiLayout", true);
             InitializeComponent();
             _withBCServer = _configuration.GetBoolValue("withBCServer", true);
-            _withBCServer = false;
+            // _withBCServer = false;
             _configuration.SetBoolValue("checkForAlternateMoves", false);
             var fontSize = this.FontSize;
             var fontFamily = this.FontFamily;
@@ -408,8 +435,28 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     _blindUserSayBestBookMove = true;
                     continue;
                 }
-            }
+                if (args[i].Equals("-tournament", StringComparison.OrdinalIgnoreCase))
+                {
+                    _tournamentMode = true;
+                    continue;
+                }
+                if (args[i].Equals("-default", StringComparison.OrdinalIgnoreCase))
+                {
+                    _tournamentMode = false;
+                    _blindUserSaySelection = false;
+                    _blindUserSayMoveTime = false;
+                    _blindUserSayBestBookMove = false;
+                    _configuration.SetBoolValue("blindUser", false);
+                    _configuration.SetBoolValue("tournamentMode", false);
+                    continue;
+                }
 
+            }
+        
+            if (!_tournamentMode)
+            {
+                _tournamentMode = _configuration.GetBoolValue("tournamentMode", false);
+            }           
             if (_blindUser)
             {
                 _configuration.SetBoolValue("blindUser", true);
@@ -427,6 +474,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 _blindUserSayMoveTime = _configuration.GetBoolValue("blindUserSayMoveTime", false);
             }
+            _blindUserNoBoard = _configuration.GetBoolValue("blindUserNoBoard", false);
 
             if (_blindUser)
             {
@@ -437,14 +485,17 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
             else
             {
-                Title =
-                    $"{Title} v{assemblyName.Version} - {fileInfo.LastWriteTimeUtc:dd MMMM yyyy  HH:mm:ss} - {productVersion}";
+                Title = $"{Title} v{assemblyName.Version} - {fileInfo.LastWriteTimeUtc:yyyy-MM-dd  HH:mm:ss} - {productVersion}";
             }
-
+            //if (_tournamentMode)
+            //{
+            //    _sdiLayout = false;
+            //}
             GridClockAndMoves.Visibility = _sdiLayout ? Visibility.Collapsed : Visibility.Visible;
             materialUserControl.Visibility = _sdiLayout ? Visibility.Collapsed : Visibility.Visible;
             BorderChessBoard.BorderThickness = _sdiLayout ? new Thickness(0) : new Thickness(1);
             menuItemSettingsClock.IsEnabled = _sdiLayout;
+            TabItemBooks.Visibility = _tournamentMode ? Visibility.Collapsed : Visibility.Visible;
 
             if (_sdiLayout)
             {
@@ -455,7 +506,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             }
 
-            Width = _configuration.GetDoubleValue("MainWinWidth", "600");
+            Width = _configuration.GetDoubleValue("MainWinWidth", "650");
             Height = _configuration.GetDoubleValue("MainWinHeight", "680");
 
             if (!_sdiLayout)
@@ -467,8 +518,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 Width = _configuration.GetDoubleValue("MainWinWidthMDI", (1230).ToString());
                 Height = _configuration.GetDoubleValue("MainWinHeightMDI", (850).ToString());
             }
-
-            if (Top <= 0 && Left <= 0)
+            Rect rect = new Rect(0, 0, SystemParameters.VirtualScreenWidth, SystemParameters.VirtualScreenHeight);
+            if (!rect.Contains(new Point(Left,Top)) || (Top <= 0 && Left <= 0))
             {
                 WindowStartupLocation = WindowStartupLocation.CenterScreen;
             }
@@ -480,6 +531,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _boardPath = Path.Combine(_configuration.FolderPath, "board");
             _piecesPath = Path.Combine(_configuration.FolderPath, "pieces");
             _ficsPath = Path.Combine(_configuration.FolderPath, Constants.FICS);
+            _publishPath = Path.Combine(_configuration.FolderPath, "publish");
             var dbPath = Path.Combine(_configuration.FolderPath, "db");
 
             if (!Directory.Exists(logPath))
@@ -512,6 +564,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 Directory.CreateDirectory(_ficsPath);
             }
 
+            if (!Directory.Exists(_publishPath))
+            {
+                Directory.CreateDirectory(_publishPath);
+            }
+
             if (!Directory.Exists(dbPath))
             {
                 Directory.CreateDirectory(dbPath);
@@ -522,10 +579,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 Active = _writeLogFiles
             };
-            _fileLogger.LogInfo(
-                $"Start BearChess v{assemblyName.Version} {fileInfo.LastWriteTimeUtc:G} {productVersion}");
+            _fileLogger.LogInfo($"Start BearChess v{assemblyName.Version} {fileInfo.LastWriteTimeUtc:G} {productVersion}");
             _playerName = _configuration.GetConfigValue("player", Environment.UserName);
-            _playerElo = _configuration.GetConfigValue("playerElo", "");
+            _playerElo = _configuration.GetConfigValue("playerElo", "700");
             _synthesizer = BearChessSpeech.Instance;
 
             _fileLogger.LogInfo($"Speech available: {_synthesizer.SpeechAvailable}");
@@ -598,20 +654,29 @@ namespace www.SoLaNoSoft.com.BearChessWin
             chessBoardUcGraphics.SetCanvas(canvasBoard);
             _usedEngines.Clear();
             _loadDefaultBook = _configuration.GetBoolValue("LoadDefaultBook", true);
+            _loadLastOrDefaultBook = _blindUser || _configuration.GetBoolValue("LoadLastOrDefaultBook", true);
             imageLoadDefaultBook.Visibility = _loadDefaultBook ? Visibility.Visible : Visibility.Hidden;
+            imageLoadLastOrDefaultBook.Visibility = _loadLastOrDefaultBook ? Visibility.Visible : Visibility.Hidden;
             ReadInstalledEngines();
 
             ReadInstalledBooks();
-            if (_loadDefaultBook)
+            if (!_tournamentMode)
             {
-                LoadDefaultBook();
+                if (_loadLastOrDefaultBook)
+                {
+                    LoadlastOrDefaultBook();
+                }
+                else if (_loadDefaultBook)
+                {
+                    LoadDefaultBook();
+                }
             }
 
             var ecoCodeReader = new EcoCodeReader(new[] { _configuration.FolderPath, fileInfo.DirectoryName });
 //            var ecoCodes = ecoCodeReader.LoadArenaFile(@"c:\Temp\ecocodes7.txt", Thread.CurrentThread.CurrentUICulture);
             //var ecoCodes = ecoCodeReader.LoadFile(@"d:\eco.txt");
             //var ecoCodes = ecoCodeReader.LoadCsvFile(@"d:\eco.csv");
-            var ecoCodes = ecoCodeReader.Load(Thread.CurrentThread.CurrentUICulture);
+            EcoCode[]  ecoCodes = _tournamentMode ? new EcoCode[0] : ecoCodeReader.Load(Thread.CurrentThread.CurrentUICulture);
             //ecoCodeReader.Save(ecoCodes, Thread.CurrentThread.CurrentUICulture);
 
             _ecoCodes = ecoCodes.ToDictionary(e => e.FenCode, e => e);
@@ -740,6 +805,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _currentWhitePlayer = string.Empty;
             _currentBlackPlayer = string.Empty;
             _currentEvent = Constants.BearChess;
+            _bcsTournament = string.Empty;
             _currentSite = string.Empty;
             _currentRound = string.Empty;
             _lastResult = "*";
@@ -895,15 +961,13 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _showUciLog = _configuration.GetBoolValue("showucilog", false);
             imageUciLog.Visibility = _showUciLog ? Visibility.Visible : Visibility.Hidden;
 
-
-
             _pauseDuelGame = _configuration.GetBoolValue("pauseDuelGame", false);
             imagePauseDuelGame.Visibility = _pauseDuelGame ? Visibility.Visible : Visibility.Hidden;
 
             _flipBoardOSA = _configuration.GetBoolValue("flipboardOSA", false);
 
-            _enableInternalEngine = _configuration.GetBoolValue("enableInternalEngine", true);
-            ;
+            _enableInternalEngine = !_tournamentMode && _configuration.GetBoolValue("enableInternalEngine", true);
+            
             imageEnableInternalEngine.Visibility = _enableInternalEngine ? Visibility.Visible : Visibility.Hidden;
 
             _runLastGame = _configuration.GetBoolValue("runlastgame", false);
@@ -930,14 +994,13 @@ namespace www.SoLaNoSoft.com.BearChessWin
             imageShowNextMoveOnGameAnalysisMode.Visibility =
                 _showNextMoveOnGameAnalysisMode ? Visibility.Visible : Visibility.Hidden;
 
-            _showBestMoveOnGame = !_blindUser && _configuration.GetBoolValue("showbestmoveongame", false);
+            _showBestMoveOnGame = !_blindUser && !_tournamentMode && _configuration.GetBoolValue("showbestmoveongame", false);
             imageShowBestMoveOnGame.Visibility = _showBestMoveOnGame ? Visibility.Visible : Visibility.Hidden;
 
-            _showRequestForHelp = _configuration.GetBoolValue("showRequestForHelp", true);
+            _showRequestForHelp = !_tournamentMode && _configuration.GetBoolValue("showRequestForHelp", true);
             imageShowRequestForHelp.Visibility = _showRequestForHelp ? Visibility.Visible : Visibility.Hidden;
 
-            _loadBuddyEngineOnGameStart =
-                bool.Parse(_configuration.GetConfigValue("loadBuddyEngineOnGameStart", "false"));
+            _loadBuddyEngineOnGameStart = !_tournamentMode && _configuration.GetBoolValue("loadBuddyEngineOnGameStart",false);
             imageLoadBuddyEngine.Visibility = _loadBuddyEngineOnGameStart ? Visibility.Visible : Visibility.Hidden;
 
             _hideBuddyEngine = bool.Parse(_configuration.GetConfigValue("hideBuddyEngine", "false"));
@@ -954,7 +1017,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 AutomationProperties.SetHelpText(menuItemGamesShowDuplicates, _rm.GetString("IsUnSelected"));
             }
 
-            _loadLastEngine = bool.Parse(_configuration.GetConfigValue("loadlastengine", "false"));
+            _loadLastEngine =  bool.Parse(_configuration.GetConfigValue("loadlastengine", "false"));
             imageLoadLastEngine.Visibility = _loadLastEngine ? Visibility.Visible : Visibility.Hidden;
             if (_loadLastEngine)
             {
@@ -992,10 +1055,12 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _autoSaveGames = _blindUser || _configuration.GetBoolValue("autoSaveGames", false);
             _allowEarly = bool.Parse(_configuration.GetConfigValue("allowEarly", "true"));
             _earlyEvaluation = int.Parse(_configuration.GetConfigValue("earlyEvaluation", "4"));
-
-            if ((_loadLastEngine || !string.IsNullOrWhiteSpace(startEngineByName)) && !_runLastGame)
+            if (!_tournamentMode)
             {
-                LoadLastEngine(startEngineByName);
+                if ((_loadLastEngine || !string.IsNullOrWhiteSpace(startEngineByName)) && !_runLastGame)
+                {
+                    LoadLastEngine(startEngineByName);
+                }
             }
 
             _currentAction = _runLastGame ? CurrentAction.InRunningGame : CurrentAction.InEasyPlayingMode;
@@ -1055,7 +1120,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             _speechLanguageTag = _configuration
                 .GetConfigValue("selectedSpeechCulture", CultureInfo.CurrentCulture.IetfLanguageTag).ToLower();
-            _speechLongMove = !_blindUser && _configuration.GetBoolValue("speechLongMove", true);
             _speechIsActive = _blindUser || _configuration.GetBoolValue("speechActive", true);
             _speechOwnMove = _blindUser || _configuration.GetBoolValue("speechOwnMove", false);
             if (_speechIsActive)
@@ -1097,8 +1161,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             if (aRGB != 0)
             {
                 var color = Color.FromArgb(aRGB);
-                _bookMoveArrowColor =
-                    new SolidColorBrush(System.Windows.Media.Color.FromArgb(color.A, color.R, color.G, color.B));
+                _bookMoveArrowColor = new SolidColorBrush(System.Windows.Media.Color.FromArgb(color.A, color.R, color.G, color.B));
             }
 
             textBlockBookMoveArrowColor.Background = _bookMoveArrowColor;
@@ -1111,6 +1174,21 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 menuItemTournament.Visibility = Visibility.Collapsed;
                 menuItemSettingsClock.Visibility = Visibility.Collapsed;
                 menuItemWindows.Visibility = Visibility.Collapsed;
+            }
+
+            if (_tournamentMode)
+            {
+                menuItemConnectFics.Visibility = Visibility.Collapsed;
+                menuItemTournament.Visibility = Visibility.Collapsed;
+                menuItemEngines.Visibility = Visibility.Collapsed;
+                menuItemBooks.Visibility = Visibility.Collapsed;
+                menuItemAnalyseMode.Visibility = Visibility.Collapsed;
+                menuItemTraining.Visibility = Visibility.Collapsed;
+                menuItemDuel.Visibility = Visibility.Collapsed;
+                menuItemPosition.Visibility = Visibility.Collapsed;
+                menuItemRunLastGame.Visibility = Visibility.Collapsed;
+                menuItemShowBestMove.Visibility = Visibility.Collapsed;
+                menuItemPossibleMoves.Visibility = Visibility.Collapsed;
             }
 
             _currentHelpText = string.Empty;
@@ -1130,6 +1208,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 menuItemBCServer.Visibility = Visibility.Collapsed;
                 menuItemConnectBearChessServer.Visibility = Visibility.Collapsed;
             }
+            _savedFenFileName = Path.Combine(_configuration.FolderPath, "saved.fen");
+            imageLoadLastFen.Visibility = _configuration.GetBoolValue("loadLastFenPosition", false) ? Visibility.Visible : Visibility.Hidden;
         }
 
         private void ChessBoardUcGraphics_EvaluateCastleRightsEvent(object sender, bool e)
@@ -1188,7 +1268,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _currentGame.PlayerWhite = currentGamePlayerBlack;
             _currentGame.TimeControl = currentGameTimeControlBlack;
             _engineWindow?.SwitchColor();
-            chessBoardUcGraphics.SetPlayer(_currentGame.PlayerWhite, _currentGame.PlayerBlack);
+            chessBoardUcGraphics.SetPlayer(_currentGame.PlayerWhite, _currentGame.PlayerBlack, _currentGame.WhiteConfig.IsPlayer && _currentGame.BlackConfig.IsPlayer);
             chessBoardUcGraphics.ShowForceMove(true);
             if (chessBoardCurrentColor == Fields.COLOR_WHITE)
             {
@@ -1222,9 +1302,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
 
             _engineWindow?.Stop();
-            _chessClocksWindowBlack?.Stop();
-            _chessClocksWindowWhite?.Stop();
-            _eChessBoard?.StopClock();
+            ClockWindowAndBoardStop();
+            
+            //_eChessBoard?.StopClock();
 
             if (_playedMoveList.Length == 0)
             {
@@ -1286,9 +1366,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
 
             _engineWindow?.Stop();
-            _chessClocksWindowBlack?.Stop();
-            _chessClocksWindowWhite?.Stop();
-            _eChessBoard?.StopClock();
+            ClockWindowAndBoardStop();
+            
+            //_eChessBoard?.StopClock();
 
             _currentMoveIndex = _playedMoveList.Length;
             var chessBoard = new ChessBoard();
@@ -1362,9 +1442,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
 
             _engineWindow?.Stop();
-            _chessClocksWindowBlack?.Stop();
-            _chessClocksWindowWhite?.Stop();
-            _eChessBoard?.StopClock();
+            ClockWindowAndBoardStop();
+            
+            //_eChessBoard?.StopClock();
 
             var currentMoveIndex = _currentMoveIndex / 2;
             var chessBoardCurrentColor = _currentMoveIndex % 2 == 0 ? Fields.COLOR_WHITE : Fields.COLOR_BLACK;
@@ -1435,7 +1515,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     return;
                 }
             }
-
+            
             if (_playedMoveList.Length == 0)
             {
                 _playedMoveList = _chessBoard.GetPlayedMoveList();
@@ -1447,13 +1527,22 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 return;
             }
 
+            if (_speechIsActive)
+            {
+                var move2 = _playedMoveList[_currentMoveIndex - 1];
+                if (move2 != null)
+                {
+                    _synthesizer?.SpeakForce(_rm.GetString("TakeBack"));
+                    MoveExtentions.SpeakMove(move2, true);
+                }
+            }
 
             var chessBoardCurrentColor = _currentMoveIndex % 2 == 0 ? Fields.COLOR_WHITE : Fields.COLOR_BLACK;
             var currentMoveIndex = -1;
             _engineWindow?.Stop();
-            _chessClocksWindowBlack?.Stop();
-            _chessClocksWindowWhite?.Stop();
-            _eChessBoard?.StopClock();
+            ClockWindowAndBoardStop();
+            
+            //_eChessBoard?.StopClock();
 
             _currentMoveIndex--;
             var chessBoard = new ChessBoard();
@@ -1685,8 +1774,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                             }
                         }
 
-                        _chessClocksWindowWhite?.Go();
-                        _eChessBoard?.StartClock(true);
+                        ClockWindowAndBoardGo(Fields.COLOR_WHITE);
+                       //  _eChessBoard?.StartClock(true);
                     }
                     else
                     {
@@ -1731,8 +1820,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                             }
                         }
 
-                        _chessClocksWindowBlack?.Go();
-                        _eChessBoard?.StartClock(false);
+                       ClockWindowAndBoardGo(Fields.COLOR_BLACK);
+                       //  _eChessBoard?.StartClock(false);
                     }
                 }
             }
@@ -1805,8 +1894,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                             }
                         }
 
-                        _chessClocksWindowWhite?.Go();
-                        _eChessBoard?.StartClock(true);
+                        ClockWindowAndBoardGo(Fields.COLOR_WHITE);
+                       //  _eChessBoard?.StartClock(true);
                     }
                     else
                     {
@@ -1852,8 +1941,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                             }
                         }
 
-                        _chessClocksWindowBlack?.Go();
-                        _eChessBoard?.StartClock(false);
+                       ClockWindowAndBoardGo(Fields.COLOR_BLACK);
+                       //  _eChessBoard?.StartClock(false);
                     }
                 }
             }
@@ -1862,15 +1951,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 _pausedEngine = true;
                 if (_currentGame.WhiteConfig.IsPlayer)
                 {
-                    _chessClocksWindowWhite?.Stop();
+                    
                 }
 
                 if (_currentGame.BlackConfig.IsPlayer)
                 {
-                    _chessClocksWindowBlack?.Stop();
+                    ClockWindowAndBoardStop();
                 }
 
-                _eChessBoard?.StopClock();
+                //_eChessBoard?.StopClock();
             }
 
             _pausedGame = !_pausedGame;
@@ -1942,6 +2031,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void GoTimeForBlackEngine(bool goWithMoves = false)
         {
+            if (_inTrainingMode)
+            {
+                return;
+            }
             _pausedEngine = false;
             var chessBoardFullMoveNumber = _chessBoard.FullMoveNumber;
 
@@ -1954,7 +2047,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 case TimeControlEnum.NoControl:
                 {
-                    _chessClocksWindowBlack?.Go();
+                   ClockWindowAndBoardGo(Fields.COLOR_BLACK);
                     break;
                 }
                 case TimeControlEnum.AverageTimePerMove:
@@ -1982,8 +2075,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         second *= 60;
                     }
 
-                    _chessClocksWindowBlack?.Go();
-                    _eChessBoard?.StartClock(false);
+                   ClockWindowAndBoardGo(Fields.COLOR_BLACK);
+                   //  _eChessBoard?.StartClock(false);
                     if (goWithMoves)
                     {
                         _engineWindow?.GoCommandWithMoves(Fields.COLOR_BLACK,
@@ -2015,8 +2108,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     bTime += _timeControlBlack.Value2 * 1000;
                     bTimeInc = _timeControlBlack.Value2 * 1000;
 
-                    _chessClocksWindowBlack?.Go();
-                    _eChessBoard?.StartClock(false);
+                   ClockWindowAndBoardGo(Fields.COLOR_BLACK);
+                   //  _eChessBoard?.StartClock(false);
                     if (goWithMoves)
                     {
                         _engineWindow?.GoWithMoves(Fields.COLOR_BLACK, wTime.ToString(), bTime.ToString(),
@@ -2040,8 +2133,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         $"{_timeControlBlack.Value1} {_rm.GetString("MovesIn")} {_timeControlBlack.Value2} {_rm.GetString("MovesMinutes")}");
                     _chessClocksWindowBlack.SetTooltip(
                         $"{_timeControlBlack.Value1} {_rm.GetString("MovesIn")} {_timeControlBlack.Value2} {_rm.GetString("MovesMinutes")}");
-                    _chessClocksWindowBlack?.Go();
-                    _eChessBoard?.StartClock(false);
+                   ClockWindowAndBoardGo(Fields.COLOR_BLACK);
+                   //  _eChessBoard?.StartClock(false);
                     int moveNumber = chessBoardFullMoveNumber - 1;
                     var cycle = (moveNumber / _timeControlBlack.Value1) + 1;
                     var cycle2 = moveNumber > 0 && ((_timeControlBlack.Value1 * (cycle - 1)) == (moveNumber));
@@ -2095,8 +2188,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         $"{_rm.GetString("SearchDepth")} {_timeControlBlack.Value1} {_rm.GetString("Plies")}");
                     _chessClocksWindowBlack.SetInfo(
                         $"{_rm.GetString("SearchDepth")} {_timeControlBlack.Value1} {_rm.GetString("Plies")}");
-                    _chessClocksWindowBlack?.Go();
-                    _eChessBoard?.StartClock(true);
+                   ClockWindowAndBoardGo(Fields.COLOR_BLACK);
+                   //  _eChessBoard?.StartClock(true);
                     if (goWithMoves)
                     {
                         _engineWindow?.GoCommandWithMoves(Fields.COLOR_BLACK, $"depth {_timeControlWhite.Value1}");
@@ -2115,8 +2208,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         $"{_rm.GetString("Search")} {_timeControlBlack.Value1} {_rm.GetString("Nodes")}");
                     _chessClocksWindowBlack.SetInfo(
                         $"{_rm.GetString("Search")} {_timeControlBlack.Value1} {_rm.GetString("Nodes")}");
-                    _chessClocksWindowBlack?.Go();
-                    _eChessBoard?.StartClock(true);
+                   ClockWindowAndBoardGo(Fields.COLOR_BLACK);
+                   //  _eChessBoard?.StartClock(true);
                     if (goWithMoves)
                     {
                         _engineWindow?.GoCommandWithMoves(Fields.COLOR_BLACK, $"nodes {_timeControlWhite.Value1}");
@@ -2132,8 +2225,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     _chessClocksWindowBlack.SetTooltip($"{_timeControlBlack.Value1} {_rm.GetString("SecondsPerMove")}");
                     _chessClocksWindowBlack.SetInfo($"{_timeControlBlack.Value1} {_rm.GetString("SecondsPerMove")}");
-                    _chessClocksWindowBlack?.Go();
-                    _eChessBoard?.StartClock(true);
+                   ClockWindowAndBoardGo(Fields.COLOR_BLACK);
+                   //  _eChessBoard?.StartClock(true);
                     if (goWithMoves)
                     {
                         _engineWindow?.GoCommandWithMoves(Fields.COLOR_BLACK,
@@ -2152,8 +2245,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     var wTime = _chessClocksWindowWhite.GetClockTime().TotalSeconds * 1000;
                     var bTime = _chessClocksWindowBlack.GetClockTime().TotalSeconds * 1000;
 
-                    _chessClocksWindowBlack?.Go();
-                    _eChessBoard?.StartClock(false);
+                   ClockWindowAndBoardGo(Fields.COLOR_BLACK);
+                   //  _eChessBoard?.StartClock(false);
                     if (goWithMoves)
                         _engineWindow?.GoWithMoves(Fields.COLOR_BLACK, wTime.ToString(), bTime.ToString());
                     else
@@ -2166,6 +2259,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void GoTimeForWhiteEngine(bool goWithMoves = false)
         {
+            if (_inTrainingMode)
+            {
+                return;
+            }
             _pausedEngine = false;
             var chessBoardFullMoveNumber = _chessBoard.FullMoveNumber;
             if (EnginesValidForPause(_currentGame.WhiteConfig, _currentGame.BlackConfig))
@@ -2177,7 +2274,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 case TimeControlEnum.NoControl:
                 {
-                    _chessClocksWindowWhite?.Go();
+                    ClockWindowAndBoardGo(Fields.COLOR_WHITE);
                     break;
                 }
                 case TimeControlEnum.AverageTimePerMove:
@@ -2206,8 +2303,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         second *= 60;
                     }
 
-                    _chessClocksWindowWhite?.Go();
-                    _eChessBoard?.StartClock(true);
+                    ClockWindowAndBoardGo(Fields.COLOR_WHITE);
+                   //  _eChessBoard?.StartClock(true);
                     if (goWithMoves)
                     {
                         _engineWindow?.GoCommandWithMoves(Fields.COLOR_WHITE,
@@ -2242,8 +2339,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                             bTimeInc = _timeControlBlack.Value2 * 1000;
                         }
 
-                        _chessClocksWindowWhite?.Go();
-                        _eChessBoard?.StartClock(true);
+                        ClockWindowAndBoardGo(Fields.COLOR_WHITE);
+                       //  _eChessBoard?.StartClock(true);
                         if (goWithMoves)
                         {
                             _engineWindow?.GoWithMoves(Fields.COLOR_WHITE, wTime.ToString(), bTime.ToString(),
@@ -2266,8 +2363,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         $"{_timeControlWhite.Value1} {_rm.GetString("MovesIn")} {_timeControlWhite.Value2} {_rm.GetString("MovesMinutes")}");
                     _chessClocksWindowWhite.SetTooltip(
                         $"{_timeControlWhite.Value1} {_rm.GetString("MovesIn")} {_timeControlWhite.Value2} {_rm.GetString("MovesMinutes")}");
-                    _chessClocksWindowWhite?.Go();
-                    _eChessBoard?.StartClock(false);
+                    ClockWindowAndBoardGo(Fields.COLOR_WHITE);
+                   //  _eChessBoard?.StartClock(false);
                     int moveNumber = chessBoardFullMoveNumber - 1;
                     var cycle = (moveNumber / _timeControlWhite.Value1) + 1;
                     var cycle2 = moveNumber > 0 && ((_timeControlWhite.Value1 * (cycle - 1)) == (moveNumber));
@@ -2321,8 +2418,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         $"{_rm.GetString("SearchDepth")} {_timeControlWhite.Value1} {_rm.GetString("Plies")}");
                     _chessClocksWindowWhite.SetInfo(
                         $"{_rm.GetString("SearchDepth")} {_timeControlWhite.Value1} {_rm.GetString("Plies")}");
-                    _chessClocksWindowWhite?.Go();
-                    _eChessBoard?.StartClock(true);
+                    ClockWindowAndBoardGo(Fields.COLOR_WHITE);
+                   //  _eChessBoard?.StartClock(true);
                     if (goWithMoves)
                     {
                         _engineWindow?.GoCommandWithMoves(Fields.COLOR_WHITE,
@@ -2343,8 +2440,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         $"{_rm.GetString("Search")} {_timeControlWhite.Value1} {_rm.GetString("Nodes")}");
                     _chessClocksWindowWhite.SetInfo(
                         $"{_rm.GetString("Search")} {_timeControlWhite.Value1} {_rm.GetString("Nodes")}");
-                    _chessClocksWindowWhite?.Go();
-                    _eChessBoard?.StartClock(true);
+                    ClockWindowAndBoardGo(Fields.COLOR_WHITE);
+                   //  _eChessBoard?.StartClock(true);
                     if (goWithMoves)
                     {
                         _engineWindow?.GoCommandWithMoves(Fields.COLOR_WHITE, $"nodes {_timeControlWhite.Value1}");
@@ -2361,8 +2458,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     _chessClocksWindowWhite.SetTooltip($"{_timeControlWhite.Value1} {_rm.GetString("SecondsPerMove")}");
                     _chessClocksWindowWhite.SetInfo($"{_timeControlWhite.Value1} {_rm.GetString("SecondsPerMove")}");
-                    _chessClocksWindowWhite?.Go();
-                    _eChessBoard?.StartClock(true);
+                    ClockWindowAndBoardGo(Fields.COLOR_WHITE);
+                   //  _eChessBoard?.StartClock(true);
                     if (goWithMoves)
                     {
                         _engineWindow?.GoCommandWithMoves(Fields.COLOR_WHITE,
@@ -2381,14 +2478,57 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
                     var wTime = _chessClocksWindowWhite.GetClockTime().TotalSeconds * 1000;
                     var bTime = _chessClocksWindowBlack.GetClockTime().TotalSeconds * 1000;
-                    _chessClocksWindowWhite?.Go();
-                    _eChessBoard?.StartClock(true);
+                    ClockWindowAndBoardGo(Fields.COLOR_WHITE);
+                   //  _eChessBoard?.StartClock(true);
                     if (goWithMoves)
                         _engineWindow?.GoWithMoves(Fields.COLOR_WHITE, wTime.ToString(), bTime.ToString());
                     else
                         _engineWindow?.Go(Fields.COLOR_WHITE, wTime.ToString(), bTime.ToString());
                     break;
                 }
+            }
+        }
+
+        private void ClockWindowAndBoardStop()
+        {
+            if (_chessClocksWindowWhite == null || _chessClocksWindowBlack == null)
+            {
+                return;
+            }
+            _eChessBoard?.StopClock();
+            _chessClocksWindowWhite.Stop();
+            _chessClocksWindowBlack.Stop(); 
+            var wTime = _chessClocksWindowWhite.GetCurrentTime();
+            var bTime = _chessClocksWindowBlack.GetCurrentTime();
+            _eChessBoard?.SetClock(wTime.Hour, wTime.Minute, wTime.Second, bTime.Hour, bTime.Minute, bTime.Second, 0);
+        }
+
+        private void ClockWindowAndBoardGo(int color)
+        {
+            if (_chessClocksWindowWhite == null || _chessClocksWindowBlack == null)
+            {
+                return;
+            }
+            var wTime = _chessClocksWindowWhite.GetCurrentTime();
+            var bTime = _chessClocksWindowBlack.GetCurrentTime();
+            // _eChessBoard?.SetClock(wTime.Hour, wTime.Minute, wTime.Second-1, bTime.Hour, bTime.Minute, bTime.Second-1, 0);
+            if (color == Fields.COLOR_WHITE)
+            {
+                if (!_clockUseExtern)
+                {
+                    _eChessBoard?.StartClock(true);
+                    _chessClocksWindowWhite.Go();
+                }
+
+            }
+            else
+            {
+                if (!_clockUseExtern)
+                {
+                    _eChessBoard?.StartClock(false);
+                    _chessClocksWindowBlack.Go();
+                }
+
             }
         }
 
@@ -2622,6 +2762,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 if (!_chessBoard.MoveIsValid(toField, fromField))
                 {
+                    if (_speechIsActive)
+                    {
+                        _synthesizer.SpeakAsync($"{_rm.GetString("InvalidMove")}  {Fields.GetFieldName(fromField)} {Fields.GetFieldName(toField)}");
+                    }
+
                     chessBoardUcGraphics.RepaintBoard(_chessBoard);
                     return;
                 }
@@ -2644,6 +2789,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 return;
             }
 
+            Dispatcher?.Invoke(() =>
+            {
+                ClockWindowAndBoardStop();
+            });
             _fileLogger?.LogDebug($"Receive move from GUI: {fromFieldFieldName}-{toFieldFieldName}");
             if (fromFieldFigureId == FigureId.WHITE_PAWN && toFieldFieldName.EndsWith("8"))
             {
@@ -2662,10 +2811,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
 
             _chessBoard.MakeMove(fromField, toField, promoteFigureId);
-            if (_bearChessServerClient != null && _bearChessServerClient.IsSending)
+            if (_bearChessServerClient != null && _bearChessServerClient.IsSending && (_currentGame==null || !_currentGame.PublishGame ))
             {
-
-
                 _bearChessServerClient?.SendToServer(new BearChessServerMessage()
                 {
                     ActionCode = "FEN", Message = _chessBoard.GetFenPosition(),
@@ -2674,6 +2821,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 });
             }
 
+          
             AllMoveClass prevMove = _chessBoard.GetPrevMove();
             if (_speechOwnMove)
             {
@@ -2731,7 +2879,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 chessBoardUcGraphics.RepaintBoard(_chessBoard);
                 _eChessBoard?.SetAllLedsOff(false);
-                _eChessBoard?.StopClock();
+                //_eChessBoard?.StopClock();
                 _eChessBoard?.ShowMove(new SetLEDsParameter()
                 {
                     FieldNames = new string[] { fromFieldFieldName, toFieldFieldName },
@@ -2753,15 +2901,18 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     }
                 }
 
-                _chessClocksWindowBlack?.Stop();
-                _chessClocksWindowWhite?.Stop();
+                //ClockWindowAndBoardStop();
+                
                 if (move1.FigureColor == Fields.COLOR_WHITE)
                 {
                     if (_chessClocksWindowWhite != null)
                     {
                         var elapsedTime = _chessClocksWindowWhite.GetDuration();
                         move1.ElapsedMoveTime =
-                            $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                            $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                        var clockTime = _chessClocksWindowWhite.GetClockTime();
+                        move1.ClockTime =
+                            $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                     }
                 }
                 else
@@ -2770,12 +2921,19 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     {
                         var elapsedTime = _chessClocksWindowBlack.GetDuration();
                         move1.ElapsedMoveTime =
-                            $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                            $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                        var clockTime = _chessClocksWindowBlack.GetClockTime();
+                        move1.ClockTime =
+                            $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                     }
                 }
 
                 _moveListWindow?.AddMove(move1, _gameAgainstEngine && _timeControlWhite.TournamentMode);
                 _moveListWindow?.RemainingMovesFor50MovesDraw(_chessBoard.RemainingMovesFor50MovesDraw);
+                if (_currentGame!=null && _currentGame.PublishGame)
+                {
+                    PublishGame();
+                }
                 _lastResult = _chessBoard.CurrentColor == Fields.COLOR_BLACK ? "1-0" : "0-1";
                 if (_speechIsActive)
                 {
@@ -2843,9 +3001,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 else
                 {
                     _engineWindow?.Stop();
-                    _chessClocksWindowBlack?.Stop();
-                    _chessClocksWindowWhite?.Stop();
-                    _eChessBoard?.StopClock();
+                    ClockWindowAndBoardStop();
+                    //_eChessBoard?.StopClock();
                     _eChessBoard?.SetAllLedsOff(false);
 
                     if (move1.FigureColor == Fields.COLOR_WHITE)
@@ -2854,8 +3011,12 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         {
                             var elapsedTime = _chessClocksWindowWhite.GetDuration();
                             move1.ElapsedMoveTime =
-                                $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                            var clockTime = _chessClocksWindowWhite.GetClockTime();
+                            move1.ClockTime =
+                                $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                             prevMove.GetMove(_chessBoard.EnemyColor).ElapsedMoveTime = move1.ElapsedMoveTime;
+                            prevMove.GetMove(_chessBoard.EnemyColor).ClockTime = move1.ClockTime;
                         }
                     }
                     else
@@ -2864,13 +3025,21 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         {
                             var elapsedTime = _chessClocksWindowBlack.GetDuration();
                             move1.ElapsedMoveTime =
-                                $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                            var clockTime = _chessClocksWindowBlack.GetClockTime();
+                            move1.ClockTime =
+                                $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                             prevMove.GetMove(_chessBoard.EnemyColor).ElapsedMoveTime = move1.ElapsedMoveTime;
+                            prevMove.GetMove(_chessBoard.EnemyColor).ClockTime = move1.ClockTime;
                         }
                     }
 
                     _moveListWindow?.AddMove(move1, _gameAgainstEngine && _timeControlWhite.TournamentMode);
                     _moveListWindow?.RemainingMovesFor50MovesDraw(_chessBoard.RemainingMovesFor50MovesDraw);
+                    if (_currentGame != null && _currentGame.PublishGame)
+                    {
+                        PublishGame();
+                    }
                     _eChessBoard?.ShowMove(new SetLEDsParameter()
                     {
                         FieldNames = new string[] { fromFieldFieldName, toFieldFieldName },
@@ -2910,18 +3079,22 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             if (_chessBoard.CurrentColor == Fields.COLOR_WHITE)
             {
-                _chessClocksWindowBlack?.Stop();
-                _eChessBoard?.StopClock();
+                ClockWindowAndBoardStop();
+                //_eChessBoard?.StopClock();
                 if (move1.FigureColor == Fields.COLOR_WHITE)
                 {
                     if (_chessClocksWindowWhite != null)
                     {
                         var elapsedTime = _chessClocksWindowWhite.GetDuration();
                         move1.ElapsedMoveTime =
-                            $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                            $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                        var clockTime = _chessClocksWindowWhite.GetClockTime();
+                        move1.ClockTime =
+                            $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                         if (prevMove != null)
                         {
                             prevMove.GetMove(_chessBoard.EnemyColor).ElapsedMoveTime = move1.ElapsedMoveTime;
+                            prevMove.GetMove(_chessBoard.EnemyColor).ClockTime = move1.ClockTime;
                         }
                     }
                 }
@@ -2931,16 +3104,24 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     {
                         var elapsedTime = _chessClocksWindowBlack.GetDuration();
                         move1.ElapsedMoveTime =
-                            $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                            $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                        var clockTime = _chessClocksWindowBlack.GetClockTime();
+                        move1.ClockTime =
+                            $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                         if (prevMove != null)
                         {
                             prevMove.GetMove(_chessBoard.EnemyColor).ElapsedMoveTime = move1.ElapsedMoveTime;
+                            prevMove.GetMove(_chessBoard.EnemyColor).ClockTime = move1.ClockTime;
                         }
                     }
                 }
 
                 _moveListWindow?.AddMove(move1, _gameAgainstEngine && _timeControlWhite.TournamentMode);
                 _moveListWindow?.RemainingMovesFor50MovesDraw(_chessBoard.RemainingMovesFor50MovesDraw);
+                if (_currentGame != null && _currentGame.PublishGame && _currentGame.PublishGameContinuously)
+                {
+                    PublishGame();
+                }
                 if (_currentAction == CurrentAction.InRunningGame && !_pureEngineMatch)
                 {
                     if (_gameAgainstEngine)
@@ -2963,24 +3144,28 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     if (_currentAction == CurrentAction.InRunningGame)
                     {
-                        _chessClocksWindowWhite?.Go();
-                        _eChessBoard?.StartClock(true);
+                        ClockWindowAndBoardGo(Fields.COLOR_WHITE);
+                       //  _eChessBoard?.StartClock(true);
                         _engineWindow?.GoInfiniteForCoach(_chessBoard.GetFenPosition());
                     }
                 }
             }
             else
             {
-                _chessClocksWindowWhite?.Stop();
-                _eChessBoard?.StopClock();
+
+                ClockWindowAndBoardStop();
                 if (move1.FigureColor == Fields.COLOR_WHITE)
                 {
                     if (_chessClocksWindowWhite != null)
                     {
                         var elapsedTime = _chessClocksWindowWhite.GetDuration();
                         move1.ElapsedMoveTime =
-                            $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                            $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                        var clockTime = _chessClocksWindowWhite.GetClockTime();
+                        move1.ClockTime =
+                            $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                         prevMove.GetMove(_chessBoard.EnemyColor).ElapsedMoveTime = move1.ElapsedMoveTime;
+                        prevMove.GetMove(_chessBoard.EnemyColor).ClockTime = move1.ClockTime;
                     }
                 }
                 else
@@ -2989,13 +3174,21 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     {
                         var elapsedTime = _chessClocksWindowBlack.GetDuration();
                         move1.ElapsedMoveTime =
-                            $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                            $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                        var clockTime = _chessClocksWindowBlack.GetClockTime();
+                        move1.ClockTime =
+                            $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                         prevMove.GetMove(_chessBoard.EnemyColor).ElapsedMoveTime = move1.ElapsedMoveTime;
+                        prevMove.GetMove(_chessBoard.EnemyColor).ClockTime = move1.ClockTime;
                     }
                 }
 
                 _moveListWindow?.AddMove(move1, _gameAgainstEngine && _timeControlWhite.TournamentMode);
                 _moveListWindow?.RemainingMovesFor50MovesDraw(_chessBoard.RemainingMovesFor50MovesDraw);
+                if (_currentGame != null && _currentGame.PublishGame && _currentGame.PublishGameContinuously)
+                {
+                    PublishGame();
+                }
                 if (_currentAction == CurrentAction.InRunningGame && !_pureEngineMatch)
                 {
                     if (_gameAgainstEngine)
@@ -3017,8 +3210,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     if (_currentAction == CurrentAction.InRunningGame)
                     {
-                        _chessClocksWindowBlack?.Go();
-                        _eChessBoard?.StartClock(false);
+                       ClockWindowAndBoardGo(Fields.COLOR_BLACK);
+                       //  _eChessBoard?.StartClock(false);
                         _engineWindow?.GoInfiniteForCoach(_chessBoard.GetFenPosition());
                     }
                 }
@@ -3079,6 +3272,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 _chessClocksWindowWhite.TimeOutEvent += ChessClocksWindowWhite_TimeOutEvent;
                 _chessClocksWindowWhite.Closing += ChessClocksWindowWhite_Closing;
                 _chessClocksWindowWhite.Closed += ChessClocksWindowWhite_Closed;
+                _chessClocksWindowWhite.SimpleClockMode = _clockUseExtern;
             }
 
             if (_chessClocksWindowBlack == null)
@@ -3109,6 +3303,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 _chessClocksWindowBlack.TimeOutEvent += ChessClocksWindowBlack_TimeOutEvent;
                 _chessClocksWindowBlack.Closing += ChessClocksWindowBlack_Closing;
                 _chessClocksWindowBlack.Closed += ChessClocksWindowBlack_Closed;
+                _chessClocksWindowBlack.SimpleClockMode = _clockUseExtern;
             }
 
         }
@@ -3173,6 +3368,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             menuItemEngineMatch.IsEnabled = false;
             menuItemEngineTour.IsEnabled = false;
             menuItemConnectFics.IsEnabled = false;
+            menuItemTrainStartOpening.IsEnabled = false;
             textBlockRunningMode.Text = _rm.GetString("ModePlayingAGame");
             menuItemNewGame.Header = _rm.GetString("StopGame");
 
@@ -3204,6 +3400,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
 
             _moveListWindow?.RemainingMovesFor50MovesDraw(_chessBoard.RemainingMovesFor50MovesDraw);
+            if (_currentGame != null && _currentGame.PublishGame && _currentGame.PublishGameContinuously)
+            {
+                PublishGame();
+            }
             _currentAction = CurrentAction.InRunningGame;
             buttonConnect.IsEnabled = false;
             if (_currentGame.StartFromBasePosition)
@@ -3352,7 +3552,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             if (_adjustedForThePlayer)
             {
-                if (_currentGame.WhiteConfig.IsPlayer)
+                if (_currentGame.WhiteConfig.IsPlayer && !_currentGame.WhiteConfig.IsBCChessServer)
                 {
                     if (!chessBoardUcGraphics.WhiteOnTop)
                     {
@@ -3361,7 +3561,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 }
                 else
                 {
-                    if (_currentGame.BlackConfig.IsPlayer)
+                    if (_currentGame.BlackConfig.IsPlayer && !_currentGame.BlackConfig.IsBCChessServer)
                     {
                         if (chessBoardUcGraphics.WhiteOnTop)
                         {
@@ -3402,14 +3602,20 @@ namespace www.SoLaNoSoft.com.BearChessWin
             buttonConnect.IsEnabled = _currentAction != CurrentAction.InRunningGame;
             _allowTakeMoveBack = _currentGame.TimeControl.AllowTakeBack;
             var whiteIsPlayer = _currentGame.WhiteConfig.IsPlayer;
+            var whiteIsBCPlayer = _currentGame.WhiteConfig.IsBCChessServer;
             var blackIsPlayer = _currentGame.BlackConfig.IsPlayer;
+            var blackIsBCPlayer = _currentGame.BlackConfig.IsBCChessServer;
             _currentWhitePlayer = _currentGame.PlayerWhite;
             _currentBlackPlayer = _currentGame.PlayerBlack;
             _timeControlWhite = _currentGame.TimeControl;
             _timeControlBlack = _currentGame.TimeControlBlack ?? _currentGame.TimeControl;
-            _configuration.Save(_timeControlWhite, true, false);
-            _configuration.Save(_timeControlBlack, false, false);
-            _currentEvent = Constants.BearChess;
+            if (!_currentGame.CasualGame)
+            {
+                _configuration.Save(_timeControlWhite, true, false);
+                _configuration.Save(_timeControlBlack, false, false);
+            }
+
+            _currentEvent = _currentGame.GameEvent;
             _lastResult = "*";
             _engineMatchScore.Clear();
             _databaseGameFen.Clear();
@@ -3419,6 +3625,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             menuItemEngineMatch.IsEnabled = false;
             menuItemEngineTour.IsEnabled = false;
             menuItemConnectFics.IsEnabled = false;
+            menuItemTrainStartOpening.IsEnabled = false;
             menuItemEloEstimateEngineMatch.IsEnabled = false;
             _duelPaused = false;
             textBlockRunningMode.Text = _rm.GetString("ModePlayingAGame");
@@ -3428,13 +3635,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _eChessBoard?.SetAllLedsOff(false);
             chessBoardUcGraphics.ShowControlButtons(true);
             chessBoardUcGraphics.ShowPauseGame(true);
-            var tmpWite = whiteIsPlayer ? _playerName : _currentWhitePlayer;
-            var tmpBlack = blackIsPlayer ? _playerName : _currentBlackPlayer;
-            chessBoardUcGraphics.SetPlayer(tmpWite, tmpBlack);
+            chessBoardUcGraphics.SetPlayer(_currentWhitePlayer, _currentBlackPlayer, _currentGame.WhiteConfig.IsPlayer && _currentGame.BlackConfig.IsPlayer);
             if (_speechIsActive)
             {
                 _synthesizer.SpeakAsync(
-                    $"{tmpWite} {SpeechTranslator.GetAgainst(_speechLanguageTag, _configuration)} {tmpBlack}");
+                    $"{_currentWhitePlayer} {SpeechTranslator.GetAgainst(_speechLanguageTag, _configuration)} {_currentBlackPlayer}");
             }
 
             _currentMoveIndex = 0;
@@ -3593,6 +3798,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 _gameAgainstEngine = false;
             }
 
+            if (whiteIsBCPlayer || blackIsBCPlayer)
+            {
+                _gameAgainstEngine = true;
+            }
             if (_gameAgainstEngine)
             {
                 if (_engineWindow == null)
@@ -3621,13 +3830,26 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 _engineWindow?.Stop();
             }
 
-            if (!blackIsPlayer)
+            if (!blackIsPlayer || blackIsBCPlayer)
             {
                 if (_engineWindow != null)
                 {
-                    if (_currentGame.BlackConfig.IsChessServer)
+                    if (_currentGame.BlackConfig.IsChessServer && !_currentGame.BlackConfig.IsBCChessServer)
                     {
                         if (!_engineWindow.LoadUciEngine(_currentGame.BlackConfig, _ficsClient,
+                                _chessBoard.GetPlayedMoveList(), true,
+                                Fields.COLOR_BLACK, _currentGame.GameNumber))
+                        {
+                            BearChessMessageBox.Show($"{_rm.GetString("CouldNotLoad")} {_currentGame.BlackConfig.Name}",
+                                _rm.GetString("ErrorOnLoading"),
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                            StopGame();
+                            return;
+                        }
+                    }
+                    if (_currentGame.BlackConfig.IsBCChessServer)
+                    {
+                        if (!_engineWindow.LoadUciEngine(_currentGame.BlackConfig, _bearChessServerClient,
                                 _chessBoard.GetPlayedMoveList(), true,
                                 Fields.COLOR_BLACK, _currentGame.GameNumber))
                         {
@@ -3665,7 +3887,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         }
                     }
 
-                    if (!_currentGame.DuelEngine && !_currentGame.BlackConfig.IsChessServer)
+                    if (!_currentGame.DuelEngine && !_currentGame.BlackConfig.IsChessServer && !_currentGame.CasualGame)
                     {
                         _configuration.SetConfigValue("LastBlackEngine", _usedEngines[_currentBlackPlayer].Id);
                     }
@@ -3674,23 +3896,36 @@ namespace www.SoLaNoSoft.com.BearChessWin
             else
             {
                 _playersColor[Fields.COLOR_BLACK] = true;
-                if (!_currentGame.DuelEngine)
+                if (!_currentGame.DuelEngine && !_currentGame.CasualGame)
                 {
                     _configuration.SetConfigValue("LastBlackEngine", string.Empty);
                 }
             }
 
-            if (!whiteIsPlayer)
+            if (!whiteIsPlayer || whiteIsBCPlayer)
             {
                 if (_engineWindow != null)
                 {
-                    if (_currentGame.WhiteConfig.IsChessServer)
+                    if (_currentGame.WhiteConfig.IsChessServer && !_currentGame.WhiteConfig.IsBCChessServer)
                     {
                         if (!_engineWindow.LoadUciEngine(_currentGame.WhiteConfig, _ficsClient,
                                 _chessBoard.GetPlayedMoveList(), true,
                                 Fields.COLOR_WHITE, _currentGame.GameNumber))
                         {
                             BearChessMessageBox.Show($"{_rm.GetString("CouldNotLoad")} {_currentGame.WhiteConfig.Name}",
+                                _rm.GetString("ErrorOnLoading"),
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                            StopGame();
+                            return;
+                        }
+                    }
+                    if (_currentGame.WhiteConfig.IsBCChessServer)
+                    {
+                        if (!_engineWindow.LoadUciEngine(_currentGame.WhiteConfig, _bearChessServerClient,
+                                _chessBoard.GetPlayedMoveList(), true,
+                                Fields.COLOR_WHITE, _currentGame.GameNumber))
+                        {
+                            BearChessMessageBox.Show($"{_rm.GetString("CouldNotLoad")} {_currentGame.BlackConfig.Name}",
                                 _rm.GetString("ErrorOnLoading"),
                                 MessageBoxButton.OK, MessageBoxImage.Error);
                             StopGame();
@@ -3725,7 +3960,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     }
 
 
-                    if (!_currentGame.DuelEngine && !_currentGame.WhiteConfig.IsChessServer)
+                    if (!_currentGame.DuelEngine && !_currentGame.WhiteConfig.IsChessServer && !_currentGame.CasualGame)
                     {
                         _configuration.SetConfigValue("LastWhiteEngine", _usedEngines[_currentWhitePlayer].Id);
                     }
@@ -3734,7 +3969,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             else
             {
                 _playersColor[Fields.COLOR_WHITE] = true;
-                if (!_currentGame.DuelEngine)
+                if (!_currentGame.DuelEngine && !_currentGame.CasualGame )
                 {
                     _configuration.SetConfigValue("LastWhiteEngine", string.Empty);
                 }
@@ -3799,8 +4034,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _chessClocksWindowBlack?.Reset();
             ShowClocks();
 
-            _chessClocksWindowWhite.CountDown = true;
-            _chessClocksWindowBlack.CountDown = true;
+            _chessClocksWindowWhite.CountDown = !_clockUseExtern;
+            _chessClocksWindowBlack.CountDown = !_clockUseExtern;
 
             SetTimeControl();
             if (_blindUser && _blindUserSayMoveTime)
@@ -3828,7 +4063,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             if (_adjustedForThePlayer)
             {
-                if (whiteIsPlayer)
+                if (whiteIsPlayer && !whiteIsBCPlayer)
                 {
                     if (!chessBoardUcGraphics.WhiteOnTop)
                     {
@@ -3837,7 +4072,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 }
                 else
                 {
-                    if (blackIsPlayer)
+                    if (blackIsPlayer && !blackIsBCPlayer)
                     {
                         if (chessBoardUcGraphics.WhiteOnTop)
                         {
@@ -3849,30 +4084,30 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             _eChessBoard?.SetCurrentColor(_chessBoard.CurrentColor);
             _configuration.Save();
+            if (_timeControlWhite.TimeControlType == TimeControlEnum.TimePerGame ||
+                _timeControlWhite.TimeControlType == TimeControlEnum.TimePerGameIncrement ||
+                _timeControlWhite.TimeControlType == TimeControlEnum.TimePerMoves)
+            {
+                if (_chessClocksWindowWhite != null)
+                {
+                    var clockTimeW = _chessClocksWindowWhite?.GetClockTime();
+                    var clockTimeB = _chessClocksWindowBlack?.GetClockTime();
+                    _eChessBoard?.SetClock(clockTimeW.Hour, clockTimeW.Minute, clockTimeW.Second,
+                        clockTimeB.Hour, clockTimeB.Minute, clockTimeB.Second, 0);
+                    //_eChessBoard?.StopClock();
+                }
+            }
+            else
+            {
+                _eChessBoard?.SetClock(0, 0, 0, 0, 0, 0, 0);
+                //_eChessBoard?.StopClock();
+                _eChessBoard?.DisplayOnClock(_rm.GetString("NewGameClock"));
+            }
             if (runEngine && _gameAgainstEngine)
             {
                 var currentColor = _chessBoard.CurrentColor;
-                if (_timeControlWhite.TimeControlType == TimeControlEnum.TimePerGame ||
-                    _timeControlWhite.TimeControlType == TimeControlEnum.TimePerGameIncrement ||
-                    _timeControlWhite.TimeControlType == TimeControlEnum.TimePerMoves)
-                {
-                    if (_chessClocksWindowWhite != null)
-                    {
-                        var clockTimeW = _chessClocksWindowWhite?.GetClockTime();
-                        var clockTimeB = _chessClocksWindowBlack?.GetClockTime();
-                        _eChessBoard?.SetClock(clockTimeW.Hour, clockTimeW.Minute, clockTimeW.Second,
-                            clockTimeB.Hour, clockTimeB.Minute, clockTimeB.Second);
-                        _eChessBoard?.StopClock();
-                    }
-                }
-                else
-                {
-                    _eChessBoard?.SetClock(0, 0, 0, 0, 0, 0);
-                    _eChessBoard?.StopClock();
-                    _eChessBoard?.DisplayOnClock(_rm.GetString("NewGameClock"));
-                }
-
-                if (_playersColor[currentColor])
+                
+                if (_playersColor[_chessBoard.CurrentColor])
                 {
                     return;
                 }
@@ -3904,18 +4139,28 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 }
 
                 StopGame();
+                this.Activate();
             }
             else
             {
-                if (_blindUser && (_eChessBoard == null || !_eChessBoard.IsConnected))
+                if (_blindUser && !_blindUserNoBoard &&  (_eChessBoard == null || !_eChessBoard.IsConnected))
                 {
                     _synthesizer?.SpeakAsync(_rm.GetString("NewGame"), true);
-                    _synthesizer?.SpeakAsync(_rm.GetString("ConnectFirst"), true);
-                    MenuItemMainMenue_OnClick(sender, e);
-                    this.Focus();
-                    return;
+                    var dialog = new QueryDialogWindow(_rm.GetString("ConnectFirstQuery"));
+                    dialog.Owner = this;
+                    var dialogResult = dialog.ShowDialog();
+                    if (!dialog.QueryResult.Yes)
+                    {
+                        MenuItemMainMenue_OnClick(sender, e);
+                        this.Focus();
+                        return;
+                    }
                 }
-
+                if (_blindUser && (_eChessBoard == null || !_eChessBoard.IsConnected))
+                {
+                    chessBoardUcGraphics.SetEBoardMode(true);
+                    _blindUserNoBoard = true;
+                }
                 NewGame();
                 this.Activate();
             }
@@ -3937,7 +4182,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _showHelp = false;
             _pureEngineMatch = false;
             chessBoardUcGraphics.UnMarkAllFields();
-            chessBoardUcGraphics.SetPlayer(string.Empty, string.Empty);
+            chessBoardUcGraphics.SetPlayer(string.Empty, string.Empty, true);
             _currentTournamentId = 0;
             _currentDuelId = 0;
             _gameAgainstEngine = false;
@@ -3946,9 +4191,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _eChessBoard?.Stop();
             _eChessBoard?.SetAllLedsOff(false);
             _eChessBoard?.AcceptProbingMoves(false);
-            _chessClocksWindowWhite?.Stop();
-            _chessClocksWindowBlack?.Stop();
-            _eChessBoard?.StopClock();
+            
+            ClockWindowAndBoardStop();
+            //_eChessBoard?.StopClock();
             menuItemNewGame.Header = _rm.GetString("NewGame");
             textBlockRunningMode.Text = _rm.GetString("ModeEasyPlaying");
             menuItemSetupPosition.IsEnabled = true;
@@ -3957,6 +4202,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             menuItemEngineTour.IsEnabled = true;
             menuItemEloEstimateEngineMatch.IsEnabled = true;
             menuItemConnectFics.IsEnabled = true;
+            menuItemTrainStartOpening.IsEnabled = true;
             chessBoardUcGraphics.AllowTakeBack(true);
             _currentAction = CurrentAction.InEasyPlayingMode;
             chessBoardUcGraphics.ShowControlButtons(false);
@@ -3967,6 +4213,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 _bearChessServerClient?.SendToServer("STOPGAME", string.Empty);
             }
+            _gameJustFinished = false;
 
         }
 
@@ -3975,7 +4222,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _gameJustFinished = false;
             _pureEngineMatch = false;
             chessBoardUcGraphics.UnMarkAllFields();
-            chessBoardUcGraphics.SetPlayer(whitePlayer: string.Empty, blackPlayer: string.Empty);
+            chessBoardUcGraphics.SetPlayer(whitePlayer: _bcsPlayerWhite, blackPlayer: _bcsPlayerBlack, isPlayerGame: true);
             _databaseGameFen.Clear();
             _timeControlWhite = _configuration.LoadTimeControl(white: true, asStartup: false);
             if (_timeControlWhite == null)
@@ -3984,13 +4231,26 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
 
             _timeControlBlack = _configuration.LoadTimeControl(white: false, asStartup: false);
-            if (_blindUser && (_eChessBoard == null || !_eChessBoard.IsConnected))
+            if (_blindUser && !_blindUserNoBoard && (_eChessBoard == null || !_eChessBoard.IsConnected))
             {
                 _synthesizer?.SpeakAsync(_rm.GetString("NewGame"), true);
-                _synthesizer?.SpeakAsync(_rm.GetString("ConnectFirst"), true);
-                return false;
+                var dialog = new QueryDialogWindow(_rm.GetString("ConnectFirstQuery"));
+                dialog.Owner = this;
+                var dialogResult = dialog.ShowDialog();
+                if (!dialog.QueryResult.Yes)
+                {
+                    return false;
+                }
+                chessBoardUcGraphics.SetEBoardMode(true);
+                //_synthesizer?.SpeakAsync(_rm.GetString("ConnectFirst"), true);
+                //return false;
             }
 
+            if (_blindUser &&  (_eChessBoard == null || !_eChessBoard.IsConnected))
+            {
+                chessBoardUcGraphics.SetEBoardMode(true);
+                _blindUserNoBoard = true;
+            }
             INewGameWindow newGameWindow;
             if (_blindUser)
             {
@@ -4026,7 +4286,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             newGameWindow.SetNames(_usedEngines.Values.ToArray(),
                 _configuration.GetConfigValue("LastWhiteEngine", string.Empty),
-                _configuration.GetConfigValue("LastBlackEngine", string.Empty));
+                _configuration.GetConfigValue("LastBlackEngine", string.Empty), string.IsNullOrWhiteSpace(_bcsPlayerWhite) && string.IsNullOrWhiteSpace(_bcsPlayerBlack));
+            newGameWindow.SetBCServerPlayer(_bcsPlayerWhite, _bcsPlayerBlack, _bcsTournament, _bcsOwnColor);
             newGameWindow.SetTimeControlWhite(_timeControlWhite);
             newGameWindow.SetTimeControlBlack(_timeControlBlack);
             newGameWindow.SetRelaxedMode(bool.Parse(_configuration.GetConfigValue("RelaxedMode", "false")));
@@ -4047,16 +4308,26 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 return false;
             }
-
+           
             var playerWhiteConfigValues = newGameWindow.GetPlayerWhiteConfigValues();
             var playerBlackConfigValues = newGameWindow.GetPlayerBlackConfigValues();
+            if (!newGameWindow.CasualGame)
+            {
+                _configuration.SetConfigValue("LastPlayerWhite", playerWhiteConfigValues.OriginName);
+                _configuration.SetConfigValue("LastPlayerWhiteElo",
+                    playerWhiteConfigValues.GetConfiguredElo().ToString());
+                _configuration.SetConfigValue("LastPlayerBlack", playerBlackConfigValues.OriginName);
+                _configuration.SetConfigValue("LastPlayerBlackElo",
+                    playerBlackConfigValues.GetConfiguredElo().ToString());
+            }
+
             if (_bearChessServerClient != null && _bearChessServerClient.IsSending)
             {
                 _bearChessServerClient?.SendToServer("NEWGAME", string.Empty);
                 _bearChessServerClient?.SendToServer("WHITEPLAYER",
-                    playerWhiteConfigValues.IsPlayer ? _playerName : newGameWindow.PlayerWhite);
+                    playerWhiteConfigValues.IsPlayer ? string.IsNullOrWhiteSpace(playerWhiteConfigValues.OriginName) ? _playerName : playerWhiteConfigValues.OriginName : newGameWindow.PlayerWhite);
                 _bearChessServerClient?.SendToServer("BLACKPLAYER",
-                    playerBlackConfigValues.IsPlayer ? _playerName : newGameWindow.PlayerBlack);
+                    playerBlackConfigValues.IsPlayer ? string.IsNullOrWhiteSpace(playerBlackConfigValues.OriginName) ? _playerName : playerBlackConfigValues.OriginName : newGameWindow.PlayerBlack);
             }
 
             _eChessBoard?.Reset();
@@ -4072,10 +4343,24 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 _usedEngines[playerBlackConfigValues.Name] = playerBlackConfigValues;
             }
 
-            _currentGame = new CurrentGame(playerWhiteConfigValues, playerBlackConfigValues, string.Empty,
+            _currentGame = new CurrentGame(playerWhiteConfigValues, playerBlackConfigValues, newGameWindow.GameEvent,
                 newGameWindow.GetTimeControlWhite(), newGameWindow.GetTimeControlBlack(), newGameWindow.PlayerWhite,
                 newGameWindow.PlayerBlack,
                 newGameWindow.StartFromBasePosition, newGameWindow.ContinueGame);
+            _currentGame.CasualGame = newGameWindow.CasualGame;
+            _currentGame.PublishGame = newGameWindow.PublishGame;
+            _currentGame.PublishGameContinuously = newGameWindow.PublishGameContinuously;
+            if (_currentGame.PublishGame)
+            {
+                if (_gamePublisher == null)
+                {
+                    var path = Configuration.Instance.GetConfigValue("publishPath", ".");
+                    var fileName = Configuration.Instance.GetConfigValue("publishFileName", "ganes.pgn");
+                    _gamePublisher = new GamePublisher(FtpClientFactory.GetFtpClient(_fileLogger), _publishPath,
+                        string.Empty, path, fileName, _fileLogger);
+                }
+
+            }
             _configuration.SetConfigValue("RelaxedMode", newGameWindow.RelaxedMode.ToString());
             _databaseGame = null;
             if (!_currentGame.WhiteConfig.IsPlayer && !_currentGame.BlackConfig.IsPlayer)
@@ -4187,6 +4472,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             menuItemEngineMatch.IsEnabled = true;
             menuItemEngineTour.IsEnabled = true;
             menuItemConnectFics.IsEnabled = true;
+            menuItemTrainStartOpening.IsEnabled = true;
             menuItemAnalyseMode.Visibility = Visibility.Visible;
             menuItemStopAnalyseMode.Visibility = Visibility.Collapsed;
             chessBoardUcGraphics.SetInAnalyzeMode(false, _chessBoard.GetFenPosition(), false);
@@ -4216,8 +4502,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
             if (_blindUser && (_eChessBoard == null || !_eChessBoard.IsConnected))
             {
                 _synthesizer?.SpeakAsync(_rm.GetString("Analysis"), true);
-                _synthesizer?.SpeakAsync(_rm.GetString("ConnectFirst"), true);
-                return;
+                var dialog = new QueryDialogWindow(_rm.GetString("ConnectFirstQuery"));
+                dialog.Owner = this;
+                var dialogResult = dialog.ShowDialog();
+                if (!dialog.QueryResult.Yes)
+                {
+                    return;
+                }
+                
+                // return;
             }
 
             buttonConnect.IsEnabled = false;
@@ -4229,9 +4522,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 _engineWindow?.Stop();
                 _engineWindow?.ClearTimeControl();
                 _eChessBoard?.Stop();
-                _chessClocksWindowWhite?.Stop();
-                _chessClocksWindowBlack?.Stop();
-                _eChessBoard?.StopClock();
+                
+                ClockWindowAndBoardStop();
+                //_eChessBoard?.StopClock();
             }
 
             chessBoardUcGraphics.ShowControlButtons(false);
@@ -4573,7 +4866,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             if (_lastEBoard.Equals(Constants.TabutronicSentioSpectrum, StringComparison.OrdinalIgnoreCase))
             {
-                MenuItemConnectSentio_OnClick(sender, e);
+                MenuItemConnectSentioSpectrum_OnClick(sender, e);
                 return;
             }
 
@@ -4665,6 +4958,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             if (BearChessMessageBox.Show(_rm.GetString("CloseBearChess") + "?", _rm.GetString("CloseBearChess"),
                     MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
+
                 Close();
             }
         }
@@ -4764,10 +5058,20 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 }
             }
 
-            var pgnCreator = new PgnCreator(_gameStartFenPosition, _configuration.GetPgnConfiguration());
-            foreach (var move in _chessBoard.GetPlayedMoveList())
+            var pgnCreator = new PgnCreator(_gameStartFenPosition, _configuration.GetDefaultPgnConfiguration());
+            if (_moveListWindow != null)
             {
-                pgnCreator.AddMove(move);
+                foreach (var move in _moveListWindow.GetAllMoves())
+                {
+                    pgnCreator.AddMove(move);
+                }
+            }
+            else
+            {
+                foreach (var move in _chessBoard.GetPlayedMoveList())
+                {
+                    pgnCreator.AddMove(move);
+                }
             }
 
             if (_currentGame.WhiteConfig.IsChessServer || _currentGame.BlackConfig.IsChessServer)
@@ -4791,8 +5095,18 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     GameDate = saveGameWindow.GameDate,
                     Round = "1"
                 };
+                _currentGame.GameEvent = saveGameWindow.GameEvent;
                 _currentGame.PlayerWhite = saveGameWindow.White;
                 _currentGame.PlayerBlack = saveGameWindow.Black;
+                if (_currentGame.WhiteConfig.IsPlayer)
+                {
+                    _currentGame.WhiteConfig.OriginName = saveGameWindow.White;
+                }
+                if (_currentGame.BlackConfig.IsPlayer)
+                {
+                    _currentGame.BlackConfig.OriginName = saveGameWindow.Black;
+                }
+                _lastResult = saveGameWindow.Result;
                 foreach (var move in pgnCreator.GetAllMoves())
                 {
                     pgnGame.AddMove(move);
@@ -4811,6 +5125,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         "BlackElo", _currentGame.BlackConfig?.GetConfiguredElo().ToString().Replace("-1", ""));
                 }
 
+               
                 var databaseGame = new DatabaseGame(pgnGame, _chessBoard.GetPlayedMoveList(), _currentGame)
                 {
                     WhiteClockTime = _chessClocksWindowWhite?.GetClockTime(),
@@ -4825,9 +5140,13 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 var gameId = _database.Save(databaseGame, replaceGame);
                 if (_currentTournamentId > 0)
                 {
-                    _database.SaveTournamentGamePair(_currentTournamentId, gameId);
+                    _database.SaveTournamentGamePair(_currentTournamentId, gameId, _tournamentManager.GetPairing());
                 }
 
+                if (_currentGame.PublishGame)
+                {
+                    PublishGame();
+                }
                 _databaseWindow?.Reload();
             }
         }
@@ -4962,6 +5281,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 return;
             }
 
+            if (!text.Trim().StartsWith("["))
+            {
+                SetFenPosition(text);
+                return;
+            }
             var pgnLoader = new PgnLoader();
             var pgnGame = pgnLoader.GetGame(text);
             if (pgnGame != null)
@@ -4977,7 +5301,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
                 for (var i = 0; i < pgnGame.MoveCount; i++)
                 {
-                    _chessBoard.MakePgnMove(pgnGame.GetMove(i), pgnGame.GetComment(i), pgnGame.GetEMT(i));
+                    _chessBoard.MakePgnMove(pgnGame.GetMove(i), pgnGame.GetComment(i), pgnGame.GetEMT(i), pgnGame.GetClock(i));
                 }
 
                 var uciInfoWhite = new UciInfo()
@@ -4985,11 +5309,13 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     IsPlayer = true,
                     Name = pgnGame.PlayerWhite
                 };
+                uciInfoWhite.SetElo(pgnGame.WhiteElo);
                 var uciInfoBlack = new UciInfo()
                 {
                     IsPlayer = true,
                     Name = pgnGame.PlayerBlack
                 };
+                uciInfoBlack.SetElo(pgnGame.BlackElo);
                 _currentGame = new CurrentGame(uciInfoWhite, uciInfoBlack, string.Empty,
                     new TimeControl(), pgnGame.PlayerWhite, pgnGame.PlayerBlack,
                     startFromBasePosition, true);
@@ -5020,7 +5346,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             _buddyEngineLoaded = false;
             _buddyEngineName = string.Empty;
-
+            if (_inTrainingMode)
+            {
+                return;
+            }
             var firstOrDefault = _installedEngines.FirstOrDefault(i => i.Value.IsBuddy);
             if (firstOrDefault.Value != null)
             {
@@ -5045,6 +5374,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private void LoadProbingEngine()
         {
             _probingEngineLoaded = false;
+            if (_inTrainingMode)
+            {
+                return;
+            }
             if (_enableInternalEngine && _eChessBoard != null && _eChessBoard.IsConnected &&
                 _eChessBoard.MultiColorLEDs)
             {
@@ -5068,7 +5401,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             var selectInstalledEngineWindow =
                 new SelectInstalledEngineWindow(
                     _installedEngines.Values.Where(ie => !ie.IsInternalBearChessEngine).ToArray(),
-                    _configuration.GetConfigValue("LastEngine", string.Empty), _uciPath)
+                    _configuration.GetConfigValue("LastEngine", string.Empty), _uciPath, _fileLogger)
                 {
                     Owner = this
                 };
@@ -5186,18 +5519,35 @@ namespace www.SoLaNoSoft.com.BearChessWin
             try
             {
                 _installedEngines.Clear();
-                var playerUciInfo = new UciInfo()
+                var player1UciInfo = new UciInfo()
                 {
                     Id = Guid.Empty.ToString("N"),
-                    Name = Constants.Player,
+                    Name = Constants.Player1,
                     IsPlayer = true,
                     OriginName = _playerName,
                     Author = Constants.BearChess
                 };
-                if (int.TryParse(_playerElo, out int elo))
+                player1UciInfo.SetElo(_playerElo);
+                var player2UciInfo = new UciInfo()
                 {
-                    playerUciInfo.SetElo(elo);
-                }
+                    Id = Guid.Empty.ToString("N"),
+                    Name = Constants.Player2,
+                    IsPlayer = true,
+                    OriginName = _playerName,
+                    Author = Constants.BearChess
+                };
+                player2UciInfo.SetElo(_playerElo);
+                UciInfo bcServerPlayerUciInfo = new UciInfo()
+                {
+                    Id = Guid.Empty.ToString("N"),
+                    Name = Constants.BCServerPlayer,
+                    IsPlayer = true,
+                    IsChessServer = true,
+                    IsBCChessServer = true,
+                    OriginName = Constants.BCServerPlayer,
+                    LogoFileName = "BearChessServer.png",
+                    Author = Constants.BearChess
+                };
 
                 var ficsUciInfo = new UciInfo()
                 {
@@ -5249,19 +5599,37 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 citrineUciInfo.AddOption(
                     "option name Level 1-8 type combo default 3 var 1 var 2 var 3 var 4 var 5 var 6 var 7 var 8");
 
-                _installedEngines.Add(playerUciInfo.Name, playerUciInfo);
+                _installedEngines.Add(player1UciInfo.Name, player1UciInfo);
+                _installedEngines.Add(player2UciInfo.Name, player2UciInfo);
+                if (_withBCServer)
+                {
+                    _installedEngines.Add(bcServerPlayerUciInfo.Name, bcServerPlayerUciInfo);
+                    if (!_usedEngines.ContainsKey(bcServerPlayerUciInfo.Name))
+                    {
+                        _usedEngines.Add(bcServerPlayerUciInfo.Name, bcServerPlayerUciInfo);
+                    }
+                }
+
+                int invalidEngines = 0;
+
+
                 _installedEngines.Add(ficsUciInfo.Name, ficsUciInfo);
                 _installedEngines.Add(osaUciInfo.Name, osaUciInfo);
                 _installedEngines.Add(citrineUciInfo.Name, citrineUciInfo);
-                if (!_usedEngines.ContainsKey(playerUciInfo.Name))
+                if (!_usedEngines.ContainsKey(player1UciInfo.Name))
                 {
-                    _usedEngines.Add(playerUciInfo.Name, playerUciInfo);
+                    _usedEngines.Add(player1UciInfo.Name, player1UciInfo);
+                }
+
+                if (!_usedEngines.ContainsKey(player2UciInfo.Name))
+                {
+                    _usedEngines.Add(player2UciInfo.Name, player2UciInfo);
                 }
 
                 BearChessEngine.InstallBearChessEngine(_binPath, _uciPath);
                 _fileLogger?.LogInfo($"Reading installed engines from {_uciPath} ");
                 var fileNames = Directory.GetFiles(_uciPath, "*.uci", SearchOption.AllDirectories);
-                int invalidEngines = 0;
+
                 foreach (var fileName in fileNames)
                 {
                     if (fileName.Contains(Configuration.STARTUP_BLACK_ENGINE_ID) ||
@@ -5311,6 +5679,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     }
                 }
 
+
                 var enumerable = _usedEngines.Keys.Where(k => !_installedEngines.ContainsKey(k)).ToList();
                 foreach (var s in enumerable)
                 {
@@ -5352,9 +5721,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
             Dispatcher?.Invoke(() =>
             {
                 _engineWindow?.Stop();
-                _chessClocksWindowBlack?.Stop();
-                _chessClocksWindowWhite?.Stop();
-                _eChessBoard?.StopClock();
+                ClockWindowAndBoardStop();
+                
+                //_eChessBoard?.StopClock();
                 _moveListWindow?.SetResult(_lastResult);
             });
 
@@ -5395,12 +5764,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
             else
             {
-                BearChessMessageBox.Show(
-                    byMate
-                        ? $"{engineName} {_rm.GetString("WinsByMate")} "
-                        : $"{engineName} {_rm.GetString("WinsByScore")}", _rm.GetString("GameFinished"),
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Stop);
+                Dispatcher?.Invoke(() =>
+                {
+                    BearChessMessageBox.Show(
+                        byMate
+                            ? $"{engineName} {_rm.GetString("WinsByMate")} "
+                            : $"{engineName} {_rm.GetString("WinsByScore")}", _rm.GetString("GameFinished"),
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Stop);
+                });
                 _gameJustFinished = true;
             }
         }
@@ -5428,6 +5800,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 var isInCheck = string.Empty;
                 if (_chessBoard.MoveIsValid(fromField, toField))
                 {
+                    Dispatcher?.Invoke(() =>
+                    {
+                        ClockWindowAndBoardStop();
+                    });
                     if (_timeControlWhite.TournamentMode)
                     {
                         Dispatcher?.Invoke(() =>
@@ -5477,7 +5853,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
                     _eChessBoard?.BuzzerOnMove();
                     _eChessBoard?.AwaitingMove(fromField, toField, promoteFigureId);
-                    if (_bearChessServerClient != null && _bearChessServerClient.IsSending)
+                    if (_bearChessServerClient != null && _bearChessServerClient.IsSending && (_currentGame == null || !_currentGame.PublishGame))
                     {
                         _bearChessServerClient?.SendToServer(new BearChessServerMessage()
                         {
@@ -5486,6 +5862,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                             AllMoves = _chessBoard.GetPlayedBCServerMoveList().ToList().ToArray()
                         });
                     }
+                  
 
                     var prevMove = _chessBoard.GetPrevMove();
 
@@ -5501,14 +5878,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
                                 MoveExtentions.SpeakMove(fromFieldFigureId, toFieldFigureId, fromFieldFieldName,
                                     toFieldFieldName,
                                     FigureId.NO_PIECE, prevMove.GetMove(_chessBoard.EnemyColor).ShortMoveIdentifier,
-                                    addInfo);
+                                    addInfo, false);
                             }
                             else
                             {
                                 MoveExtentions.SpeakMove(fromFieldFigureId, toFieldFigureId, fromFieldFieldName,
                                     toFieldFieldName,
                                     FigureId.GetFenCharacterToFigureId(promote),
-                                    prevMove.GetMove(_chessBoard.EnemyColor).ShortMoveIdentifier, addInfo);
+                                    prevMove.GetMove(_chessBoard.EnemyColor).ShortMoveIdentifier, addInfo, false);
                             }
                         });
                         engineMove = prevMove.GetMove(_chessBoard.EnemyColor);
@@ -5639,15 +6016,17 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     Dispatcher?.Invoke(() =>
                     {
                         _engineWindow?.Stop();
-                        _chessClocksWindowBlack?.Stop();
-                        _chessClocksWindowWhite?.Stop();
+                        
                         if (engineMove.FigureColor == Fields.COLOR_WHITE)
                         {
                             if (_chessClocksWindowWhite != null)
                             {
                                 var elapsedTime = _chessClocksWindowWhite.GetDuration();
                                 engineMove.ElapsedMoveTime =
-                                    $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                    $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                                var clockTime = _chessClocksWindowWhite.GetClockTime();
+                                engineMove.ClockTime =
+                                    $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                             }
                         }
                         else
@@ -5656,11 +6035,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
                             {
                                 var elapsedTime = _chessClocksWindowBlack.GetDuration();
                                 engineMove.ElapsedMoveTime =
-                                    $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                    $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                                var clockTime = _chessClocksWindowBlack.GetClockTime();
+                                engineMove.ClockTime =
+                                    $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                             }
                         }
 
-                        _eChessBoard?.StopClock();
+                        //_eChessBoard?.StopClock();
                         chessBoardUcGraphics.RepaintBoard(_chessBoard);
                         if (!_pureEngineMatch)
                         {
@@ -5681,6 +6063,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         _eChessBoard?.SetCurrentColor(_chessBoard.CurrentColor);
                         _moveListWindow?.AddMove(engineMove, _gameAgainstEngine && _timeControlWhite.TournamentMode);
                         _moveListWindow?.RemainingMovesFor50MovesDraw(_chessBoard.RemainingMovesFor50MovesDraw);
+                        if (_currentGame != null && _currentGame.PublishGame)
+                        {
+                            PublishGame();
+                        }
                         _ficsWindow?.StopGame();
                         _lastResult = _chessBoard.CurrentColor == Fields.COLOR_WHITE ? "0-1" : "1-0";
                         if (_lastResult.Equals("1-0"))
@@ -5713,11 +6099,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         }
                         else
                         {
-                            BearChessMessageBox.Show($"{_rm.GetString("Mate")} {_lastResult} ",
-                                _rm.GetString("GameFinished"),
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Stop);
                             _gameJustFinished = true;
+                            Dispatcher?.Invoke(() =>
+                            {
+                                BearChessMessageBox.Show($"{_rm.GetString("Mate")} {_lastResult} ",
+                                    _rm.GetString("GameFinished"),
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Stop);
+                            });
+                          
                         }
 
                         if (_currentGame.DuelEnginePlayer)
@@ -5749,19 +6139,19 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         Dispatcher?.Invoke(() =>
                         {
                             _ficsClient?.Send("draw");
+                            _gameJustFinished = true;
                             if (_blindUser)
                             {
                                 _synthesizer?.SpeakAsync(_rm.GetString("GameFinished"));
                                 _synthesizer?.SpeakAsync($"{draw}. {_rm.GetString("RequestFICSForDraw")}.");
-                                _gameJustFinished = true;
                             }
                             else
                             {
-                                BearChessMessageBox.Show($"{draw}. {_rm.GetString("RequestFICSForDraw")}.",
-                                    _rm.GetString("GameFinished"),
-                                    MessageBoxButton.OK,
-                                    MessageBoxImage.Stop);
-                                _gameJustFinished = true;
+
+                                    BearChessMessageBox.Show($"{draw}. {_rm.GetString("RequestFICSForDraw")}.",
+                                        _rm.GetString("GameFinished"),
+                                        MessageBoxButton.OK,
+                                        MessageBoxImage.Stop);
                             }
                         });
                     }
@@ -5771,9 +6161,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         Dispatcher?.Invoke(() =>
                         {
                             _engineWindow?.Stop();
-                            _chessClocksWindowBlack?.Stop();
-                            _chessClocksWindowWhite?.Stop();
-                            _eChessBoard?.StopClock();
+                            ClockWindowAndBoardStop();
+                            
+                            //_eChessBoard?.StopClock();
                             chessBoardUcGraphics.RepaintBoard(_chessBoard);
                             _eChessBoard?.SetAllLedsOff(true);
                             _eChessBoard?.ShowMove(new SetLEDsParameter()
@@ -5790,6 +6180,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                                 _gameAgainstEngine && _timeControlWhite.TournamentMode);
                             _moveListWindow?.RemainingMovesFor50MovesDraw(_chessBoard.RemainingMovesFor50MovesDraw);
                             _moveListWindow?.SetResult(_lastResult);
+                            if (_currentGame != null && _currentGame.PublishGame)
+                            {
+                                PublishGame();
+                            }
                             _eChessBoard?.IsADraw();
                         });
 
@@ -5801,17 +6195,21 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
                         if (!_currentGame.DuelEngine || _currentGame.DuelEnginePlayer)
                         {
+                            _gameJustFinished = true;
                             if (_blindUser)
                             {
                                 _synthesizer?.SpeakAsync(_rm.GetString("GameFinished"));
                                 _synthesizer?.SpeakAsync(draw);
-                                _gameJustFinished = true;
                             }
                             else
                             {
-                                BearChessMessageBox.Show($"{draw} ", _rm.GetString("GameFinished"), MessageBoxButton.OK,
-                                    MessageBoxImage.Stop);
-                                _gameJustFinished = true;
+                                Dispatcher?.Invoke(() =>
+                                {
+                                    BearChessMessageBox.Show($"{draw} ", _rm.GetString("GameFinished"),
+                                        MessageBoxButton.OK,
+                                        MessageBoxImage.Stop);
+                                });
+
                             }
 
                             if (_currentGame.DuelEnginePlayer)
@@ -5881,7 +6279,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
                     if (engineMove != null)
                     {
-                        _eChessBoard?.StopClock();
+                        //_eChessBoard?.StopClock();
                     }
 
                     if (!_pureEngineMatch)
@@ -5909,7 +6307,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     _engineWindow?.GoInfiniteForCoach(_chessBoard.GetFenPosition());
                     if (_chessBoard.CurrentColor == Fields.COLOR_WHITE)
                     {
-                        _chessClocksWindowBlack?.Stop();
                         if (_blindUser && _blindUserSayMoveTime)
                         {
                             if (_timeControlBlack.TimeControlType == TimeControlEnum.TimePerGame ||
@@ -5934,7 +6331,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                                 {
                                     var elapsedTime = _chessClocksWindowWhite.GetDuration();
                                     engineMove.ElapsedMoveTime =
-                                        $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                        $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                                    var clockTime = _chessClocksWindowWhite.GetClockTime();
+                                    engineMove.ClockTime =
+                                        $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                                 }
                             }
                             else
@@ -5943,13 +6343,20 @@ namespace www.SoLaNoSoft.com.BearChessWin
                                 {
                                     var elapsedTime = _chessClocksWindowBlack.GetDuration();
                                     engineMove.ElapsedMoveTime =
-                                        $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                        $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                                    var clockTime = _chessClocksWindowBlack.GetClockTime();
+                                    engineMove.ClockTime =
+                                        $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                                 }
                             }
 
                             _moveListWindow?.AddMove(engineMove,
                                 _gameAgainstEngine && _timeControlWhite.TournamentMode);
                             _moveListWindow?.RemainingMovesFor50MovesDraw(_chessBoard.RemainingMovesFor50MovesDraw);
+                            if (_currentGame != null && _currentGame.PublishGame && _currentGame.PublishGameContinuously)
+                            {
+                                PublishGame();
+                            }
                         }
 
                         if (_currentAction == CurrentAction.InRunningGame && !_pureEngineMatch)
@@ -5959,7 +6366,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                             {
                                 if (!_pausedGame)
                                 {
-                                    _chessClocksWindowWhite?.Go();
+                                    ClockWindowAndBoardGo(Fields.COLOR_WHITE);
                                 }
 
                                 if (!_currentGame.WhiteConfig.IsPlayer)
@@ -5977,7 +6384,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     }
                     else
                     {
-                        _chessClocksWindowWhite?.Stop();
                         if (_blindUser && _blindUserSayMoveTime)
                         {
                             if (_timeControlWhite.TimeControlType == TimeControlEnum.TimePerGame ||
@@ -6002,7 +6408,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                                 {
                                     var elapsedTime = _chessClocksWindowWhite.GetDuration();
                                     engineMove.ElapsedMoveTime =
-                                        $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                        $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                                    var clockTime = _chessClocksWindowWhite.GetClockTime();
+                                    engineMove.ClockTime =
+                                        $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                                 }
                             }
                             else
@@ -6011,13 +6420,20 @@ namespace www.SoLaNoSoft.com.BearChessWin
                                 {
                                     var elapsedTime = _chessClocksWindowBlack.GetDuration();
                                     engineMove.ElapsedMoveTime =
-                                        $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                        $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                                    var clockTime = _chessClocksWindowBlack.GetClockTime();
+                                    engineMove.ClockTime =
+                                        $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                                 }
                             }
 
                             _moveListWindow?.AddMove(engineMove,
                                 _gameAgainstEngine && _timeControlWhite.TournamentMode);
                             _moveListWindow?.RemainingMovesFor50MovesDraw(_chessBoard.RemainingMovesFor50MovesDraw);
+                            if (_currentGame != null && _currentGame.PublishGame && _currentGame.PublishGameContinuously)
+                            {
+                                PublishGame();
+                            }
                         }
 
                         if (_currentAction == CurrentAction.InRunningGame && !_pureEngineMatch)
@@ -6027,7 +6443,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                             {
                                 if (!_pausedGame)
                                 {
-                                    _chessClocksWindowBlack?.Go();
+                                   ClockWindowAndBoardGo(Fields.COLOR_BLACK);
                                 }
 
                                 if (!_currentGame.BlackConfig.IsPlayer)
@@ -6058,10 +6474,18 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
         }
 
-
-        private void AutoSaveGame()
+        private void PublishGame()
         {
-            var playedMoveList = _chessBoard.GetPlayedMoveList();
+            if (_currentGame == null || _gamePublisher == null)
+            {
+                return;
+            }
+            if (!_currentGame.PublishGame)
+            {
+                return;
+            }
+         
+            var playedMoveList = _moveListWindow != null ? _moveListWindow.GetAllMoves() : _chessBoard.GetPlayedMoveList();
             if (playedMoveList.Length == 0)
             {
                 return;
@@ -6076,11 +6500,66 @@ namespace www.SoLaNoSoft.com.BearChessWin
             var pgnGame = new PgnGame
             {
                 GameEvent = string.IsNullOrEmpty(_currentGame.GameEvent) ? "BearChess" : _currentGame.GameEvent,
-                PlayerWhite = _currentGame.PlayerWhite,
-                PlayerBlack = _currentGame.PlayerBlack,
+                PlayerWhite = _currentGame.WhiteConfig.IsPlayer ? string.IsNullOrWhiteSpace(_currentGame.WhiteConfig.OriginName) ? _playerName : _currentGame.WhiteConfig.OriginName : _currentGame.PlayerWhite,
+                PlayerBlack = _currentGame.BlackConfig.IsPlayer ? string.IsNullOrWhiteSpace(_currentGame.BlackConfig.OriginName) ? _playerName : _currentGame.BlackConfig.OriginName : _currentGame.PlayerBlack,
                 Result = _lastResult,
                 GameDate = DateTime.Now.ToString("yyyy.MM.dd"),
                 Round = _currentGame.Round.ToString(),
+                WhiteElo = _currentGame.WhiteConfig.GetConfiguredElo().ToString(),
+                BlackElo = _currentGame.BlackConfig.GetConfiguredElo().ToString(),
+            };
+            foreach (var move in pgnCreator.GetAllMoves())
+            {
+                pgnGame.AddMove(move);
+            }
+
+            pgnGame.AddValue("WhiteElo", _currentGame.WhiteConfig?.GetConfiguredElo().ToString().Replace("-1", ""));
+            pgnGame.AddValue("BlackElo", _currentGame.BlackConfig?.GetConfiguredElo().ToString().Replace("-1", ""));
+            var newSend = pgnGame.GetGame();
+            if (newSend.Equals(_oldPublishSend))
+            {
+                return;
+            }
+            if (_bearChessServerClient != null && _bearChessServerClient.IsSending && _configuration.GetBoolValue("BCSforFTP", false))
+            {
+                _bearChessServerClient.SendToServer("PUBLISH", newSend);
+                _bearChessServerClient.SendToServer("PUBLISHFEN", _chessBoard.GetFenPosition());
+                _oldPublishSend = newSend;
+                return;
+            }
+            _gamePublisher?.Publish(newSend);
+            _oldPublishSend = newSend;
+        }
+
+        private void AutoSaveGame()
+        {
+            if (_currentGame.GameSaved)
+            {
+                return;
+            }
+
+            var playedMoveList = _moveListWindow != null ? _moveListWindow.GetAllMoves() : _chessBoard.GetPlayedMoveList();
+            if (playedMoveList.Length == 0)
+            {
+                return;
+            }
+
+            var pgnCreator = new PgnCreator(_gameStartFenPosition, _configuration.GetDefaultPgnConfiguration());
+            foreach (var move in playedMoveList)
+            {
+                pgnCreator.AddMove(move);
+            }
+
+            var pgnGame = new PgnGame
+            {
+                GameEvent = string.IsNullOrEmpty(_currentGame.GameEvent) ? "BearChess" : _currentGame.GameEvent,
+                PlayerWhite = _currentGame.WhiteConfig.IsPlayer ? string.IsNullOrWhiteSpace(_currentGame.WhiteConfig.OriginName) ? _playerName : _currentGame.WhiteConfig.OriginName : _currentGame.PlayerWhite,
+                PlayerBlack = _currentGame.BlackConfig.IsPlayer ? string.IsNullOrWhiteSpace(_currentGame.BlackConfig.OriginName) ? _playerName : _currentGame.BlackConfig.OriginName : _currentGame.PlayerBlack,
+                Result = _lastResult,
+                GameDate = DateTime.Now.ToString("yyyy.MM.dd"),
+                Round = _currentGame.Round.ToString(),
+                WhiteElo = _currentGame.WhiteConfig.GetConfiguredElo().ToString(),
+                BlackElo = _currentGame.BlackConfig.GetConfiguredElo().ToString(),
 
             };
             foreach (var move in pgnCreator.GetAllMoves())
@@ -6091,7 +6570,12 @@ namespace www.SoLaNoSoft.com.BearChessWin
             pgnGame.AddValue("WhiteElo", _currentGame.WhiteConfig?.GetConfiguredElo().ToString().Replace("-1", ""));
             pgnGame.AddValue("BlackElo", _currentGame.BlackConfig?.GetConfiguredElo().ToString().Replace("-1", ""));
             _database.Save(new DatabaseGame(pgnGame, playedMoveList, _currentGame), false);
-            if (_blindUser)
+            if (_currentGame.PublishGame)
+            {
+                PublishGame();
+            }
+
+            if (_blindUser && _configuration.GetBoolValue("blindAutoSaveGames", true))
             {
                 var documentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 var fileName = $"BearChess_{DateTime.Now.ToString("yyyy-MM-dd_HH_mm_ss")}.pgn";
@@ -6104,7 +6588,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void HandleEngineDuel()
         {
-
             var pgnCreator = new PgnCreator(_gameStartFenPosition, _configuration.GetPgnConfiguration());
             foreach (var move in _chessBoard.GetPlayedMoveList())
             {
@@ -6268,7 +6751,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             }
 
-            _fileLogger?.LogDebug($"From engine: {e}");
+            //_fileLogger?.LogDebug($"From engine: {e}");
             if (e.FromEngine.Contains("bestmove"))
             {
                 //    _fileLogger?.LogDebug($"bestmove: {e.FromEngine}");
@@ -7178,6 +7661,19 @@ namespace www.SoLaNoSoft.com.BearChessWin
             OpeningBookLoader.Init(_bookPath, _binPath, _fileLogger);
         }
 
+        private void LoadlastOrDefaultBook()
+        {
+
+            var configValue = _configuration.GetConfigValue("lastBook", Constants.InternalBookGUIDPerfectCTG);
+            if (string.IsNullOrWhiteSpace(configValue))
+            {
+                LoadDefaultBook();
+                return;
+            }
+
+            LoadBook(OpeningBookLoader.GetInstalledBookInfos().FirstOrDefault(b => b.Id.Equals(configValue)));
+        }
+
         private void LoadDefaultBook()
         {
 
@@ -7196,7 +7692,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 return;
             }
-
+            _configuration.SetConfigValue("lastBook", bookInfo.Id);
+            _configuration.Save();
             IBookWindow bookWindow;
             if (_sdiLayout)
             {
@@ -7362,6 +7859,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void BookWindow_BestMoveChanged(object sender, IBookMoveBase e)
         {
+            if (_inTrainingMode)
+            {
+                return;
+            }
             Dispatcher?.Invoke(() =>
             {
                 if (_showBestBookMove && e != null)
@@ -7508,9 +8009,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             chessBoardUcGraphics.SetEBoardMode(true);
             chessBoardUcGraphics.RepaintBoard(_chessBoard);
-            var currentAction = _currentAction;
-            _currentAction = CurrentAction.InSetupMode;
-            _currentAction = currentAction;
             _eChessBoard.Ignore(false);
             buttonConnect.IsEnabled = _currentAction != CurrentAction.InRunningGame;
         }
@@ -8070,6 +8568,17 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void DisconnectFromEBoard(MenuItem menuItem, string boardName)
         {
+            _clockUseExtern = false;
+            if (_chessClocksWindowWhite != null)
+            {
+                _chessClocksWindowWhite.SimpleClockMode = _clockUseExtern;
+            }
+
+            if (_chessClocksWindowBlack != null)
+            {
+                _chessClocksWindowBlack.SimpleClockMode = _clockUseExtern;
+            }
+
             _fileLogger?.LogInfo($"Disconnect from {boardName}");
             if (_speechIsActive)
             {
@@ -8097,7 +8606,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _eChessBoard.Close();
             _eChessBoard.Dispose();
             _eChessBoard = null;
-            textBlockEBoard.Text = $" {_rm.GetString("")}";
+            textBlockEBoard.Text = $" {_rm.GetString("Disconnected")}";
             imageConnect.Visibility = Visibility.Visible;
             imageDisconnect.Visibility = Visibility.Collapsed;
             imageBT.Visibility = Visibility.Hidden;
@@ -8265,6 +8774,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _eChessBoard.ProbeMoveEndingEvent -= EChessBoard_ProbeMoveEndingEvent;
             DisconnectFromEBoard(menuItemConnectToSentio, Constants.TabutronicSentio);
         }
+
+        private void DisconnectFromTabutronicSentioSpectrum()
+        {
+            _eChessBoard.HelpRequestedEvent -= EChessBoardHelpRequestedEvent;
+            _eChessBoard.ProbeMoveEvent -= EChessBoard_ProbeMoveEvent;
+            _eChessBoard.ProbeMoveEndingEvent -= EChessBoard_ProbeMoveEndingEvent;
+            DisconnectFromEBoard(menuItemConnectToSentioSpectrum, Constants.TabutronicSentioSpectrum);
+        }
         private void ConnectToTabutronicSentio()
         {
             _fileLogger?.LogInfo("Connect to TabuTronic Sentio chessboard");
@@ -8302,6 +8819,52 @@ namespace www.SoLaNoSoft.com.BearChessWin
             imageDisconnect.Visibility = Visibility.Visible;
             SetLastEBoard(_lastEBoard);
             buttonConnect.ToolTip = $"{_rm.GetString("DisconnectFrom")} {Constants.TabutronicSentio}";
+            if (_currentAction == CurrentAction.InRunningGame)
+            {
+                _eChessBoard.SetFen(_chessBoard.GetFenPosition(), string.Empty);
+            }
+            chessBoardUcGraphics.SetEBoardMode(true);
+            chessBoardUcGraphics.RepaintBoard(_chessBoard);
+            buttonShowEBoardPosition.Visibility = Visibility.Visible;
+        }
+
+        private void ConnectToTabutronicSentioSpectrum()
+        {
+            _fileLogger?.LogInfo("Connect to TabuTronic Sentio Spectrum chessboard");
+            _eChessBoard = new TabutronicSentioSpectrumLoader(_configuration.FolderPath);
+            _eChessBoard.MoveEvent += EChessBoardMoveEvent;
+            _eChessBoard.FenEvent += EChessBoardFenEvent;
+            _eChessBoard.BasePositionEvent += EChessBoardBasePositionEvent;
+            _eChessBoard.AwaitedPosition += EChessBoardAwaitedPositionEvent;
+            _eChessBoard.HelpRequestedEvent += EChessBoardHelpRequestedEvent;
+            _eChessBoard.ProbeMoveEvent += EChessBoard_ProbeMoveEvent;
+            _eChessBoard.ProbeMoveEndingEvent += EChessBoard_ProbeMoveEndingEvent;
+            _eChessBoard.GameEndEvent += EChessBoard_GameEndEvent;
+            if (!_eChessBoard.IsConnected)
+            {
+                DisconnectFromTabutronicSentioSpectrum();
+                BearChessMessageBox.Show(_rm.GetString("CheckConnection"), _rm.GetString("ConnectionFailed"), MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+            menuItemConnectToSentio.Header = _rm.GetString("Disconnect");
+            DisableConnectItems();
+            menuItemSentio.IsEnabled = true;
+            _eChessBoard.SetDemoMode(_currentAction == CurrentAction.InAnalyseMode ||
+                                     _currentAction == CurrentAction.InEasyPlayingMode ||
+                                     _currentAction == CurrentAction.InGameAnalyseMode);
+            var currentComPort = _eChessBoard?.GetCurrentComPort();
+            textBlockEBoard.Text = $"{_rm.GetString("ConnectedTo")} {Constants.TabutronicSentioSpectrum} ({currentComPort})";
+            imageBT.Visibility = currentComPort.Equals("BT", StringComparison.OrdinalIgnoreCase)
+                                     ? Visibility.Visible
+                                     : Visibility.Hidden;
+            _lastEBoard = Constants.TabutronicSentioSpectrum;
+            textBlockButtonConnect.Text = _lastEBoard;
+            buttonConnect.Visibility = Visibility.Visible;
+            imageConnect.Visibility = Visibility.Collapsed;
+            imageDisconnect.Visibility = Visibility.Visible;
+            SetLastEBoard(_lastEBoard);
+            buttonConnect.ToolTip = $"{_rm.GetString("DisconnectFrom")} {Constants.TabutronicSentioSpectrum}";
             if (_currentAction == CurrentAction.InRunningGame)
             {
                 _eChessBoard.SetFen(_chessBoard.GetFenPosition(), string.Empty);
@@ -8408,7 +8971,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                                      _currentAction == CurrentAction.InEasyPlayingMode ||
                                      _currentAction == CurrentAction.InGameAnalyseMode);
             var currentComPort = _eChessBoard?.GetCurrentComPort();
-            textBlockEBoard.Text = $"{_rm.GetString("ConnectTo")} {Constants.TabutronicCerno} ({currentComPort})";
+            textBlockEBoard.Text = $"{_rm.GetString("ConnectedTo")} {Constants.TabutronicCerno} ({currentComPort})";
             if (_useBluetoothTabuTronicCerno || _useBluetoothLETabuTronicCerno)
             {
                 imageBT.Visibility = currentComPort.StartsWith("BT", StringComparison.OrdinalIgnoreCase)
@@ -8460,9 +9023,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             _eChessBoard.SetDemoMode(_currentAction == CurrentAction.InAnalyseMode ||
                                      _currentAction == CurrentAction.InEasyPlayingMode ||
+                                    // _currentAction == CurrentAction.InTrainingMode ||
                                      _currentAction == CurrentAction.InGameAnalyseMode);
             var currentComPort = _eChessBoard?.GetCurrentComPort();
-            textBlockEBoard.Text = $"{_rm.GetString("ConnectTo")} {Constants.TabutronicCernoSpectrum} ({currentComPort})";
+            textBlockEBoard.Text = $"{_rm.GetString("ConnectedTo")} {Constants.TabutronicCernoSpectrum} ({currentComPort})";
             if (_useBluetoothTabuTronicCernoSpectrum || _useBluetoothLETabuTronicCernoSpectrum)
             {
                 imageBT.Visibility = currentComPort.StartsWith("BT", StringComparison.OrdinalIgnoreCase)
@@ -8521,6 +9085,12 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
                 Dispatcher?.Invoke(() =>
                 {
+                  
+
+                    StopGame();
+                    _engineWindow?.Stop();
+                    _eChessBoard?.Stop();
+                    _eChessBoard?.SetAllLedsOff(false);
                     if (_lastResult.Equals("1/2"))
                     {
                         BearChessMessageBox.Show($"{_rm.GetString("GameFinished")}  {_lastResult} ",
@@ -8544,11 +9114,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
                             MessageBoxButton.OK,
                             MessageBoxImage.Stop);
                     }
-
-                    StopGame();
-                    _engineWindow?.Stop();
-                    _eChessBoard?.Stop();
-                    _eChessBoard?.SetAllLedsOff(false);
                     chessBoardUcGraphics.UnMarkAllFields();
                     _chessBoard.Init();
                     _chessBoard.NewGame();
@@ -8572,7 +9137,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void EChessBoardBasePositionEvent(object sender, EventArgs e)
         {
-            if (_pureEngineMatch || _waitForPosition || _currentAction == CurrentAction.InGameAnalyseMode)
+            if (_pureEngineMatch || _waitForPosition || _currentAction == CurrentAction.InGameAnalyseMode
+                || _currentAction == CurrentAction.InTrainingSetupMode || _inTrainingMode)
             {
                 return;
             }
@@ -8588,9 +9154,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     _eChessBoard?.Stop();
                     _eChessBoard?.SetAllLedsOff(false);
                     chessBoardUcGraphics.UnMarkAllFields();
-                    _chessClocksWindowWhite?.Stop();
-                    _chessClocksWindowBlack?.Stop();
-                    _eChessBoard?.StopClock();
+                    
+                    ClockWindowAndBoardStop();
+                    //_eChessBoard?.StopClock();
                     if (_speechIsActive)
                     {
                         _synthesizer.Clear();
@@ -8626,6 +9192,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         menuItemEngineMatch.IsEnabled = true;
                         menuItemEngineTour.IsEnabled = true;
                         menuItemConnectFics.IsEnabled = true;
+                        menuItemTrainStartOpening.IsEnabled = true;
                         chessBoardUcGraphics.AllowTakeBack(true);
                         _currentAction = CurrentAction.InEasyPlayingMode;
                         buttonConnect.IsEnabled = _currentAction != CurrentAction.InRunningGame;
@@ -8700,7 +9267,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void EChessBoardFenEvent(object sender, string fenPosition)
         {            
-            if (_pureEngineMatch)
+            if (_pureEngineMatch || _currentAction==CurrentAction.InTrainingSetupMode)
             {
                 return;
             }
@@ -8708,7 +9275,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _eChessBoard?.AcceptProbingMoves(true);
             if (fenPosition.Contains("/"))
             {
-                if (_currentAction == CurrentAction.InRunningGame && !_currentGame.TimeControl.TournamentMode)
+                if (_currentAction == CurrentAction.InRunningGame && !_currentGame.TimeControl.TournamentMode )
                 {
                     if ((_currentGame.WhiteConfig.IsPlayer && !fenPosition.Contains("K")) ||
                         (_currentGame.BlackConfig.IsPlayer && !fenPosition.Contains("k")))
@@ -8790,7 +9357,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 }
             }
 
-            if ( _currentAction == CurrentAction.InRunningGame && !_allowTakeMoveBack )
+            if ( _currentAction == CurrentAction.InRunningGame && !_allowTakeMoveBack)
             {
                 return;
             }
@@ -8811,9 +9378,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     Dispatcher?.Invoke(() =>
                     {
                         _engineWindow?.Stop();
-                        _chessClocksWindowBlack?.Stop();
-                        _chessClocksWindowWhite?.Stop();
-                        _eChessBoard?.StopClock();
+                        ClockWindowAndBoardStop();
                     });
                     _eChessBoard?.SetAllLedsOff(false);
                     if (_playedMoveList.Length == 0)
@@ -8836,6 +9401,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     for (var i = 0; i < _currentMoveIndex; i++)
                     {
                         var move = _playedMoveList[i];
+                        if (move == null)
+                        {
+                            continue;
+                        }
                         chessBoard.MakeMove(move);
                         allMoves += $"{move.FromFieldName}{move.ToFieldName} ";
                         if (_currentAction != CurrentAction.InGameAnalyseMode)
@@ -8864,18 +9433,22 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         
                     });
                     _fileLogger?.LogDebug($"New prev fen: {_prevFenPosition.Split(" ".ToCharArray())[0]}");
-                    _eChessBoard?.ShowMove(allMoves, _gameStartFenPosition,new SetLEDsParameter()
-                                                                           {
-                                                                               Promote = string.Empty,
-                                                                               IsTakeBack = true
-                                                                           },  false);
-                    return;
+                    // if (!_inTrainingMode)
+                    {
+                        _eChessBoard?.ShowMove(allMoves, _gameStartFenPosition, new SetLEDsParameter()
+                        {
+                            Promote = string.Empty,
+                            IsTakeBack = true
+                        }, false);
+                        return;
+                    }
                 }
             }
 
             if (_currentAction == CurrentAction.InSetupMode || 
                 _currentAction == CurrentAction.InAnalyseMode || 
-                _currentAction == CurrentAction.InEasyPlayingMode || 
+                _currentAction == CurrentAction.InEasyPlayingMode ||
+              //  _currentAction == CurrentAction.InTrainingMode ||
                 _currentAction == CurrentAction.InGameAnalyseMode)
             {
                 _currentGame = null;
@@ -8885,13 +9458,16 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void EChessBoardMoveEvent(object sender, string move)
         {
-            if (_pureEngineMatch)
+            if (_pureEngineMatch || _currentAction==CurrentAction.InTrainingSetupMode)
             {
                 return;
             }
+
             _fileLogger?.LogDebug($"Move from e-chessboard: {move}");
             _eChessBoard?.AcceptProbingMoves(false);
-            if (_currentAction != CurrentAction.InSetupMode && !_pureEngineMatch && _currentAction != CurrentAction.InGameAnalyseMode)
+            if (_currentAction != CurrentAction.InSetupMode && !_pureEngineMatch &&
+                _currentAction != CurrentAction.InGameAnalyseMode)
+                //&& _currentAction != CurrentAction.InTrainingMode)
             {
                 EChessBoardMoveEvent(move);
             }
@@ -8899,7 +9475,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void EChessBoardAwaitedPositionEvent(object sender, EventArgs e)
         {
-            if (_pureEngineMatch)
+            if (_pureEngineMatch || _gameJustFinished)
             {
                 return;
             }
@@ -8933,21 +9509,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     if (_chessBoard.CurrentColor == Fields.COLOR_WHITE)
                     {
                         _fileLogger?.LogDebug("Start clock for white");
-                        if (_timeControlWhite.TimeControlType == TimeControlEnum.TimePerGame ||
-                            _timeControlWhite.TimeControlType == TimeControlEnum.TimePerGameIncrement ||
-                            _timeControlWhite.TimeControlType == TimeControlEnum.TimePerMoves)
-                        {
-                            if (_chessClocksWindowWhite != null)
-                            {
-                                var clockTimeW = _chessClocksWindowWhite?.GetCurrentTime();
-                                var clockTimeB = _chessClocksWindowBlack?.GetCurrentTime();
-                                _eChessBoard?.SetClock(clockTimeW.Hour, clockTimeW.Minute, clockTimeW.Second,
-                                                       clockTimeB.Hour, clockTimeB.Minute, clockTimeB.Second);
-
-                                _eChessBoard?.StartClock(true);
-                            }
-                        }
-
                         if (_timeControlWhite.WaitForMoveOnBoard)
                         {
                             GoTimeForWhiteEngine();
@@ -8957,22 +9518,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     }
 
                     _fileLogger?.LogDebug("Start clock for black");
-                    if (_timeControlWhite.TimeControlType == TimeControlEnum.TimePerGame ||
-                        _timeControlWhite.TimeControlType == TimeControlEnum.TimePerGameIncrement ||
-                        _timeControlWhite.TimeControlType == TimeControlEnum.TimePerMoves)
-                    {
-                        if (_chessClocksWindowWhite != null)
-                        {
-                            var clockTimeW = _chessClocksWindowWhite?.GetCurrentTime();
-                            var clockTimeB = _chessClocksWindowBlack?.GetCurrentTime();
-                            _eChessBoard?.SetClock(clockTimeW.Hour, clockTimeW.Minute, clockTimeW.Second,
-                                                   clockTimeB.Hour, clockTimeB.Minute, clockTimeB.Second);
 
-                            _eChessBoard?.StartClock(false);
-                        }
-                    }
-
-                    if (_timeControlWhite.WaitForMoveOnBoard)
+                    if (_timeControlBlack.WaitForMoveOnBoard)
                     {
                         GoTimeForBlackEngine();
                     }
@@ -9397,6 +9944,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             });
         }
 
+      
         private void EChessBoardFenEvent(string fenPosition)
         {
             
@@ -9418,7 +9966,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 });
                 return;
             }
-            
+
             if (_currentAction == CurrentAction.InGameAnalyseMode)
             {
                 if (_currentAnalyseMode == CurrentAnalyseMode.SavedGameAnalyseMode)
@@ -9429,7 +9977,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 HandleFreeGameAnalyseFenPosition(fenPosition);
                 return;
             }
-            
+            var code = fenPosition.Split(" ".ToCharArray())[0];
+            if (_inTrainingMode)
+            {
+                if (_trainingFenCodes.ContainsKey(code))
+                {
+                    fenPosition = _trainingFenCodes[code];
+                }
+            }
             var position = _chessBoard.GetFenPosition();
             _chessBoard.SetPosition(fenPosition, true);
             _chessBoard.GenerateMoveList();
@@ -9437,12 +9992,18 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _fileLogger?.LogDebug($"Is in Check {_chessBoard.EnemyColor}:  {_chessBoard.IsInCheck(_chessBoard.EnemyColor)}");
             if (_chessBoard.IsInCheck(_chessBoard.EnemyColor))
             {
-                _fileLogger?.LogDebug($"Fen invalid because both color are in check: {fenPosition}");
+                _fileLogger?.LogDebug($"Fen invalid because both colors are in check: {fenPosition}");
                 _chessBoard.SetPosition(position, false);
             }
 
-
             fenPosition = _chessBoard.GetFenPosition();
+            if (_inTrainingMode)
+            {
+                if (!_trainingFenCodes.ContainsKey(code))
+                {
+                    _trainingFenCodes.Add(code, fenPosition);
+                }
+            }
             Dispatcher?.Invoke(() =>
             {
                 _databaseWindow?.FilterByFen(fenPosition);
@@ -9488,6 +10049,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     b.SetMoves(fenPosition);
                 });
+                if (_inTrainingMode)
+                {
+                    HandleOpeningTraining(fenPosition, position);
+                }
             });
         }
 
@@ -9499,7 +10064,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 return;
             }
-            if (_requestForHelpByEvent)
+            if (_requestForHelpByEvent && !_inTrainingMode)
             {
                 Dispatcher?.Invoke(() =>
                 {
@@ -9567,7 +10132,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 if (_configuration.GetBoolValue("checkForAlternateMoves", false))
                 {
                     _fileLogger?.LogDebug($"Check for alternate move");
-                    
+
                     var alterNateMove =
                         _alternateFenMoveList.FirstOrDefault(m => m.FromField == fromField && m.ToField == toField);
                     if (alterNateMove != null)
@@ -9599,11 +10164,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     _eChessBoard?.BuzzerOnInvalid();
                     return;
                 }
+
             }
             _pausedGame = false;
             Dispatcher?.Invoke(() =>
             {
-              
                 if (_currentGame != null && _currentGame.WhiteConfig != null && _currentGame.BlackConfig != null)
                 {
                     if (EnginesValidForPause(_currentGame.WhiteConfig, _currentGame.BlackConfig))
@@ -9619,7 +10184,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             });
             _prevFenPosition = _chessBoard.GetFenPosition();
             _fileLogger?.LogDebug($"Set prev fen: {_prevFenPosition}");
-            if (move.Length > 4)
+            if (move.Length > 4 && (FigureId.GetFenCharacterToFigureId(move.Substring(4, 1))!=FigureId.NO_PIECE))
             {
                 promoteFigure = move.Substring(4, 1);
                 promoteFigureId = FigureId.GetFenCharacterToFigureId(move.Substring(4, 1));
@@ -9656,20 +10221,18 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     _alternateFenMoveList = _chessBoard.GenerateFenPositionList();
                 }
-
                 _chessBoard.MakeMove(fromField, toField);
             }
-            if (_bearChessServerClient != null && _bearChessServerClient.IsSending)
+            if (_bearChessServerClient != null && _bearChessServerClient.IsSending && (_currentGame == null || !_currentGame.PublishGame))
             {
                 _bearChessServerClient?.SendToServer(new BearChessServerMessage() { ActionCode = "FEN", Message = _chessBoard.GetFenPosition(), Color = _chessBoard.EnemyColor == Fields.COLOR_WHITE ? "w" : "b" ,
                     AllMoves = _chessBoard.GetPlayedBCServerMoveList().ToList().ToArray()
                     }
                 );
             }
-
+          
             Dispatcher?.Invoke(() =>
             {
-             
                 _eChessBoard?.SetCurrentColor(_chessBoard.CurrentColor);
                 _eChessBoard?.SetLedsFor(new SetLEDsParameter()
                 {
@@ -9701,11 +10264,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     {
                         if (string.IsNullOrWhiteSpace(promoteFigure))
                             MoveExtentions.SpeakMove(fromFieldFigureId, toFieldFigureId, fromFieldFieldName, toFieldFieldName,
-                                FigureId.NO_PIECE, prevMove.GetMove(_chessBoard.EnemyColor).ShortMoveIdentifier, _rm.GetString("YourMove"));
+                                FigureId.NO_PIECE, prevMove.GetMove(_chessBoard.EnemyColor).ShortMoveIdentifier, _rm.GetString("YourMove"), false);
                         else
                             MoveExtentions.SpeakMove(fromFieldFigureId, toFieldFigureId, fromFieldFieldName, toFieldFieldName,
                                 FigureId.GetFenCharacterToFigureId(promoteFigure),
-                                prevMove.GetMove(_chessBoard.EnemyColor).ShortMoveIdentifier, _rm.GetString("YourMove"));
+                                prevMove.GetMove(_chessBoard.EnemyColor).ShortMoveIdentifier, _rm.GetString("YourMove"), false);
                     });
                 }
             }
@@ -9738,14 +10301,17 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     _engineWindow?.MakeMove(fromFieldFieldName, toFieldFieldName, promoteFigure);
                     chessBoardUcGraphics.RepaintBoard(_chessBoard);
                     _eChessBoard?.SetAllLedsOff(false);
-                    _eChessBoard?.StopClock();
+                    //_eChessBoard?.StopClock();
                     if (move1.FigureColor == Fields.COLOR_WHITE)
                     {
                         if (_chessClocksWindowWhite != null)
                         {
                             var elapsedTime = _chessClocksWindowWhite.GetDuration();
                             move1.ElapsedMoveTime =
-                                $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                            var clockTime = _chessClocksWindowWhite.GetClockTime();
+                            move1.ClockTime =
+                                $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                         }
                     }
                     else
@@ -9754,7 +10320,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         {
                             var elapsedTime = _chessClocksWindowBlack.GetDuration();
                             move1.ElapsedMoveTime =
-                                $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                            var clockTime = _chessClocksWindowBlack.GetClockTime();
+                            move1.ClockTime =
+                                $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                         }
                     }
                     _eChessBoard?.ShowMove(new SetLEDsParameter()
@@ -9770,6 +10339,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     move1.BuddyEngine = _buddyEngineName;
                     _moveListWindow?.AddMove(move1, _gameAgainstEngine && _timeControlWhite.TournamentMode);
                     _moveListWindow?.RemainingMovesFor50MovesDraw(_chessBoard.RemainingMovesFor50MovesDraw);
+                  
                     if (_currentGame != null)
                     {
                         if (_currentGame.WhiteConfig.IsChessServer || _currentGame.BlackConfig.IsChessServer)
@@ -9779,8 +10349,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         }
                     }
                     _engineWindow?.Stop();
-                    _chessClocksWindowBlack?.Stop();
-                    _chessClocksWindowWhite?.Stop();
+                    ClockWindowAndBoardStop();
+                    
                     if (_speechIsActive)
                     {
                         _synthesizer.Speak(SpeechTranslator.GetMate(_speechLanguageTag, _configuration));
@@ -9800,13 +10370,18 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 Dispatcher?.Invoke(() => { _moveListWindow?.SetResult(_lastResult); });
                 if (!_currentGame.DuelEngine || _currentGame.DuelEnginePlayer)
                 {
-                    
+                    _gameJustFinished = true;
+                    Dispatcher?.Invoke(() =>
                     {
-                        BearChessMessageBox.Show($"{_rm.GetString("Mate")} {_lastResult} ", _rm.GetString("GameFinished"),
+                        if (_currentGame != null && _currentGame.PublishGame && _currentGame.PublishGameContinuously)
+                        {
+                            PublishGame();
+                        }
+                        BearChessMessageBox.Show($"{_rm.GetString("Mate")} {_lastResult} ",
+                            _rm.GetString("GameFinished"),
                             MessageBoxButton.OK,
                             MessageBoxImage.Stop);
-                        _gameJustFinished = true;
-                    }
+                    });
                 }
                 else
                 {
@@ -9831,12 +10406,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     Dispatcher?.Invoke(() =>
                     {
                         _ficsClient?.Send("draw");
-                       
+                        _gameJustFinished = true;
                         {
                             BearChessMessageBox.Show($"{draw}. {_rm.GetString("RequestFICSForDraw")}.",
                                 _rm.GetString("GameFinished"), MessageBoxButton.OK,
                                 MessageBoxImage.Stop);
-                            _gameJustFinished = true;
                         }
                     });
                 }
@@ -9847,16 +10421,19 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     {
                         _moveListWindow?.SetResult(_lastResult);
                         _engineWindow?.Stop();
-                        _chessClocksWindowBlack?.Stop();
-                        _chessClocksWindowWhite?.Stop();
-                        _eChessBoard?.StopClock();
+                        ClockWindowAndBoardStop();
+                        
+                        //_eChessBoard?.StopClock();
                         if (move1.FigureColor == Fields.COLOR_WHITE)
                         {
                             if (_chessClocksWindowWhite != null)
                             {
                                 var elapsedTime = _chessClocksWindowWhite.GetDuration();
                                 move1.ElapsedMoveTime =
-                                    $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                    $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                                var clockTime = _chessClocksWindowWhite.GetClockTime();
+                                move1.ClockTime =
+                                    $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                             }
                         }
                         else
@@ -9865,7 +10442,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                             {
                                 var elapsedTime = _chessClocksWindowBlack.GetDuration();
                                 move1.ElapsedMoveTime =
-                                    $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                    $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                                var clockTime = _chessClocksWindowBlack.GetClockTime();
+                                move1.ClockTime =
+                                    $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                             }
                         }
                         chessBoardUcGraphics.RepaintBoard(_chessBoard);
@@ -9885,6 +10465,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         move1.BuddyEngine = _buddyEngineName;
                         _moveListWindow?.AddMove(move1, _gameAgainstEngine && _timeControlWhite.TournamentMode);
                         _moveListWindow?.RemainingMovesFor50MovesDraw(_chessBoard.RemainingMovesFor50MovesDraw);
+                        if (_currentGame != null && _currentGame.PublishGame)
+                        {
+                            PublishGame();
+                        }
                         if (_speechIsActive)
                         {
                             _synthesizer.Speak(SpeechTranslator.GetDraw(_speechLanguageTag, _configuration));
@@ -9893,11 +10477,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
                     if (!_currentGame.DuelEngine || _currentGame.DuelEnginePlayer)
                     {
-                       
+                        _gameJustFinished = true;
                         {
                             BearChessMessageBox.Show($"{draw} ", _rm.GetString("GameFinished"), MessageBoxButton.OK,
                                 MessageBoxImage.Stop);
-                            _gameJustFinished = true;
                         }
                     }
                     else
@@ -9918,7 +10501,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
             Dispatcher?.Invoke(() =>
             {
-                _moveListWindow.RemainingMovesFor50MovesDraw(_chessBoard.RemainingMovesFor50MovesDraw);
+                _moveListWindow?.RemainingMovesFor50MovesDraw(_chessBoard.RemainingMovesFor50MovesDraw);
                 chessBoardUcGraphics.RepaintBoard(_chessBoard);
                 if (_gameAgainstEngine)
                 {
@@ -9931,6 +10514,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     b.SetMoves(fenPosition);
                     b.AddMove($"{fromFieldFieldName}{toFieldFieldName}");
                 });
+               
+
                 if (_ecoCodes.ContainsKey(fenPosition))
                 {
                     var ecoCode = _ecoCodes[fenPosition];
@@ -9946,9 +10531,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 var move2 = new Move(fromField, toField, _chessBoard.EnemyColor, fromFieldFigureId,
                          _chessBoard.CapturedFigure,
                          promoteFigureId);
+                ClockWindowAndBoardStop();
                 if (_chessBoard.CurrentColor == Fields.COLOR_WHITE)
                 {
-                    _chessClocksWindowBlack?.Stop();
                     if (_blindUser && _blindUserSayMoveTime)
                     {
                         if (_timeControlBlack.TimeControlType == TimeControlEnum.TimePerGame ||
@@ -9970,7 +10555,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         {
                             var elapsedTime = _chessClocksWindowWhite.GetDuration();
                             move2.ElapsedMoveTime =
-                                $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                            var clockTime = _chessClocksWindowWhite.GetClockTime();
+                            move2.ClockTime =
+                                $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                         }
                     }
                     else
@@ -9979,13 +10567,16 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         {
                             var elapsedTime = _chessClocksWindowBlack.GetDuration();
                             move2.ElapsedMoveTime =
-                                $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                            var clockTime = _chessClocksWindowBlack.GetClockTime();
+                            move2.ClockTime =
+                                $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                         }
                     }
                 }
                 else
                 {
-                    _chessClocksWindowWhite?.Stop();
+                    
                     if (_blindUser && _blindUserSayMoveTime)
                     {
                         if (_timeControlWhite.TimeControlType == TimeControlEnum.TimePerGame ||
@@ -10007,7 +10598,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         {
                             var elapsedTime = _chessClocksWindowWhite.GetDuration();
                             move2.ElapsedMoveTime =
-                                $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                            var clockTime = _chessClocksWindowWhite.GetClockTime();
+                            move2.ClockTime =
+                                $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                         }
                     }
                     else
@@ -10016,7 +10610,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         {
                             var elapsedTime = _chessClocksWindowBlack.GetDuration();
                             move2.ElapsedMoveTime =
-                                $"{elapsedTime.Hour}:{elapsedTime.Minute}:{elapsedTime.Second}";
+                                $"{elapsedTime.Hour:D2}:{elapsedTime.Minute:D2}:{elapsedTime.Second:D2}";
+                            var clockTime = _chessClocksWindowBlack.GetClockTime();
+                            move2.ClockTime =
+                                $"{clockTime.Hour:D2}:{clockTime.Minute:D2}:{clockTime.Second:D2}";
                         }
                     }
                 }
@@ -10026,9 +10623,13 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 _moveListWindow?.AddMove(move2,
                                          _gameAgainstEngine && _timeControlWhite.TournamentMode);
                 _moveListWindow?.RemainingMovesFor50MovesDraw(_chessBoard.RemainingMovesFor50MovesDraw);
-               // _databaseWindow?.FilterByFen(fenPosition);
+                if (_currentGame != null && _currentGame.PublishGame && _currentGame.PublishGameContinuously)
+                {
+                    PublishGame();
+                }
+                // _databaseWindow?.FilterByFen(fenPosition);
                 //_engineWindow?.Stop();
-               _engineWindow?.MakeMove(fromFieldFieldName, toFieldFieldName, promoteFigure);
+                _engineWindow?.MakeMove(fromFieldFieldName, toFieldFieldName, promoteFigure);
                _engineWindow?.CurrentColor(_chessBoard.CurrentColor);
 
                 if (_currentAction != CurrentAction.InRunningGame)
@@ -10039,29 +10640,25 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 var chessBoardFullMoveNumber = _chessBoard.FullMoveNumber;
                 if (_chessBoard.CurrentColor == Fields.COLOR_WHITE)
                 {
-                    _chessClocksWindowBlack?.Stop();
                     if (_currentAction == CurrentAction.InRunningGame)
                     {
                         GoTimeForWhiteEngine();
-                     
                     }
                     else
                     {
-                        _chessClocksWindowWhite?.Go();
+                        ClockWindowAndBoardGo(Fields.COLOR_WHITE);
                     }
                 }
                 else
                 {
-                    _chessClocksWindowWhite?.Stop();
                     
                     if (_currentAction == CurrentAction.InRunningGame)
                     {
                         GoTimeForBlackEngine();
-                    
                     }
                     else
                     {
-                        _chessClocksWindowBlack?.Go();
+                       ClockWindowAndBoardGo(Fields.COLOR_BLACK);
                     }
 
                     if (_currentAction == CurrentAction.InRunningGame)
@@ -10147,10 +10744,12 @@ namespace www.SoLaNoSoft.com.BearChessWin
                                                }, new UciInfo()
                                                   {
                                                       IsPlayer = true
-                                                  }, databaseGame.GameEvent, _timeControlWhite, databaseGame.White,
+                                                  },
+                                            databaseGame.GameEvent, _timeControlWhite, databaseGame.White,
                                                databaseGame.Black, true, false);
+                _currentGame.WhiteConfig.SetElo(databaseGame.WhiteElo);
+                _currentGame.BlackConfig.SetElo(databaseGame.BlackElo);
             }
-
             _currentGame.GameEvent = _currentEvent;
             _currentGame.GameNumber = databaseGame.PgnGame.Round;
             _currentGame.ContinueGame = databaseGame.Continue;
@@ -10257,7 +10856,16 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
 
             chessBoardUcGraphics.ShowControlButtons(true);
-            chessBoardUcGraphics.SetPlayer(databaseGame.White, databaseGame.Black);
+            if (databaseGame.CurrentGame != null)
+            {
+                chessBoardUcGraphics.SetPlayer(databaseGame.White, databaseGame.Black,
+                    databaseGame.CurrentGame.WhiteConfig.IsPlayer && databaseGame.CurrentGame.BlackConfig.IsPlayer);
+            }
+            else
+            {
+                chessBoardUcGraphics.SetPlayer(databaseGame.White, databaseGame.Black, false);
+            }
+
             if (databaseGame.Continue)
             {
                 ContinueAGame();
@@ -10429,17 +11037,18 @@ namespace www.SoLaNoSoft.com.BearChessWin
             e.Cancel = _currentAction == CurrentAction.InRunningGame;
         }
 
-        private void TimeOutByClock(string result, string whiteOrBlack)
+        private void TimeOutByClock(string result, string whiteOrBlack, int color)
         {
             if (_ficsClient != null && _ficsClient.IsLoggedIn)
             {
                 Dispatcher?.Invoke(() =>
                 {
-                    _chessClocksWindowBlack.Stop();
-                    _chessClocksWindowWhite.Stop();
+                    ClockWindowAndBoardStop();
+                    
                     _chessClocksWindowWhite.CountDown = false;
                     _chessClocksWindowBlack.CountDown = false;
-                    _eChessBoard?.StopClock();
+                    _engineWindow?.SetTimeControl(TimeControlHelper.GetAverageTimeControl(), TimeControlHelper.GetAverageTimeControl());
+                    //_eChessBoard?.StopClock();
                 });
                 return;
             }
@@ -10447,37 +11056,54 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _lastResult = result;
             if (!_currentGame.DuelEngine || _currentGame.DuelEnginePlayer)
             {
-                var messageBoxResult =
-                    MessageBox.Show(
-                        $"{whiteOrBlack} {_rm.GetString("LosesBecauseTimeout")}.{Environment.NewLine}{_rm.GetString("ContinueWithoutTimeControl")}",
-                        _rm.GetString("Timeout"), MessageBoxButton.YesNo, MessageBoxImage.Stop);
+              
                 Dispatcher?.Invoke(() =>
                 {
                     _moveListWindow?.SetResult(_lastResult);
-                    if (messageBoxResult == MessageBoxResult.Yes)
+                    
                     {
-                        _chessClocksWindowBlack.Stop();
-                        _chessClocksWindowWhite.Stop();
-                        _chessClocksWindowWhite.CountDown = false;
-                        _chessClocksWindowBlack.CountDown = false;
-                        _eChessBoard?.StopClock();
+                        var messageBoxResult =
+                            BearChessMessageBox.Show(
+                                $"{whiteOrBlack} {_rm.GetString("LosesBecauseTimeout")}.{Environment.NewLine}{_rm.GetString("ContinueWithoutTimeControl")}",
+                                _rm.GetString("Timeout"), MessageBoxButton.YesNo, MessageBoxImage.Stop);
+                        if (messageBoxResult == MessageBoxResult.Yes)
+                        {
+                            ClockWindowAndBoardStop();
+                            _chessClocksWindowWhite.CountDown = false;
+                            _chessClocksWindowBlack.CountDown = false;
+                            _chessClocksWindowWhite.SetTime(0, 0, 0, 0);
+                            _chessClocksWindowBlack.SetTime(0, 0, 0, 0);
+                            _timeControlWhite = TimeControlHelper.GetAverageTimeControl();
+                            _timeControlBlack = TimeControlHelper.GetAverageTimeControl();
+                            _engineWindow?.NewGame(_timeControlWhite, _timeControlBlack);
+                            _engineWindow?.SetFen(_chessBoard.GetFenPosition(), string.Empty);
+                            if (_chessBoard.CurrentColor == Fields.COLOR_WHITE)
+                            {
+                                GoTimeForWhiteEngine();
+                            }
+                            else
+                            {
+                                GoTimeForBlackEngine();
+                            }
+                        }
+                        else
+                        {
+                            StopGame();
+                        }
                     }
-                    else
-                    {
-                        StopGame();
-                    }
+                    
                 });
             }
         }
 
         private void ChessClocksWindowBlack_TimeOutEvent(object sender, EventArgs e)
         {
-            TimeOutByClock("1-0","Black");
+            TimeOutByClock("1-0",_rm.GetString("Black"), Fields.COLOR_BLACK);
         }
 
         private void ChessClocksWindowWhite_TimeOutEvent(object sender, EventArgs e)
         {
-            TimeOutByClock("0-1", "White");
+            TimeOutByClock("0-1", _rm.GetString("White"), Fields.COLOR_WHITE);
         }
 
         private void ChessBoardBoardSetupChangedEvent(object sender, EventArgs e)
@@ -10500,6 +11126,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
             CurrentMainWindowDimension.Width = Width;
             CurrentMainWindowDimension.Height = Height;
             CurrentMainWindowDimension.Left = Left;
+            if (_blindUser)
+            {
+                if (_configuration.GetBoolValue("maximizedWindows", true))
+                {
+                    this.WindowState = WindowState.Maximized;
+                }
+            }
+
             if (_connectOnStartup && !string.IsNullOrEmpty(_lastEBoard))
             {
                 ButtonConnect_OnClick(this, null);
@@ -10512,6 +11146,21 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     MenuItemMainMenue_OnClick(this, null);
                 }
                 this.Focus();
+                if (!_blindUser && _configuration.GetBoolValue("loadLastFenPosition", false))
+                {
+                    try
+                    {
+                      
+                        if (File.Exists(_savedFenFileName))
+                        {
+                            SetFenPosition(File.ReadAllText(_savedFenFileName));
+                        }
+                    }
+                    catch
+                    {
+                        // 
+                    }
+                }
                 return;
             }
 
@@ -10527,8 +11176,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
             var loadTimeControlBlack = _configuration.LoadTimeControl(false, true);
             _timeControlWhite = loadTimeControl;
             _timeControlBlack = loadTimeControlBlack ?? loadTimeControl;
-            var playerWhite = Constants.Player;
-            var playerBlack = Constants.Player;
+            var playerWhite = Constants.Player1;
+            var playerBlack = Constants.Player1;
             UciInfo whiteConfig = _usedEngines.Values.Where(v => v.IsPlayer).FirstOrDefault();
             UciInfo blackConfig = _usedEngines.Values.Where(v => v.IsPlayer).FirstOrDefault();
             if (File.Exists(Path.Combine(_uciPath, Configuration.STARTUP_WHITE_ENGINE_ID)))
@@ -10601,6 +11250,18 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 _eBoardControlWindow.Close();
             }
+            try
+            {
+                var fenPosition =_chessBoard.GetFenPosition();
+                if (!_chessBoard.IsBasePosition(fenPosition))
+                {
+                    File.WriteAllText(_savedFenFileName, fenPosition);
+                }
+            }
+            catch
+            {
+                //
+            }
             _currentAction = CurrentAction.InEasyPlayingMode;
             if (_ficsClient != null)
             {
@@ -10644,6 +11305,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _configuration.SetDoubleValue("ChessBoardUcGraphicsChessFieldSize", chessBoardUcGraphics.ChessFieldSize);
             _configuration.SetDoubleValue("ChessBoardUcGraphicsControlButtonSize",
                                           chessBoardUcGraphics.ControlButtonSize);
+            _configuration.SetBoolValue("maximizedWindows", this.WindowState == WindowState.Maximized);
             _engineWindow?.CloseLogWindow();
             _engineWindow?.Quit();
             _engineWindow?.Close();
@@ -10666,12 +11328,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void MenuItemPlayer_OnClick(object sender, RoutedEventArgs e)
         {
-            var playerWindow = new PlayerWindow(_playerName) {Owner = this};
+            var playerWindow = new PlayerWindow(_playerName, _playerElo) {Owner = this};
             var showDialog = playerWindow.ShowDialog();
             if (showDialog.HasValue && showDialog.Value)
             {
                 _playerName = $"{playerWindow.LastName.Trim()}, {playerWindow.FirstName.Trim()}";
+                _playerElo = playerWindow.Elo;
                 _configuration.SetConfigValue("player", _playerName);
+                _configuration.SetConfigValue("playerElo", _playerElo);
             }
 
             this.Focus();
@@ -10727,9 +11391,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 _engineWindow?.ClearTimeControl();
                 _eChessBoard?.Stop();
                 _eChessBoard?.SetAllLedsOff(false);
-                _chessClocksWindowWhite?.Stop();
-                _chessClocksWindowBlack?.Stop();
-                _eChessBoard?.StopClock();
+                
+                ClockWindowAndBoardStop();
+                //_eChessBoard?.StopClock();
                 menuItemEngineMatch.Header = _rm.GetString("StartNewEngineMatch");
                 textBlockRunningMode.Text = _rm.GetString("ModeEasyPlaying");
                 SetButtonsForDuelTournament(false);
@@ -10844,9 +11508,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
             Dispatcher?.Invoke(() =>
             {
                 _engineWindow?.Stop();
-                _chessClocksWindowBlack?.Stop();
-                _chessClocksWindowWhite?.Stop();
-                _eChessBoard?.StopClock();
+                ClockWindowAndBoardStop();
+                
+                //_eChessBoard?.StopClock();
 
             });
             HandleEngineDuel();
@@ -11187,9 +11851,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 _engineWindow?.ClearTimeControl();
                 _eChessBoard?.Stop();
                 _eChessBoard?.SetAllLedsOff(false);
-                _chessClocksWindowWhite?.Stop();
-                _chessClocksWindowBlack?.Stop();
-                _eChessBoard?.StopClock();
+                
+                ClockWindowAndBoardStop();
+                //_eChessBoard?.StopClock();
                 menuItemEngineMatch.Header = _rm.GetString("StartNewEngineTournament");
                 textBlockRunningMode.Text = _rm.GetString("ModeEasyPlaying");
                 menuItemSetupPosition.IsEnabled = true;
@@ -11197,6 +11861,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 menuItemEngineMatch.IsEnabled = true;
                 menuItemEngineTour.IsEnabled = true;
                 menuItemConnectFics.IsEnabled = true;
+                menuItemTrainStartOpening.IsEnabled = true;
                 chessBoardUcGraphics.AllowTakeBack(true);
                 _currentAction = CurrentAction.InEasyPlayingMode;
                 chessBoardUcGraphics.ShowControlButtons(false);
@@ -11253,9 +11918,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
             Dispatcher?.Invoke(() =>
             {
                 _engineWindow?.Stop();
-                _chessClocksWindowBlack?.Stop();
-                _chessClocksWindowWhite?.Stop();
-                _eChessBoard?.StopClock();
+                ClockWindowAndBoardStop();
+                
+                //_eChessBoard?.StopClock();
 
             });
             HandleEngineTournament();
@@ -11266,9 +11931,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
             Dispatcher?.Invoke(() =>
             {
                 _engineWindow?.Stop();
-                _chessClocksWindowBlack?.Stop();
-                _chessClocksWindowWhite?.Stop();
-                _eChessBoard?.StopClock();
+                ClockWindowAndBoardStop();
+                
+                //_eChessBoard?.StopClock();
 
             });
             _tournamentInfoWindow?.Close();
@@ -11298,7 +11963,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                                            WhiteClockTime = _chessClocksWindowWhite?.GetClockTime(),
                                            BlackClockTime = _chessClocksWindowBlack?.GetClockTime(),
                                            Id = _currentGame.RepeatedGame ? _databaseGame.Id : 0
-           });
+           }, _currentGame.RepeatedGame ? _currentPairing : _tournamentManager.GetPairing());
            SetButtonsForDuelTournament(false);
             Dispatcher?.Invoke(() => { StopGame(); });
         }
@@ -11326,14 +11991,24 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
             pgnGame.AddValue("WhiteElo", _currentGame?.WhiteConfig.GetConfiguredElo().ToString().Replace("-1",""));
             pgnGame.AddValue("BlackElo", _currentGame?.BlackConfig.GetConfiguredElo().ToString().Replace("-1",""));
-           
+
+
+            int[] pairing;
+            if (_currentGame.Pair1 >= 0)
+            {
+                pairing = new[] { _currentGame.Pair1, _currentGame.Pair2 };
+            }
+            else
+            {
+                pairing = _tournamentManager.GetPairing();
+            }
 
             _tournamentManager.SaveGame(new DatabaseGame(pgnGame, _chessBoard.GetPlayedMoveList(), _currentGame)
                                         {
                                             WhiteClockTime = _chessClocksWindowWhite.GetClockTime(),
                                             BlackClockTime = _chessClocksWindowBlack.GetClockTime(),
                                             Id = _currentGame.RepeatedGame ? _databaseGame.Id : 0
-            });
+            }, _currentGame.RepeatedGame ? _currentPairing : pairing);
             Dispatcher?.Invoke(() =>
             {
                 if (_currentGame.RepeatedGame)
@@ -11343,7 +12018,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 }
                 else
                 {
-                    _tournamentInfoWindow?.AddResult(_lastResult, _tournamentManager.GetPairing());
+                    _tournamentInfoWindow?.AddResult(_lastResult, pairing);
                 }
                 
             });
@@ -11383,7 +12058,38 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 _tournamentWindow.CloneTournamentSelected += TournamentWindowCloneTournamentSelected;
                 _tournamentWindow.SelectedGameChanged += DatabaseWindow_SelectedGameChanged;
                 _tournamentWindow.RepeatGameSelected += TournamentWindow_RepeatGameSelected;
+                _tournamentWindow.ParticipantChanged += TournamentWindow_ParticipantChanged;
                 _tournamentWindow.Show();
+            }
+        }
+
+        private void TournamentWindow_ParticipantChanged(object sender, DatabaseTournament e)
+        {
+            if (_tournamentManager == null)
+            {
+                _tournamentManager = new TournamentManager(_database);
+            }
+
+            if (!_tournamentManager.ValidForReplace(e.TournamentId))
+            {
+                BearChessMessageBox.Show(_rm.GetString("TorunamentInvalidForReplace"), _rm.GetString("InvalidForReplace"), MessageBoxButton.OK,
+                    MessageBoxImage.Exclamation);
+                return;
+            }
+            var tournamentWindow =
+                new ReplaceTournamentParticipantWindow(
+                    _usedEngines.Values.Where(v => !v.IsChessComputer && !v.IsInternalBearChessEngine).ToArray(),
+                    _configuration, _database, _tournamentManager.Load(e.TournamentId), true);
+            var showDialog = tournamentWindow.ShowDialog();
+            if (showDialog.HasValue && showDialog.Value)
+            {
+                if (tournamentWindow.CreateNewTournament)
+                {
+                    _currentTournamentId = _tournamentManager.CloneTournament(e.TournamentId);
+                    _currentTournament = _tournamentManager.Load(_currentTournamentId);
+                }
+                _tournamentManager.ReplaceParticipant(tournamentWindow.RemovedParticipant,
+                    tournamentWindow.AddedParticipant);
             }
         }
 
@@ -11423,7 +12129,16 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     {
                         LoadAGame(_database.LoadGame(databaseGameSimple.Id, _configuration.GetPgnConfiguration()));
                     }
-                    int[] pairing = _tournamentManager.GetPairing(gamesCount);
+                    int[] pairing;
+                    if (databaseGameSimple.Pair1 > 0 || databaseGameSimple.Pair2 > 0)
+                    {
+                        pairing = new[] { databaseGameSimple.Pair1, databaseGameSimple.Pair2 };
+                    }
+                    else
+                    {
+                        pairing = _tournamentManager.GetPairing(gamesCount);
+                    }
+
                     if (databaseGameSimple.Id == gameId)
                     {
                         _currentPairing = pairing;
@@ -11440,6 +12155,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     LoadAGame(databaseGame);
                     if (_currentGame != null)
                     {
+                        _database.ResetPairing(_currentTournamentId,_currentPairing);
                         _tournamentInfoWindow?.SetForRunning();
                         _currentGame.RepeatedGame = true;
                         SetButtonsForDuelTournament(true);
@@ -11493,7 +12209,17 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         if (_currentGame != null && !_currentGame.RepeatedGame)
                             _database.DeleteGame(databaseGameSimple.Id);
                     }
-                    var pairing = _tournamentManager.GetPairing(gamesCount);
+
+                    int[] pairing;
+                    if (databaseGameSimple.Pair1 > 0 || databaseGameSimple.Pair2 > 0)
+                    {
+                        pairing = new[] { databaseGameSimple.Pair1, databaseGameSimple.Pair2 };
+                    }
+                    else
+                    {
+                        pairing = _tournamentManager.GetPairing(gamesCount);
+                    }
+
                     _tournamentInfoWindow?.AddResult(databaseGameSimple.Result, pairing);
                     gamesCount++;
                 }
@@ -11602,7 +12328,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 }
 
                 _speechLanguageTag = _configuration.GetConfigValue("selectedSpeechCulture", CultureInfo.CurrentCulture.IetfLanguageTag).ToLower();
-                _speechLongMove = bool.Parse(_configuration.GetConfigValue("speechLongMove", "true"));
                 _speechIsActive = bool.Parse(_configuration.GetConfigValue("speechActive", "true"));
                 _speechOwnMove = bool.Parse(_configuration.GetConfigValue("speechOwnMove", "false"));
                 if (_speechIsActive)
@@ -11972,7 +12697,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     _installedEngines[Constants.FICS].SetElo(eloBlack);
                 }
 
-                _currentGame = new CurrentGame(_installedEngines[Constants.Player], _installedEngines[Constants.FICS],
+                _currentGame = new CurrentGame(_installedEngines[Constants.Player1], _installedEngines[Constants.FICS],
                                                "FICS game",
                                                timeControl, e.PlayerWhite,
                                                e.PlayerBlack,
@@ -11988,7 +12713,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     _installedEngines[Constants.FICS].SetElo(eloWhite);
                 }
-                _currentGame = new CurrentGame(_installedEngines[Constants.FICS], _installedEngines[Constants.Player],
+                _currentGame = new CurrentGame(_installedEngines[Constants.FICS], _installedEngines[Constants.Player1],
                                                "FICS game",
                                                timeControl, e.PlayerWhite,
                                                e.PlayerBlack,
@@ -12398,6 +13123,32 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
         }
 
+        private void MenuItemConnectSentioSpectrum_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (_currentAction == CurrentAction.InRunningGame)
+            {
+                return;
+            }
+            if (_eChessBoard != null)
+            {
+                DisconnectFromTabutronicSentioSpectrum();
+                textBlockWhiteKing.Visibility = Visibility.Collapsed;
+                textBlockBlackKing.Visibility = Visibility.Collapsed;
+                buttonRotate.Visibility = Visibility.Collapsed;
+                menuItemAnalyseAGame.IsEnabled = false;
+                return;
+            }
+
+            ConnectToTabutronicSentioSpectrum();
+            if (_eChessBoard != null)
+            {
+                textBlockWhiteKing.Visibility = _eChessBoard.PlayingWithWhite ? Visibility.Visible : Visibility.Collapsed;
+                textBlockBlackKing.Visibility = _eChessBoard.PlayingWithWhite ? Visibility.Collapsed : Visibility.Visible;
+                buttonRotate.Visibility = Visibility.Visible;
+                menuItemAnalyseAGame.IsEnabled = true;
+            }
+        }
+
         private void MenuItemConfigureSentio_OnClick(object sender, RoutedEventArgs e)
         {
             if (_currentAction == CurrentAction.InRunningGame)
@@ -12426,6 +13177,34 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
         }
 
+        private void MenuItemConfigureSentioSpectrum_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (_currentAction == CurrentAction.InRunningGame)
+            {
+                return;
+            }
+            var reConnect = false;
+            if (_eChessBoard != null)
+            {
+                DisconnectFromTabutronicSentioSpectrum();
+                reConnect = true;
+            }
+
+            var configureSentio = new ConfigureSentioSpectrumWindow(_configuration, _useBluetoothTabuTronicSentioSpectrum, _useBluetoothLETabuTronicSentioSpectrum) { Owner = this };
+            var showDialog = configureSentio.ShowDialog();
+            if (showDialog.HasValue && showDialog.Value)
+            {
+                _lastEBoard = Constants.TabutronicSentioSpectrum;
+                textBlockButtonConnect.Text = _lastEBoard;
+                buttonConnect.ToolTip = $"{_rm.GetString("ConnectTo")} {_lastEBoard}";
+            }
+
+            if (reConnect)
+            {
+                ConnectToTabutronicSentioSpectrum();
+            }
+        }
+
         private void MenuItemBluetoothSentio_OnClick(object sender, RoutedEventArgs e)
         {
             _useBluetoothTabuTronicSentio = !_useBluetoothTabuTronicSentio;
@@ -12434,6 +13213,16 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _useBluetoothLETabuTronicSentio = false;
             _configuration.SetConfigValue("usebluetoothLETabuTronicSentio", _useBluetoothLETabuTronicCerno.ToString());
             imageSentioBluetoothLE.Visibility = Visibility.Hidden;
+        }
+
+        private void MenuItemBluetoothSentioSpectrum_OnClick(object sender, RoutedEventArgs e)
+        {
+            _useBluetoothTabuTronicSentioSpectrum = !_useBluetoothTabuTronicSentioSpectrum;
+            _configuration.SetConfigValue("useBluetoothTabuTronicSentioSpectrum", _useBluetoothTabuTronicSentioSpectrum.ToString());
+            imageSentioSpectrumBluetooth.Visibility = _useBluetoothTabuTronicSentioSpectrum ? Visibility.Visible : Visibility.Hidden;
+            _useBluetoothLETabuTronicSentioSpectrum = false;
+            _configuration.SetConfigValue("usebluetoothLETabuTronicSentioSpectrum", _useBluetoothLETabuTronicCernoSpectrum.ToString());
+            imageSentioSpectrumBluetoothLE.Visibility = Visibility.Hidden;
         }
 
         private void MenuItemConnectCerno_OnClick(object sender, RoutedEventArgs e)
@@ -12612,6 +13401,13 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _loadDefaultBook = !_loadDefaultBook;
             _configuration.SetBoolValue("LoadDefaultBook", _loadDefaultBook);
             imageLoadDefaultBook.Visibility = _loadDefaultBook ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        private void MenuItemLoadLastOrDefaultBook_OnClick(object sender, RoutedEventArgs e)
+        {
+            _loadLastOrDefaultBook = !_loadLastOrDefaultBook;
+            _configuration.SetBoolValue("LoadLastOrDefaultBook", _loadLastOrDefaultBook);
+            imageLoadLastOrDefaultBook.Visibility = _loadLastOrDefaultBook ? Visibility.Visible : Visibility.Hidden;
         }
 
         private void MenuItemShowBestBookMove_OnClick(object sender, RoutedEventArgs e)
@@ -12803,7 +13599,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
         }
 
 
-
         private void MenuItemConfigureIChessOne_OnClick(object sender, RoutedEventArgs e)
         {
             if (_currentAction == CurrentAction.InRunningGame)
@@ -12871,6 +13666,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             };
             var configValueLanguage = _configuration.GetConfigValue("Language", "default");
             var sdiLayout = _configuration.GetBoolValue("sdiLayout", true);
+            var tournamentMode =_configuration.GetBoolValue("tournamentMode", false);
             var showDialog = winConfigureBearChess.ShowDialog();
             if (showDialog.HasValue && showDialog.Value)
             {
@@ -12881,7 +13677,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 _earlyEvaluation = int.Parse(_configuration.GetConfigValue("earlyEvaluation", "4"));
                 var configValueLanguageNew = _configuration.GetConfigValue("Language", "default");
                 var sdiLayoutNew = _configuration.GetBoolValue("sdiLayout", true);
-                if (!configValueLanguage.Equals(configValueLanguageNew) || !sdiLayout.Equals(sdiLayoutNew) 
+                var tournamentModeNew = _configuration.GetBoolValue("tournamentMode", false);
+                if (!configValueLanguage.Equals(configValueLanguageNew) || !sdiLayout.Equals(sdiLayoutNew)
+                                                                        || _configuration.ClearLogIsSet()
+                                                                        || !tournamentMode.Equals(tournamentModeNew)
                                                                         || !_blindUser.Equals(_configuration.GetBoolValue("blindUser", false)))
                 {
                     if (_configuration.GetBoolValue("blindUser", false))
@@ -12912,7 +13711,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 MenuItemConfigureIChessOne_OnClick(sender, e);
                 return;
             }
-
             if (_lastEBoard.Equals(Constants.ChessnutAir))
             {
                 MenuItemConfigureChessnutAir_OnClick(sender, e);
@@ -12941,6 +13739,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
             if (_lastEBoard.Equals(Constants.TabutronicSentio))
             {
                 MenuItemConfigureSentio_OnClick(sender, e);
+                return;
+            }
+            if (_lastEBoard.Equals(Constants.TabutronicSentioSpectrum))
+            {
+                MenuItemConfigureSentioSpectrum_OnClick(sender, e);
                 return;
             }
             if (_lastEBoard.Equals(Constants.TabutronicTactum))
@@ -13111,7 +13914,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 reConnect = true;
             }
 
-            var winConfigureChessnut = new ConfigureChessnutWindow(Constants.ChessnutGo, _configuration, _useBluetoothChessnutAir) { Owner = this };
+            var winConfigureChessnut = new ConfigureChessnutWindow(Constants.ChessnutGo, _configuration, _useBluetoothChessnutGo) { Owner = this };
             var showDialog = winConfigureChessnut.ShowDialog();
             if (showDialog.HasValue && showDialog.Value)
             {
@@ -13162,8 +13965,18 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _configuration.SetConfigValue("usebluetoothLETabuTronicSentio", _useBluetoothLETabuTronicSentio.ToString());
             imageSentioBluetoothLE.Visibility = _useBluetoothLETabuTronicSentio ? Visibility.Visible : Visibility.Hidden;
             _useBluetoothTabuTronicSentio = false;
-            _configuration.SetConfigValue("usebluetoothTabuTronicSentio", _useBluetoothTabuTronicCerno.ToString());
+            _configuration.SetConfigValue("usebluetoothTabuTronicSentio", _useBluetoothTabuTronicSentio.ToString());
             imageSentioBluetooth.Visibility = Visibility.Hidden;
+        }
+
+        private void MenuItemBluetoothLESentioSpectrum_OnClick(object sender, RoutedEventArgs e)
+        {
+            _useBluetoothLETabuTronicSentioSpectrum = !_useBluetoothLETabuTronicSentioSpectrum;
+            _configuration.SetConfigValue("usebluetoothLETabuTronicSentioSpectrum", _useBluetoothLETabuTronicSentioSpectrum.ToString());
+            imageSentioBluetoothLE.Visibility = _useBluetoothLETabuTronicSentioSpectrum ? Visibility.Visible : Visibility.Hidden;
+            _useBluetoothTabuTronicSentioSpectrum = false;
+            _configuration.SetConfigValue("usebluetoothTabuTronicSentioSpectrum", _useBluetoothTabuTronicSentioSpectrum.ToString());
+            imageSentioSpectrumBluetooth.Visibility = Visibility.Hidden;
         }
 
         private void MenuItemConfigureNotationBooks_OnClick(object sender, RoutedEventArgs e)
@@ -13265,6 +14078,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
         {
             _eChessBoard.ProbeMoveEvent -= EChessBoard_ProbeMoveEvent;
             _eChessBoard.ProbeMoveEndingEvent -= EChessBoard_ProbeMoveEndingEvent;
+            _eChessBoard.ClockEvent -= EChessBoard_ClockEvent;
+            _eChessBoard.StopClock();
             DisconnectFromEBoard(menuItemConnectToZmartfun, Constants.Zmartfun);
         }
 
@@ -13279,7 +14094,22 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _eChessBoard.ProbeMoveEvent += EChessBoard_ProbeMoveEvent;
             _eChessBoard.ProbeMoveEndingEvent += EChessBoard_ProbeMoveEndingEvent;
             _eChessBoard.GameEndEvent += EChessBoard_GameEndEvent;
-            if (!_eChessBoard.IsConnected)
+            _eChessBoard.ClockEvent += EChessBoard_ClockEvent;
+            _eChessBoard.StopClock();
+            _eChessBoard.ResetClock();
+            _clockUseExtern = _eChessBoard.GetEChessBoardConfiguration().UseClock && (_eChessBoard.GetEChessBoardConfiguration().ClockUseExtern || _tournamentMode);
+            _clockUseExtern = _eChessBoard.GetEChessBoardConfiguration().UseClock && _eChessBoard.GetEChessBoardConfiguration().ClockUseExtern;
+            if (_chessClocksWindowWhite != null)
+            {
+                _chessClocksWindowWhite.SimpleClockMode = _clockUseExtern;
+            }
+
+            if (_chessClocksWindowBlack != null)
+            {
+                _chessClocksWindowBlack.SimpleClockMode = _clockUseExtern;
+            }
+
+           if (!_eChessBoard.IsConnected)
             {
                 DisconnectFromHoS();
                 BearChessMessageBox.Show(_rm.GetString("CheckConnection"), _rm.GetString("ConnectionFailed"), MessageBoxButton.OK,
@@ -13311,6 +14141,35 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
             chessBoardUcGraphics.SetEBoardMode(true);
             chessBoardUcGraphics.RepaintBoard(_chessBoard);
+        }
+
+        private void EChessBoard_ClockEvent(object sender, ClockFromBoard e)
+        {
+            Dispatcher?.Invoke(() =>
+            {
+                if (_eChessBoard.Configuration.ClockUseExtern)
+                {
+                    if (e.IsRunning)
+                    {
+                        if (e.LeftIsRunning)
+                        {
+                            _fileLogger?.LogDebug($"Set white clock: {e.LeftHours}:{e.LeftMinutes}:{e.LeftSeconds}");
+                            _chessClocksWindowWhite?.OverrideTime(e.LeftHours, e.LeftMinutes, e.LeftSeconds);
+                        }
+
+                        if (e.RightIsRunning)
+                        {
+                            _fileLogger?.LogDebug($"Set black clock: {e.RightHours}:{e.RightMinutes}:{e.RightSeconds}");
+                            _chessClocksWindowBlack?.OverrideTime(e.RightHours, e.RightMinutes, e.RightSeconds);
+                        }
+                    }
+                    else
+                    {
+                        _chessClocksWindowWhite?.Stop();
+                        _chessClocksWindowBlack?.Stop();
+                    }
+                }
+            });
         }
 
         private void SetLastEBoard(string boardName)
@@ -13493,6 +14352,37 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
         }
 
+        private void BearChessMainWindow_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (_blindUser)
+            {
+                if (e.Key == Key.Right && _getSaysForBoard.Length > 0)
+                {
+                    if (_getSaysForBoardIndex < _getSaysForBoard.Length - 1)
+                    {
+                        _getSaysForBoardIndex++;
+                    }
+                    else
+                    {
+                        _getSaysForBoardIndex = 0;
+                    }
+                    _synthesizer?.SpeakAsync(_getSaysForBoard[_getSaysForBoardIndex]);
+                }
+                if (e.Key == Key.Left && _getSaysForBoard.Length > 0)
+                {
+                    if (_getSaysForBoardIndex > 0)
+                    {
+                        _getSaysForBoardIndex--;
+                    }
+                    else
+                    {
+                        _getSaysForBoardIndex = _getSaysForBoard.Length - 1;
+                    }
+                    _synthesizer?.SpeakAsync(_getSaysForBoard[_getSaysForBoardIndex]);
+                }
+            }
+        }
+
         private void BearChessMainWindow_OnKeyDown(object sender, KeyEventArgs e)
         {
             if (_blindUser || _speechIsActive)
@@ -13502,19 +14392,22 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     
                     if (Keyboard.Modifiers == ModifierKeys.Control)
                     {
-                        _synthesizer?.SpeakAsync(_currentHelpText);
+                        _synthesizer?.SpeakAsync(_currentHelpText, true);
                         return;
                     }
 
                     if (_getSaysForBoard.Length > 0)
                     {
+                        _synthesizer?.SpeakAsync(_rm.GetString("HelpRequestedDeactivated"));
                         _getSaysForBoard = Array.Empty<string>();
+                        _blindQueryFieldNumber = string.Empty;
                     }
                     else
                     {
                         _getSaysForBoard = ChessBoardExtension.GetSaysForBoard(_chessBoard);
                         _getSaysForBoardIndex = 0;
-                        _synthesizer?.SpeakAsync(_getSaysForBoard[_getSaysForBoardIndex]);
+                        _synthesizer?.SpeakAsync(_rm.GetString("HelpRequestedActivated"));
+                        _synthesizer?.SpeakAsync(_getSaysForBoard[_getSaysForBoardIndex], true);
                     }
                     return;
                 }
@@ -13534,36 +14427,118 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         }
                     }
 
+                    if ((e.Key == Key.NumPad1 || e.Key==Key.D1) && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "1";
+                    }
+                    if ((e.Key == Key.NumPad2 || e.Key == Key.D2) && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "2";
+                    }
+                    if ((e.Key == Key.NumPad3 || e.Key == Key.D3) && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "3";
+                    }
+                    if ((e.Key == Key.NumPad4 || e.Key == Key.D4) && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "4";
+                    }
+                    if ((e.Key == Key.NumPad5 || e.Key == Key.D5) && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "5";
+                    }
+                    if ((e.Key == Key.NumPad6 || e.Key == Key.D6) && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "6";
+                    }
+                    if ((e.Key == Key.NumPad7 || e.Key == Key.D7) && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "7";
+                    }
+                    if ((e.Key == Key.NumPad8 || e.Key == Key.D8) && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "8";
+                    }
+                    if (e.Key == Key.A && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "A";
+                    }
+                    if (e.Key == Key.B && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "B";
+                    }
+                    if (e.Key == Key.C && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "C";
+                    }
+                    if (e.Key == Key.D && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "D";
+                    }
+                    if (e.Key == Key.E && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "E";
+                    }
+                    if (e.Key == Key.F && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "F";
+                    }
+                    if (e.Key == Key.G && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "G";
+                    }
+                    if (e.Key == Key.H && _getSaysForBoard.Length > 0)
+                    {
+                        _blindQueryFieldNumber += "H";
+                    }
+
+                    if (_blindQueryFieldNumber.Length == 2)
+                    {
+                        var fieldNumber = Fields.COLOR_EMPTY;
+                        if (int.TryParse(_blindQueryFieldNumber, out _))
+                        {
+                            fieldNumber = Fields.GetBlindFieldNumber(_blindQueryFieldNumber);
+                        }
+                        else
+                        {
+                            fieldNumber = Fields.GetFieldNumber(_blindQueryFieldNumber);
+                        }
+
+                        if (fieldNumber == Fields.COLOR_EMPTY)
+                        {
+                            _blindQueryFieldNumber = string.Empty;
+                            _synthesizer?.SpeakAsync($"{_rm.GetString("Invalid")} {_blindQueryFieldNumber}", true);
+                            return;
+                        }
+                        var fieldName = Fields.GetFieldName(fieldNumber);
+                        var chessFigure = _chessBoard.GetFigureOn(fieldNumber); 
+                        var speechLanguageTag = Configuration.Instance
+                            .GetConfigValue("selectedSpeechCulture", CultureInfo.CurrentCulture.IetfLanguageTag).ToLower();
+                        var figureName = SpeechTranslator.GetFigureName(chessFigure.FigureId, speechLanguageTag, Configuration.Instance);
+                        if (string.IsNullOrEmpty(figureName))
+                        {
+                            figureName = $"{fieldName} {_rm.GetString("NoFigure")}";
+                        }
+                        else
+                        {
+                            var figureColor = chessFigure.Color == Fields.COLOR_WHITE ? "White" : "Black";
+                            figureName = $"{fieldName} {_rm.GetString(figureColor)}  {figureName}";
+                        }
+                        _synthesizer?.SpeakAsync(figureName, true);
+                        _blindQueryFieldNumber = string.Empty;
+                    }
+
+                    if (_getSaysForBoard.Length > 0)
+                    {
+                        return;
+                    }
+
                     if (e.Key == Key.R)
                     {
                         SpeechRepeat();
                         return;
                     }
-
-                    if (e.Key == Key.Right && _getSaysForBoard.Length>0)
-                    {
-                        if (_getSaysForBoardIndex < _getSaysForBoard.Length-1)
-                        {
-                            _getSaysForBoardIndex++;
-                        }
-                        else
-                        {
-                            _getSaysForBoardIndex = 0;
-                        }
-                        _synthesizer?.SpeakAsync(_getSaysForBoard[_getSaysForBoardIndex]);
-                    }
-                    if (e.Key == Key.Left && _getSaysForBoard.Length > 0)
-                    {
-                        if (_getSaysForBoardIndex >0)
-                        {
-                            _getSaysForBoardIndex--;
-                        }
-                        else
-                        {
-                            _getSaysForBoardIndex = _getSaysForBoard.Length-1;
-                        }
-                        _synthesizer?.SpeakAsync(_getSaysForBoard[_getSaysForBoardIndex]);
-                    }
+                 
                     if (e.Key == Key.OemOpenBrackets)
                     {
                         if (_getSaysForBoard.Length > 0)
@@ -13588,14 +14563,125 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         MenuItemNewGame_OnClick(null,null);
                         return;
                     }
-                    if (e.Key == Key.B)
+
+                    if (e.Key == Key.A && _currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
                     {
-                        ButtonConnect_OnClick(null, null);
+                        _blindMoveFieldInput += 'A';
+                    }
+
+                    if (e.Key == Key.B) 
+                    {
+                        if (_currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
+                        {
+                            _blindMoveFieldInput += 'B';
+
+                        }
+                        else
+                        {
+                            ButtonConnect_OnClick(null, null);
+                            return;
+                        }
+                    }
+                    if (e.Key == Key.C && _currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
+                    {
+                        _blindMoveFieldInput += 'C';
+                    }
+                    if (e.Key == Key.D && _currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
+                    {
+                        _blindMoveFieldInput += 'D';
+                    }
+                    if (e.Key == Key.E && _currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
+                    {
+                        _blindMoveFieldInput += 'E';
+                    }
+                    if (e.Key == Key.F && _currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
+                    {
+                        _blindMoveFieldInput += 'F';
+                    }
+                    if (e.Key == Key.G && _currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
+                    {
+                        _blindMoveFieldInput += 'G';
+                    }
+                    if (e.Key == Key.H && _currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
+                    {
+                        _blindMoveFieldInput += 'H';
+                    }
+                    if ((e.Key == Key.NumPad1 || e.Key == Key.D1) && _currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
+                    {
+                        _blindMoveFieldInput += "1";
+                    }
+                    if ((e.Key == Key.NumPad2 || e.Key == Key.D2) && _currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
+                    {
+                        _blindMoveFieldInput += "2";
+                    }
+                    if ((e.Key == Key.NumPad3 || e.Key == Key.D3) && _currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
+                    {
+                        _blindMoveFieldInput += "3";
+                    }
+                    if ((e.Key == Key.NumPad4 || e.Key == Key.D4) && _currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
+                    {
+                        _blindMoveFieldInput += "4";
+                    }
+                    if ((e.Key == Key.NumPad5 || e.Key == Key.D5) && _currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
+                    {
+                        _blindMoveFieldInput += "5";
+                    }
+                    if ((e.Key == Key.NumPad6 || e.Key == Key.D6) && _currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
+                    {
+                        _blindMoveFieldInput += "6";
+                    }
+                    if ((e.Key == Key.NumPad7 || e.Key == Key.D7) && _currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
+                    {
+                        _blindMoveFieldInput += "7";
+                    }
+                    if ((e.Key == Key.NumPad8 || e.Key == Key.D8) && _currentAction == CurrentAction.InRunningGame && _blindUserNoBoard)
+                    {
+                        _blindMoveFieldInput += "8";
+                    }
+                    if (_blindMoveFieldInput.Length == 4)
+                    {
+                        int fromFieldNumber = 0;
+                        int toFieldNumber = 0;
+                        string fromField = _blindMoveFieldInput.Substring(0, 2);
+                        string toField = _blindMoveFieldInput.Substring(2, 2);
+                        if (int.TryParse(fromField, out int _))
+                        {
+                            fromFieldNumber = Fields.GetBlindFieldNumber(fromField);
+                        }
+                        else
+                        {
+                            fromFieldNumber = Fields.GetFieldNumber(fromField);
+                        }
+                        if (int.TryParse(toField, out int _))
+                        {
+                            toFieldNumber = Fields.GetBlindFieldNumber(toField);
+                        }
+                        else
+                        {
+                            toFieldNumber = Fields.GetFieldNumber(toField);
+                        }
+
+                        _blindMoveFieldInput = string.Empty;
+                        chessBoardUcGraphics.MakeMove(fromFieldNumber,toFieldNumber);
                         return;
+                        
                     }
                     if (e.Key == Key.T)
                     {
                         SayCurrentClock_OnClick(null, null);
+                        return;
+                    }
+
+                    if (e.Key == Key.Z)
+                    {
+                        if (_currentAction == CurrentAction.InRunningGame &&  _blindUserNoBoard)
+                        {
+                            if ((_currentGame.WhiteConfig.IsPlayer && _chessBoard.CurrentColor == Fields.COLOR_WHITE)
+                                || (_currentGame.BlackConfig.IsPlayer && _chessBoard.CurrentColor == Fields.COLOR_BLACK))
+                            {
+                                ChessBoardUcGraphics_TakeStepBackEvent(this, null);
+                            }
+                        }
                         return;
                     }
                 }
@@ -13884,6 +14970,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
         {
             if (e.ActionCode.Equals("CONNECT"))
             {
+                _bcsPlayerWhite = string.Empty;
+                _bcsPlayerBlack = string.Empty;
+                _bcsOwnColor = Fields.COLOR_EMPTY;
+                _bcsTournament = string.Empty;
                 Dispatcher?.Invoke(() =>
                 {
                     textBlockBCServer.Text = _rm.GetString("Connected"); ;
@@ -13894,12 +14984,38 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
             if (e.ActionCode.Equals("DISCONNECT"))
             {
+                _bcsPlayerWhite = string.Empty;
+                _bcsPlayerBlack = string.Empty;
+                _bcsTournament = string.Empty;
+                _bcsOwnColor = Fields.COLOR_EMPTY;
                 Dispatcher?.Invoke(() =>
                 {
                     textBlockBCServer.Text = _rm.GetString("Disconnected");
                     textBlockBCServer.ToolTip = null;
                     imageBCServer.ToolTip = null;
                 });
+            }
+            if (e.ActionCode.Equals("TOURNAMENT"))
+            {
+                _bcsPlayerWhite = string.Empty;
+                _bcsPlayerBlack = string.Empty;
+                _bcsTournament = e.Message;
+            }
+            if (e.ActionCode.Equals("PLAYER_WHITE"))
+            {
+                _bcsPlayerWhite = e.Message;
+                if (e.Color.Equals(e.Address))
+                {
+                    _bcsOwnColor = Fields.COLOR_WHITE;
+                }
+            }
+            if (e.ActionCode.Equals("PLAYER_BLACK"))
+            {
+                _bcsPlayerBlack = e.Message;
+                if (e.Color.Equals(e.Address))
+                {
+                    _bcsOwnColor = Fields.COLOR_BLACK;
+                }
             }
         }
 
@@ -13925,7 +15041,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 }
             }
         }
-        private void _bearChessServerClient_DisConnected(object sender, EventArgs e)
+        private void _bearChessServerClient_DisConnected(object sender, Exception e)
         {
             Dispatcher?.Invoke(() =>
             {
@@ -13941,6 +15057,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 _bearChessServerClient.ServerMessage += _bearChessServerClient_ServerMessage;
                 _bearChessServerClient.Connected += _bearChessServerClient_Connected;
                 _bearChessServerClient.DisConnected += _bearChessServerClient_DisConnected;
+                if (e != null)
+                {
+                    BearChessMessageBox.Show(e.Message, "Connection failed", MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
             });
         }
 
@@ -14014,5 +15135,377 @@ namespace www.SoLaNoSoft.com.BearChessWin
             imageShowScoreSymbols.Visibility = _showEvaluationSymbol ? Visibility.Visible : Visibility.Hidden;
             _engineWindow?.ShowInformation();
         }
+
+        private void MenuItemCopyPosition_OnClick(object sender, RoutedEventArgs e)
+        {
+            ClipboardHelper.SetText(_chessBoard.GetFenPosition());
+        }
+
+        private void SetFenPosition(string fenPosition)
+        {
+            var currentPosition = _chessBoard.GetFenPosition();
+
+            var positionChanged = !currentPosition.Equals(fenPosition);
+            if (!string.IsNullOrWhiteSpace(fenPosition))
+            {
+                try
+                {
+                    _chessBoard.SetPosition(fenPosition, false);
+                }
+                catch
+                {
+                    positionChanged = false;
+                    fenPosition = currentPosition;
+                }
+
+                _engineWindow?.SetFen(fenPosition, string.Empty);
+                chessBoardUcGraphics.RepaintBoard(_chessBoard);
+                _eChessBoard?.SetAllLedsOff(false);
+                _eChessBoard?.SetFen(_chessBoard.GetFenPosition(), string.Empty);
+                _materialWindow?.ShowMaterial(_chessBoard.GetFigures(Fields.COLOR_WHITE),
+                    _chessBoard.GetFigures(Fields.COLOR_BLACK), _chessBoard.GetPlayedMoveList());
+                if (_eChessBoard != null && !_eChessBoard.PieceRecognition && positionChanged)
+                {
+                    BearChessMessageBox.Show(_rm.GetString("PlaceAlOnCorrectPosition"),
+                        _rm.GetString("ConfirmPosition"),
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    _eChessBoard.Ignore(false);
+                }
+            }
+        }
+
+        private void MenuItemPastePosition_OnClick(object sender, RoutedEventArgs e)
+        {
+            SetFenPosition(ClipboardHelper.GetText());
+        }
+
+        private void MenuItemloadLastFen_OnClick(object sender, RoutedEventArgs e)
+        {
+            var loadLast =  !_configuration.GetBoolValue("loadLastFenPosition", false);
+            _configuration.SetBoolValue("loadLastFenPosition", loadLast);
+            imageLoadLastFen.Visibility = loadLast ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        private void MenuItemloadLastFen_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Space)
+            {
+                MenuItemloadLastFen_OnClick(sender, e);
+            }
+        }
+
+        private void MenuItemTrainOpening_OnClick(object sender, RoutedEventArgs e)
+        {
+          
+            if (_inTrainingMode)
+            {
+                _trainingFenCodes.Clear();
+                _currentAction = CurrentAction.InEasyPlayingMode;
+                _inTrainingMode = false;
+                menuItemSetupPosition.IsEnabled = true;
+                menuItemAnalyseMode.IsEnabled = true;
+                menuItemEngineMatch.IsEnabled = true;
+                menuItemEngineTour.IsEnabled = true;
+                menuItemConnectFics.IsEnabled = true;
+                menuItemNewGame.IsEnabled = true;
+                menuItemEloEstimateEngineMatch.IsEnabled = true;
+                menuItemTrainStartOpening.Visibility = Visibility.Visible;
+                menuItemTrainStopOpening.Visibility = Visibility.Collapsed;
+                textBlockRunningMode.Text = _rm.GetString("ModeEasyPlaying");
+                _trainingBookInfo = null;
+                _trainingEcoCode = null;
+                _trainingOpeningBook.Dispose();
+                _trainingOpeningBook = null;
+                while (_openingTrainingMoves.TryDequeue(out _)) { ; }
+                try
+                {
+                    _trainingThread.Abort();
+                }
+                catch
+                {
+
+                }
+                _trainingThread = null;
+                _eChessBoard?.SetAllLedsOff(true);
+                return;
+            }
+            if (_currentAction != CurrentAction.InEasyPlayingMode)
+            {
+                return;
+            }
+            if (_eChessBoard == null)
+            {
+                BearChessMessageBox.Show(_rm.GetString("ConnectFirst"), _rm.GetString("ElectronicBoards"), MessageBoxButton.OK,
+                    MessageBoxImage.Stop);
+                return;
+            }
+            _openingTrainingConfig = _configuration.LoadOpeningTrainingConfig();
+            var dialogWindow = new OpeningTrainingStartWindow(OpeningBookLoader.GetInstalledBookInfos(), _ecoCodes.Values.ToArray(),
+                _openingTrainingConfig)
+                {
+                    Owner = this
+                };
+            var showDialog = dialogWindow.ShowDialog();
+            if (showDialog.HasValue && showDialog.Value)
+            {
+                _openingTrainingConfig = dialogWindow.Config;
+                _configuration.SaveOpeningTrainingConfig(_openingTrainingConfig);
+                _eChessBoard?.SetAllLedsOff(true);
+              
+                _trainingBookInfo = dialogWindow.SelectedBook;
+                _trainingEcoCode = dialogWindow.SelectedCode;
+                _chessBoard.NewGame();
+                _chessBoard.SetPosition(_trainingEcoCode.FenCode, false);
+                _chessBoard.GenerateMoveList();
+                chessBoardUcGraphics.RepaintBoard(_chessBoard);
+                _currentAction = CurrentAction.InTrainingSetupMode;
+                var eboardFen =_eChessBoard?.GetBoardFen();
+                if (!_trainingEcoCode.FenCode.StartsWith(eboardFen) || string.IsNullOrEmpty(eboardFen)  )
+                {
+                    if (_eChessBoard.ValidForAnalyse)
+                    {
+                        var splashProgressControlContents =
+                            ProgressWorker.GetInitialContent(1, true, _rm.GetString("WaitForBoardPosition"));
+                        var progressWorker = new ProgressWorker(_rm.GetString("PlaceYourChessmen"),
+                            splashProgressControlContents, false);
+                        progressWorker.DoWorkWithModal(progress =>
+                        {
+                            var eboardFen2 = _eChessBoard?.GetBoardFen();
+                            while (!splashProgressControlContents[0].Cancel &&
+                                   !_trainingEcoCode.FenCode.StartsWith(eboardFen2) || string.IsNullOrEmpty(eboardFen2))
+                            {
+                                eboardFen2 = _eChessBoard?.GetBoardFen();
+                                Thread.Sleep(300);
+                            }
+                        }, this);
+
+                        if (progressWorker.CancelIndicated)
+                        {
+                            _fileLogger?.LogDebug("User canceled");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        BearChessMessageBox.Show(_rm.GetString("PlaceAlOnCorrectPosition"), _rm.GetString("ConfirmPosition"), MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                    }
+                }
+                _trainingFenCodes.Clear();
+                _chessBoard.NewGame();
+                _chessBoard.SetPosition(_trainingEcoCode.FenCode, false);
+                _chessBoard.GenerateMoveList();
+                chessBoardUcGraphics.RepaintBoard(_chessBoard);
+                _eChessBoard?.SetFen(_trainingEcoCode.FenCode);
+                _eChessBoard?.AllowTakeBack(true);
+                _eChessBoard?.SetDemoMode(true);
+                _eChessBoard?.SetCurrentColor(_chessBoard.CurrentColor);
+                _currentGame = null;
+                menuItemTrainStartOpening.Visibility = Visibility.Collapsed;
+                menuItemTrainStopOpening.Visibility = Visibility.Visible;
+                _currentAction = CurrentAction.InEasyPlayingMode;
+                _currentWhitePlayer = string.Empty;
+                _currentBlackPlayer = string.Empty;
+                _timeControlWhite = TimeControlHelper.GetTrainingTimeControl();
+                _timeControlBlack = TimeControlHelper.GetTrainingTimeControl();
+                _lastResult = "*";
+                _currentMoveIndex = 0;
+                _engineMatchScore.Clear();
+                _databaseGameFen.Clear();
+                _materialWindow?.Clear();
+                _playedMoveList = Array.Empty<Move>();
+                _prevFenPosition = string.Empty;
+                _gameStartFenPosition = string.Empty;
+                _inTrainingMode = true;
+                _allowTakeMoveBack = true;
+                _pureEngineMatch = false;
+                _pureEngineMatchStoppedByBearChess = false;
+                _gameAgainstEngine = false;
+                _playersColor[Fields.COLOR_WHITE] = true;
+                _playersColor[Fields.COLOR_BLACK] = true;
+                textBlockRunningMode.Text = _rm.GetString("ModeTrainingOpening");
+                menuItemSetupPosition.IsEnabled = false;
+                menuItemAnalyseMode.IsEnabled = false;
+                menuItemEngineMatch.IsEnabled = false;
+                menuItemEngineTour.IsEnabled = false;
+                menuItemConnectFics.IsEnabled = false;
+                menuItemNewGame.IsEnabled = false;
+                menuItemEloEstimateEngineMatch.IsEnabled = false;
+                _prevTrainingFenPosition = string.Empty;
+                _trainingOpeningBook = new OpeningBook();
+                _trainingOpeningBook.LoadBook(_trainingBookInfo.FileName, false);
+                _trainingThread= new Thread(HandleOpeningTraining) { IsBackground = true };
+                _trainingThread.Start();
+                HandleOpeningTraining(_chessBoard.GetFenPosition(), _prevFenPosition);
+            }
+        }
+
+        private void HandleOpeningTraining()
+        {
+            try
+            {
+                int index = 0;
+                IBookMoveBase bookMove = null;
+                List<IBookMoveBase> allTrainingMoves = new List<IBookMoveBase>();
+                while (true)
+                {
+                    if (!_openingTrainingConfig.ShowNextMove)
+                    {
+                        allTrainingMoves.Clear();
+                        index = 0;
+                        while (_openingTrainingMoves.TryDequeue(out _)) { ; }
+
+                        Thread.Sleep(100);
+                    }
+
+                    allTrainingMoves = new List<IBookMoveBase>(_openingTrainingMoves.ToArray());
+                    
+                    index++;
+                    if (index >= allTrainingMoves.Count)
+                    {
+                        index = 0;
+                    }
+                    bookMove = null;
+                    if (index < allTrainingMoves.Count)
+                    {
+                        bookMove = allTrainingMoves[index];
+                    }
+                    if (bookMove!=null)
+                    {
+                        var bookMoveFenPosition = bookMove.FenPosition;
+                        if (bookMoveFenPosition != null)
+                        {
+                            if (_ecoCodes.ContainsKey(bookMoveFenPosition))
+                            {
+                                var ecoCode = _ecoCodes[bookMoveFenPosition];
+                                if (ecoCode.Code.Equals(_trainingEcoCode.Code))
+                                {
+                                    _eChessBoard?.SetLedsFor(new SetLEDsParameter()
+                                    {
+                                        FieldNames = new string[] { bookMove.FromField, bookMove.ToField },
+                                        BookFieldNames = new string[] { bookMove.FromField, bookMove.ToField },
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            _eChessBoard?.SetLedsFor(new SetLEDsParameter()
+                            {
+                                FieldNames = new string[] { bookMove.FromField, bookMove.ToField },
+                                BookFieldNames = new string[] { bookMove.FromField, bookMove.ToField },
+                            });
+                        }
+                    }
+                    Thread.Sleep(_openingTrainingConfig.NextMoveSeconds * 1000);
+                }
+            }
+            catch (Exception ex)
+            {
+                _fileLogger.LogError(ex);
+            }
+        }
+
+        private void HandleOpeningTraining(string fenPosition, string prevFenPosition)
+        {
+            if (_trainingOpeningBook == null || _eChessBoard == null)
+            {
+                return;
+            }
+
+            if (fenPosition.Equals(_prevTrainingFenPosition))
+            {
+                return;
+            }
+          
+            _prevTrainingFenPosition = fenPosition;
+            while (_openingTrainingMoves.TryDequeue(out _)) { ; }
+            var bookMovesAvailable = false;
+            if (!string.IsNullOrWhiteSpace(prevFenPosition))
+            {
+                var moveBases = _trainingOpeningBook.GetMoveList(prevFenPosition);
+                bookMovesAvailable = moveBases.Length > 0;
+                if (bookMovesAvailable)
+                {
+                    _fileLogger?.LogDebug($"Training: Book moves from prev fen {prevFenPosition}");
+                }
+                foreach (var bookMoveBase in moveBases)
+                {
+                    _fileLogger?.LogDebug($"Training: Prev book move: {bookMoveBase.FromField} {bookMoveBase.ToField}");
+                }
+            }
+
+            IBookMoveBase[] bookMoveBases = _openingTrainingConfig.AllowChangeEcodeCode ?
+                _trainingOpeningBook.GetMoveList(fenPosition) :
+                _trainingOpeningBook.GetMoveList(fenPosition, _ecoCodes, _trainingEcoCode.Code);
+            if (bookMoveBases.Length == 0)
+            {
+                if (bookMovesAvailable)
+                {
+                    _fileLogger?.LogDebug("Training: No book moves but there was one");
+                    _eChessBoard?.SetLedsFor(new SetLEDsParameter()
+                    {
+                        IsError = true,
+                        FieldNames = new[] { "a1", "a8", "h1", "h8" },
+                        InvalidFieldNames = new[] { "a1", "a8", "h1", "h8" }
+                    });
+                }
+                else
+                {
+                    _fileLogger?.LogDebug("Training: No book moves");
+                    _eChessBoard?.SetLedsFor(new SetLEDsParameter()
+                    {
+                        BookFieldNames = new[] { "a1", "a8", "h1", "h8" },
+                        FieldNames = new[] { "a1", "a8", "h1", "h8" }
+                    });
+                }
+                return;
+            }
+
+            var bestBookMove = bookMoveBases[0];
+            var figureOn = _chessBoard.GetFigureOn(Fields.GetFieldNumber(bestBookMove.FromField));
+            if (_openingTrainingConfig.ExecuteMoveAutomatically &&
+                _openingTrainingConfig.ExecuteForColor == figureOn.Color)
+            {
+                _fileLogger.LogDebug($"Training: Find next book move to automatically respond");
+                if (_openingTrainingConfig.Variations == OpeningBook.VariationsEnum.BestMove ||
+                    bookMoveBases.Length == 1)
+                {
+                    _fileLogger?.LogDebug(
+                        $"Training: set LEDs for execute best book move {bestBookMove.FromField}{bestBookMove.ToField} ");
+                    _eChessBoard?.SetLedsFor(new SetLEDsParameter()
+                    {
+                        FieldNames = new[] { bestBookMove.FromField, bestBookMove.ToField },
+                        Promote = string.Empty,
+                        IsMove = true,
+                        IsEngineMove = true
+                    });
+                  
+                    return;
+                }
+                
+                var candidates = OpeningBook.GetCandidates(bookMoveBases, _openingTrainingConfig.Variations);
+                var best = candidates.ToArray().OrderBy(m => (LineRandomness.Next(2) % 2) == 0)
+                    .ToArray()[LineRandomness.Next(0, candidates.Length)];
+                _fileLogger?.LogDebug($"Training: set LEDs for execute book move {best.FromField}{best.ToField} ");
+                _eChessBoard?.SetLedsFor(new SetLEDsParameter()
+                {
+                    FieldNames = new[] { best.FromField, best.ToField },
+                    Promote = string.Empty,
+                    IsMove = true,
+                    IsEngineMove = true
+                });
+
+                return;
+            }
+
+            foreach (var bookMoveBase in bookMoveBases)
+            {
+                _fileLogger?.LogDebug($"Training: enqueue possible book move {bookMoveBase.FromField}{bookMoveBase.ToField} ");
+                _openingTrainingMoves.Enqueue(bookMoveBase);
+            }
+        }
+
     }
 }

@@ -6,18 +6,12 @@ namespace www.SoLaNoSoft.com.BearChessBase
     [Serializable]
     public class CurrentGame
     {
-
         public UciInfo WhiteConfig { get; set; }
-
         public UciInfo BlackConfig { get; set; }
-
         public TimeControl TimeControl { get; set; }
         public TimeControl TimeControlBlack { get; set; }
-
         public string PlayerWhite { get; set; }
-        
         public string PlayerBlack { get; set; }
-        
         public bool StartFromBasePosition { get; set; }
         public string StartPosition { get; set; }
         public bool ContinueGame { get; set; }
@@ -29,8 +23,14 @@ namespace www.SoLaNoSoft.com.BearChessBase
         public bool SwitchedColor { get; set; }
         public string GameEvent { get; set; }
         public string GameNumber { get; set; }
-
         public bool RepeatedGame { get; set; }
+        public bool GameSaved { get; set; }
+        public int Pair1 { get; set; }
+        public int Pair2 { get; set; }
+
+        public bool PublishGame { get; set; }
+        public bool PublishGameContinuously { get; set; }
+        public bool CasualGame { get; set; }
      
         public CurrentGame(UciInfo whiteConfig, UciInfo blackConfig, string gameEvent, TimeControl timeControl,
                            string playerWhite, string playerBlack, bool startFromBasePosition, bool continueGame)
@@ -74,6 +74,12 @@ namespace www.SoLaNoSoft.com.BearChessBase
             RepeatedGame = false;
             ContinueGame = continueGame;
             StartPosition = string.Empty;
+            GameSaved = false;
+            Pair1 = -1;
+            Pair2 = -1;
+            PublishGame = false;
+            PublishGameContinuously = false;
+            CasualGame = false;
         }
 
         public CurrentGame()

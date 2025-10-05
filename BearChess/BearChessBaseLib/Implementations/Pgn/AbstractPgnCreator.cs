@@ -135,18 +135,22 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
 
                 pgnMove += isMate ? "#" : "+";
             }
-            string mComment = !_pgnConfiguration.IncludeComment || string.IsNullOrWhiteSpace(move.Comment) ? string.Empty : "{" + ReplaceNagInComment(move.Comment) + "}";
+            string mComment = !_pgnConfiguration.IncludeComment || string.IsNullOrWhiteSpace(move.Comment) ? string.Empty : " {" + ReplaceNagInComment(move.Comment) + "}";
             string mBestLine = !_pgnConfiguration.IncludeEvaluation || string.IsNullOrWhiteSpace(move.BestLine) ? string.Empty :
-                "(" + AddMoveNumberToBestLine(move.BestLine, moveCnt, move.FigureColor) + "{" + move.Score.ToString(CultureInfo.InvariantCulture) + "})";
+                " (" + AddMoveNumberToBestLine(move.BestLine, moveCnt, move.FigureColor) + "{" + move.Score.ToString(CultureInfo.InvariantCulture) + "})";
             mBestLine += !_pgnConfiguration.IncludeEvaluation || string.IsNullOrWhiteSpace(move.BestLineBuddy) ? string.Empty : 
-                "({"+move.BuddyEngine+":} " + AddMoveNumberToBestLine(move.BestLineBuddy, moveCnt, move.FigureColor) + "{"+move.ScoreBuddy.ToString(CultureInfo.InvariantCulture) + "})";
+                " ({"+move.BuddyEngine+":} " + AddMoveNumberToBestLine(move.BestLineBuddy, moveCnt, move.FigureColor) + "{"+move.ScoreBuddy.ToString(CultureInfo.InvariantCulture) + "})";
             
             string emt = !_pgnConfiguration.IncludeMoveTime || string.IsNullOrEmpty(move.ElapsedMoveTime)
                              ? string.Empty
-                             : "{[%emt " + move.ElapsedMoveTime + "]}";
-            var nag =  _pgnConfiguration.IncludeSymbols ? GetNAG(move.EvaluationSymbol) : string.Empty;
-            var symbol = _pgnConfiguration.IncludeSymbols ? GetNAG(move.MoveSymbol) : string.Empty;
-            return $"{pgnMove} {symbol} {nag} {mComment} {mBestLine} {emt}".Trim();
+                             : " {[%emt " + move.ElapsedMoveTime + "]}";
+            string clk = !_pgnConfiguration.IncludeClock 
+                ? string.Empty
+                : " {[%clk " + move.ClockTime + "]}";
+
+            var nag =  _pgnConfiguration.IncludeSymbols ? " " + GetNAG(move.EvaluationSymbol) : string.Empty;
+            var symbol = _pgnConfiguration.IncludeSymbols ? " "+GetNAG(move.MoveSymbol) : string.Empty;
+            return $"{pgnMove}{symbol}{nag}{mComment}{mBestLine}{emt}{clk}".Trim();
         }
 
         private string AddMoveNumberToBestLine(string bestLine, int moveCnt, int currentColor)

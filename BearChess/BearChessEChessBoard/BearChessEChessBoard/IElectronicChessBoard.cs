@@ -184,6 +184,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         event EventHandler HelpRequestedEvent;
         event EventHandler ProbeMoveEndingEvent;
         event EventHandler<string> GameEndEvent;
+        event EventHandler<ClockFromBoard> ClockEvent;
 
         /// <summary>
         /// Return a best move
@@ -253,10 +254,13 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         bool ValidForAnalyse { get; }
         void Ignore(bool ignore);
 
-        void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack, int secondBlack);
+        void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments);
 
         void StopClock();
+
         void StartClock(bool white);
+
+        void ResetClock();
 
         void DisplayOnClock(string display);
 

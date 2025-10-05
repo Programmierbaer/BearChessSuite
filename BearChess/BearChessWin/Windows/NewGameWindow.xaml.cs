@@ -4,17 +4,16 @@ using System.IO;
 using System.Linq;
 using System.Resources;
 using System.Windows;
-using System.Windows.Automation;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Xml.Serialization;
+using www.SoLaNoSoft.com.BearChess.BearChessCommunication;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBaseLib.Definitions;
-using www.SoLaNoSoft.com.BearChessTools;
 using www.SoLaNoSoft.com.BearChessWpfCustomControlLib;
+using TimeControl = www.SoLaNoSoft.com.BearChessBase.Implementations.TimeControl;
 
 namespace www.SoLaNoSoft.com.BearChessWin
 {
@@ -24,7 +23,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
     public partial class NewGameWindow : Window, INewGameWindow
     {
         private readonly Configuration _configuration;
-        private readonly bool _eBoardConnected;
         private readonly bool _pieceRecognition;
         private readonly Dictionary<string, UciInfo> _allUciInfos = new Dictionary<string, UciInfo>();
         private readonly bool _isInitialized;
@@ -44,8 +42,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private bool? _isCheckedAllowTakeBack;
         private Brush _foreground;
         private readonly ResourceManager _rm;
-        public string PlayerWhite => textBlockPlayerWhiteEngine.Text;
-        public string PlayerBlack => textBlockPlayerBlackEngine.Text;
+        private string _bcsPlayerWhite;
+        private string _bcsPlayerBlack;
+        private int _bcsOwnColor;
+        private readonly bool _bcServerConnected;
+        private readonly bool _tournamentMode;
+        public string PlayerWhite => PlayerWhiteConfigValues.IsPlayer ? string.IsNullOrWhiteSpace(PlayerWhiteConfigValues.OriginName) ? textBlockPlayerWhiteEngine.Text : PlayerWhiteConfigValues.OriginName : textBlockPlayerWhiteEngine.Text;
+        public bool CasualGame => false;
+
+        public string PlayerBlack => PlayerBlackConfigValues.IsPlayer ? string.IsNullOrWhiteSpace(PlayerBlackConfigValues.OriginName) ? textBlockPlayerBlackEngine.Text : PlayerBlackConfigValues.OriginName : textBlockPlayerBlackEngine.Text;
 
         public bool RelaxedMode => checkBoxRelaxed.Visibility == Visibility.Visible &&
                                    checkBoxRelaxed.IsChecked.HasValue && checkBoxRelaxed.IsChecked.Value;
@@ -68,14 +73,21 @@ namespace www.SoLaNoSoft.com.BearChessWin
         public bool SeparateControl =>
             checkBox2TimeControls.IsChecked.HasValue && checkBox2TimeControls.IsChecked.Value;
 
+        public bool PublishGame => checkBoxPublish.IsChecked.HasValue && checkBoxPublish.IsChecked.Value;
+        public bool PublishGameContinuously => checkBoxPublishContinue.IsChecked.HasValue && checkBoxPublishContinue.IsChecked.Value;
+
+        public string GameEvent => textBoxEvent.Text;
+
         public NewGameWindow(Configuration configuration, bool bcServerConnected, bool eBoardConnected, bool pieceRecognition)
         {
             _configuration = configuration;
-            _eBoardConnected = eBoardConnected;
             _pieceRecognition = pieceRecognition;
+            _bcServerConnected = bcServerConnected;
+            _tournamentMode = _configuration.GetBoolValue("tournamentMode", false);
             InitializeComponent();
-            buttonPlayerWhiteBCS.Visibility = bcServerConnected ? Visibility.Visible : Visibility.Hidden;
-            buttonPlayerBlackBCS.Visibility = bcServerConnected ? Visibility.Visible : Visibility.Hidden;
+            stackPanelPublish.Visibility =  PublishIsConfigured() ? Visibility.Visible : Visibility.Collapsed;
+            buttonPlayerWhiteBCS.Visibility = _bcServerConnected ? Visibility.Visible : Visibility.Hidden;
+            buttonPlayerBlackBCS.Visibility = _bcServerConnected ? Visibility.Visible : Visibility.Hidden;
             checkBoxStartAfterMoveOnBoard.Visibility = eBoardConnected ? Visibility.Visible : Visibility.Hidden;
             _rm = SpeechTranslator.ResourceManager;
             textBlockTimeControl2.Text = $"{SpeechTranslator.ResourceManager.GetString("TimeControl")} ♚:";
@@ -88,40 +100,57 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 switch (timeControlEnum)
                 {
                     case TimeControlEnum.Adapted:
-                        comboBoxTimeControl.Items.Add(new TimeControlValue(timeControlEnum,
-                            SpeechTranslator.ResourceManager.GetString("AdpatedTime")));
-                        comboBoxTimeControl2.Items.Add(new TimeControlValue(timeControlEnum,
-                            SpeechTranslator.ResourceManager.GetString("AdpatedTime")));
+                        if (!_tournamentMode)
+                        {
+                            comboBoxTimeControl.Items.Add(new TimeControlValue(timeControlEnum,
+                                SpeechTranslator.ResourceManager.GetString("AdpatedTime")));
+                            comboBoxTimeControl2.Items.Add(new TimeControlValue(timeControlEnum,
+                                SpeechTranslator.ResourceManager.GetString("AdpatedTime")));
+                        }
+
                         break;
                     case TimeControlEnum.AverageTimePerMove:
-                        comboBoxTimeControl.Items.Add(new TimeControlValue(timeControlEnum,
+                        if (!_tournamentMode)
+                        {
+                            comboBoxTimeControl.Items.Add(new TimeControlValue(timeControlEnum,
                             SpeechTranslator.ResourceManager.GetString("AverageTimePerMove")));
                         comboBoxTimeControl2.Items.Add(new TimeControlValue(timeControlEnum,
                             SpeechTranslator.ResourceManager.GetString("AverageTimePerMove")));
+                        }
                         break;
                     case TimeControlEnum.Depth:
-                        comboBoxTimeControl.Items.Add(new TimeControlValue(timeControlEnum,
-                            SpeechTranslator.ResourceManager.GetString("Depth")));
-                        comboBoxTimeControl2.Items.Add(new TimeControlValue(timeControlEnum,
-                            SpeechTranslator.ResourceManager.GetString("Depth")));
+                        if (!_tournamentMode)
+                        {
+                            comboBoxTimeControl.Items.Add(new TimeControlValue(timeControlEnum,
+                                SpeechTranslator.ResourceManager.GetString("Depth")));
+                            comboBoxTimeControl2.Items.Add(new TimeControlValue(timeControlEnum,
+                                SpeechTranslator.ResourceManager.GetString("Depth")));
+                        }
                         break;
                     case TimeControlEnum.Movetime:
-                        comboBoxTimeControl.Items.Add(new TimeControlValue(timeControlEnum,
-                            SpeechTranslator.ResourceManager.GetString("ExactTimePerMove")));
-                        comboBoxTimeControl2.Items.Add(new TimeControlValue(timeControlEnum,
-                            SpeechTranslator.ResourceManager.GetString("ExactTimePerMove")));
+                        if (!_tournamentMode)
+                        {
+                            comboBoxTimeControl.Items.Add(new TimeControlValue(timeControlEnum,
+                                SpeechTranslator.ResourceManager.GetString("ExactTimePerMove")));
+                            comboBoxTimeControl2.Items.Add(new TimeControlValue(timeControlEnum,
+                                SpeechTranslator.ResourceManager.GetString("ExactTimePerMove")));
+                        }
                         break;
                     case TimeControlEnum.NoControl:
-                        comboBoxTimeControl.Items.Add(new TimeControlValue(timeControlEnum,
-                            SpeechTranslator.ResourceManager.GetString("NoControl")));
-                        comboBoxTimeControl2.Items.Add(new TimeControlValue(timeControlEnum,
-                            SpeechTranslator.ResourceManager.GetString("NoControl")));
-                        break;
+                           comboBoxTimeControl.Items.Add(new TimeControlValue(timeControlEnum,
+                                SpeechTranslator.ResourceManager.GetString("NoControl")));
+                            comboBoxTimeControl2.Items.Add(new TimeControlValue(timeControlEnum,
+                                SpeechTranslator.ResourceManager.GetString("NoControl")));
+                            break;
                     case TimeControlEnum.Nodes:
-                        comboBoxTimeControl.Items.Add(new TimeControlValue(timeControlEnum,
-                            SpeechTranslator.ResourceManager.GetString("Nodes")));
-                        comboBoxTimeControl2.Items.Add(new TimeControlValue(timeControlEnum,
-                            SpeechTranslator.ResourceManager.GetString("Nodes")));
+                        if (!_tournamentMode)
+                        {
+                            comboBoxTimeControl.Items.Add(new TimeControlValue(timeControlEnum,
+                                SpeechTranslator.ResourceManager.GetString("Nodes")));
+                            comboBoxTimeControl2.Items.Add(new TimeControlValue(timeControlEnum,
+                                SpeechTranslator.ResourceManager.GetString("Nodes")));
+                        }
+
                         break;
                     case TimeControlEnum.TimePerGame:
                         comboBoxTimeControl.Items.Add(new TimeControlValue(timeControlEnum,
@@ -136,10 +165,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
                             SpeechTranslator.ResourceManager.GetString("TimePerGameInc")));
                         break;
                     case TimeControlEnum.TimePerMoves:
-                        comboBoxTimeControl.Items.Add(new TimeControlValue(timeControlEnum,
-                            SpeechTranslator.ResourceManager.GetString("TimePerMoves")));
-                        comboBoxTimeControl2.Items.Add(new TimeControlValue(timeControlEnum,
-                            SpeechTranslator.ResourceManager.GetString("TimePerMoves")));
+                        if (!_tournamentMode)
+                        {
+                            comboBoxTimeControl.Items.Add(new TimeControlValue(timeControlEnum,
+                                SpeechTranslator.ResourceManager.GetString("TimePerMoves")));
+                            comboBoxTimeControl2.Items.Add(new TimeControlValue(timeControlEnum,
+                                SpeechTranslator.ResourceManager.GetString("TimePerMoves")));
+                        }
+
                         break;
                     default:
                         break;
@@ -150,9 +183,32 @@ namespace www.SoLaNoSoft.com.BearChessWin
             textBlockTimeControlEmu11.Text = SpeechTranslator.ResourceManager.GetString("UseEngineConfigForTC");
             textBlockTimeControlEmu22.Text = SpeechTranslator.ResourceManager.GetString("UseEngineConfigForTC");
             checkBoxAlternateMove.IsChecked = _configuration.GetBoolValue("allowAlternateMoves", false);
+            textBoxEvent.Text = _configuration.GetConfigValue("gameEvent", Constants.BearChess);
+            checkBoxTournamentMode.IsChecked = _tournamentMode;
+            stackPanelExtraTime.Visibility = _tournamentMode ? Visibility.Collapsed : Visibility.Visible;
+            checkBoxPublish.IsChecked = _bcServerConnected;
+            checkBoxPublishContinue.IsChecked = _bcServerConnected;
+            if (_tournamentMode)
+            {
+                checkBoxAllowTakeMoveBack.IsChecked = false;
+                checkBoxAllowTakeMoveBack.IsEnabled = false;
+                checkBoxTournamentMode.IsEnabled = false;
+            }
         }
 
-     
+        private bool PublishIsConfigured()
+        {
+            if (_bcServerConnected && _configuration.GetBoolValue("BCSforFTP", false))
+            {
+                return true;
+            }
+
+            var isConfigured = !string.IsNullOrWhiteSpace(_configuration.GetConfigValue("publishUserName", string.Empty));
+            isConfigured = isConfigured && !string.IsNullOrWhiteSpace(_configuration.GetSecureConfigValue("publishPassword", string.Empty));
+            isConfigured = isConfigured && !string.IsNullOrWhiteSpace(_configuration.GetConfigValue("publishServer", string.Empty));
+
+            return isConfigured && !_configuration.GetBoolValue("BCSforFTP", false);
+        }
 
         public UciInfo GetPlayerBlackConfigValues()
         {
@@ -173,7 +229,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             return PlayerWhiteConfigValues;
         }
-
 
         public TimeControl GetTimeControlWhite()
         {
@@ -351,7 +406,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             return timeControl;
         }
 
-        public void SetNames(UciInfo[] uciInfos, string lastSelectedEngineIdWhite, string lastSelectedEngineIdBlack)
+        public void SetNames(UciInfo[] uciInfos, string lastSelectedEngineIdWhite, string lastSelectedEngineIdBlack, bool allowEngines)
         {
             if (uciInfos.Length == 0)
             {
@@ -360,11 +415,20 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             _allUciInfos.Clear();
 
-            var array = uciInfos.Where(u => u.IsActive && !u.IsProbing && !u.IsBuddy && !u.IsInternalBearChessEngine)
-                .OrderBy(u => u.Name).ToArray();
-            textBlockPlayerWhiteEngine.Text = Constants.Player;
+            UciInfo[] array;
+            if ((_bcServerConnected && !allowEngines) || _tournamentMode)
+            {
+                array = uciInfos.Where(u => u.IsPlayer).OrderBy(u => u.Name).ToArray();
+            }
+            else
+            {
+                array = uciInfos.Where(u => u.IsActive && !u.IsProbing && !u.IsBuddy && !u.IsInternalBearChessEngine)
+                    .OrderBy(u => u.Name).ToArray();
+            }
+
+            textBlockPlayerWhiteEngine.Text = Constants.Player1;
             textBlockPlayerWhiteEngine.ToolTip = _rm.GetString("AHumanBeingAsAPlayer");
-            textBlockPlayerBlackEngine.Text = Constants.Player;
+            textBlockPlayerBlackEngine.Text = Constants.Player2;
             textBlockPlayerBlackEngine.ToolTip = _rm.GetString("AHumanBeingAsAPlayer");
             for (var i = 0; i < array.Length; i++)
             {
@@ -383,11 +447,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 }
             }
 
-            PlayerWhiteConfigValues = _allUciInfos.TryGetValue(textBlockPlayerWhiteEngine.Text, out var info)
-                ? info
+            PlayerWhiteConfigValues = _allUciInfos.TryGetValue(textBlockPlayerWhiteEngine.Text, out var infoWhite)
+                ? infoWhite
                 : null;
-            PlayerBlackConfigValues = _allUciInfos.TryGetValue(textBlockPlayerBlackEngine.Text, out var allUciInfo)
-                ? allUciInfo
+            PlayerBlackConfigValues = _allUciInfos.TryGetValue(textBlockPlayerBlackEngine.Text, out var infoBlack)
+                ? infoBlack
                 : null;
             buttonConfigureWhite.Visibility = PlayerWhiteConfigValues != null && PlayerWhiteConfigValues.IsPlayer
                 ? Visibility.Hidden
@@ -402,9 +466,67 @@ namespace www.SoLaNoSoft.com.BearChessWin
             SetRelaxedVisibility();
         }
 
+        public void SetBCServerPlayer(string bcsPlayerWhite, string bcsPlayerBlack, string tournamentName, int bcsOwnColor)
+        {
+            if (!_bcServerConnected)
+            {
+                return;
+            }
+            _bcsPlayerWhite = bcsPlayerWhite;
+            _bcsPlayerBlack = bcsPlayerBlack;
+            _bcsOwnColor = bcsOwnColor;
+            if (!string.IsNullOrWhiteSpace(tournamentName))
+            {
+                textBoxEvent.Text = tournamentName;
+            }
+
+            // stackPanelPublish.Visibility = string.IsNullOrWhiteSpace(tournamentName) ? Visibility.Hidden : Visibility.Visible;
+            if (_bcsOwnColor == Fields.COLOR_EMPTY)
+            {
+                buttonPlayerWhite.Visibility = Visibility.Visible;
+                buttonPlayerBlack.Visibility = Visibility.Visible;
+                buttonPlayerWhiteBCS.Visibility = Visibility.Hidden;
+                buttonPlayerBlackBCS.Visibility = Visibility.Hidden;
+                ButtonPlayerWhite_OnClick(this, null);
+                ButtonPlayerBlack_OnClick(this, null);
+                PlayerWhiteConfigValues.OriginName = _configuration.GetConfigValue("LastPlayerWhite", _configuration.GetConfigValue("player", Environment.UserName));
+                PlayerWhiteConfigValues.SetElo(_configuration.GetConfigValue("LastPlayerWhiteElo", "0"));
+                buttonPlayerWhite.ToolTip = PlayerWhiteConfigValues.OriginName;
+                PlayerBlackConfigValues.OriginName = _configuration.GetConfigValue("LastPlayerBlack", _configuration.GetConfigValue("player", Environment.UserName));
+                PlayerBlackConfigValues.SetElo(_configuration.GetConfigValue("LastPlayerBlackElo", "0"));
+                buttonPlayerBlack.ToolTip = PlayerBlackConfigValues.OriginName;
+            }
+            else
+            {
+                buttonPlayerWhite.Visibility =
+                    _bcsOwnColor == Fields.COLOR_WHITE ? Visibility.Visible : Visibility.Hidden;
+                buttonPlayerBlack.Visibility =
+                    _bcsOwnColor == Fields.COLOR_WHITE ? Visibility.Hidden : Visibility.Visible;
+                buttonPlayerWhiteBCS.Visibility =
+                    _bcsOwnColor == Fields.COLOR_WHITE ? Visibility.Hidden : Visibility.Visible;
+                buttonPlayerBlackBCS.Visibility =
+                    _bcsOwnColor == Fields.COLOR_WHITE ? Visibility.Visible : Visibility.Hidden;
+
+                if (_bcsOwnColor == Fields.COLOR_WHITE)
+                {
+                    ButtonPlayerBlackBCS_OnClick(this, null);
+                    ButtonPlayerWhite_OnClick(this, null);
+                    PlayerWhiteConfigValues.OriginName = _bcsPlayerWhite;
+                    buttonPlayerWhite.ToolTip = _bcsPlayerWhite;
+                }
+                else
+                {
+                    ButtonPlayerWhiteBCS_OnClick(this, null);
+                    ButtonPlayerBlack_OnClick(this, null);
+                    PlayerBlackConfigValues.OriginName = _bcsPlayerBlack;
+                    buttonPlayerBlack.ToolTip = _bcsPlayerBlack;
+                }
+            }
+        }
 
         private void InternalSetTimeControlWhite(TimeControl timeControl)
         {
+           
             if (timeControl == null)
             {
                 return;
@@ -451,7 +573,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
             radioButtonMinute.IsChecked = !timeControl.AverageTimInSec;
             checkBoxAllowTakeMoveBack.IsChecked = timeControl.AllowTakeBack;
             checkBoxStartAfterMoveOnBoard.IsChecked = timeControl.WaitForMoveOnBoard;
-            checkBoxTournamentMode.IsChecked = timeControl.TournamentMode;
+            checkBoxTournamentMode.IsChecked = timeControl.TournamentMode || _tournamentMode;
+            if (_tournamentMode)
+            {
+                checkBoxAllowTakeMoveBack.IsChecked = false;
+                checkBoxAllowTakeMoveBack.IsEnabled = false;
+                checkBoxTournamentMode.IsEnabled = false;
+            }
+
         }
         public void SetTimeControlWhite(TimeControl timeControl)
         {
@@ -541,6 +670,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _configuration.SetBoolValue("checkForAlternateMoves", 
             checkBoxAlternateMove.IsChecked.HasValue && checkBoxAlternateMove.IsChecked.Value &&
                 checkBoxAlternateMove.Visibility == Visibility.Visible);
+            _configuration.SetConfigValue("gameEvent", textBoxEvent.Text);
             DialogResult = true;
         }
 
@@ -806,10 +936,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void ButtonPlayerBlack_OnClick(object sender, RoutedEventArgs e)
         {
-            textBlockPlayerBlackEngine.Text = Constants.Player;
-            textBlockPlayerBlackEngine.ToolTip = _allUciInfos[Constants.Player].OriginName;
+            textBlockPlayerBlackEngine.Text = string.IsNullOrWhiteSpace(_bcsPlayerBlack) ? Constants.Player2 : _bcsPlayerBlack;
+            textBlockPlayerBlackEngine.ToolTip = _allUciInfos[Constants.Player2].OriginName;
             buttonConfigureBlack.Visibility = Visibility.Hidden;
-            PlayerBlackConfigValues = _allUciInfos[Constants.Player];
+            PlayerBlackConfigValues = _allUciInfos[Constants.Player2];
             SetPonderControl(PlayerBlackConfigValues, textBlockPonderBlack, imagePonderBlack, imagePonderBlack2,
                 textBlockEloBlack, imageBookBlack, imageBookBlack2);
             SetRelaxedVisibility();
@@ -818,10 +948,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void ButtonPlayerWhite_OnClick(object sender, RoutedEventArgs e)
         {
-            textBlockPlayerWhiteEngine.Text = Constants.Player;
-            textBlockPlayerWhiteEngine.ToolTip = _allUciInfos[Constants.Player].OriginName;
+            textBlockPlayerWhiteEngine.Text = string.IsNullOrWhiteSpace(_bcsPlayerWhite) ? Constants.Player1 : _bcsPlayerWhite;
+            textBlockPlayerWhiteEngine.ToolTip = _allUciInfos[Constants.Player1].OriginName;
             buttonConfigureWhite.Visibility = Visibility.Hidden;
-            PlayerWhiteConfigValues = _allUciInfos[Constants.Player];
+            PlayerWhiteConfigValues = _allUciInfos[Constants.Player1];
             SetPonderControl(PlayerWhiteConfigValues, textBlockPonderWhite, imagePonderWhite, imagePonderWhite2,
                 textBlockEloWhite, imageBookWhite, imageBookWhite2);
             SetRelaxedVisibility();
@@ -923,6 +1053,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void CheckBoxAllowTournament_OnChecked(object sender, RoutedEventArgs e)
         {
+            if (_tournamentMode)
+            {
+                return;
+            }
             _isCheckedAllowTakeBack = checkBoxAllowTakeMoveBack.IsChecked;
             _foreground = checkBoxAllowTakeMoveBack.Foreground;
             checkBoxAllowTakeMoveBack.IsChecked = false;
@@ -932,6 +1066,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void CheckBoxAllowTournament_OnUnchecked(object sender, RoutedEventArgs e)
         {
+            if (_tournamentMode)
+            {
+                return;
+            }
             checkBoxAllowTakeMoveBack.IsEnabled = ValidForAnalysis();
             if (!ValidForAnalysis())
             {
@@ -946,6 +1084,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void CheckBoxRelaxed_OnChecked(object sender, RoutedEventArgs e)
         {
+            if (_tournamentMode)
+            {
+                return;
+            }
             comboBoxTimeControl.SelectedIndex = 3;
             numericUpDownUserControlAverageTime.Value = 10;
             radioButtonSecond.IsChecked = true;
@@ -966,11 +1108,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void CheckBoxRelaxed_OnUnchecked(object sender, RoutedEventArgs e)
         {
+            if (_tournamentMode)
+            {
+                return;
+            }
             comboBoxTimeControl.IsEnabled = true;
             numericUpDownUserControlAverageTime.IsEnabled = true;
             radioButtonSecond.IsEnabled = true;
             radioButtonMinute.IsEnabled = true;
-            checkBoxTournamentMode.IsEnabled = true;
+            checkBoxTournamentMode.IsEnabled = !_tournamentMode;
             checkBoxAllowTakeMoveBack.IsEnabled = ValidForAnalysis();
             if (!ValidForAnalysis())
             {
@@ -998,6 +1144,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void ButtonPlayerWhiteEngine_OnClick(object sender, RoutedEventArgs e)
         {
+            if (_tournamentMode)
+            {
+                MenuItemConfigureWhitePlayer_OnClick(sender, e);
+                return;
+            }
             var selectInstalledEngineForGameWindow =
                 new SelectInstalledEngineForGameWindow(_allUciInfos.Values.ToArray(), textBlockPlayerWhiteEngine.Text);
             var showDialog = selectInstalledEngineForGameWindow.ShowDialog();
@@ -1023,6 +1174,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void ButtonPlayerBlackEngine_OnClick(object sender, RoutedEventArgs e)
         {
+            if (_tournamentMode)
+            {
+                MenuItemConfigureBlackPlayer_OnClick(sender, e);
+                return;
+            }
             var selectInstalledEngineForGameWindow =
                 new SelectInstalledEngineForGameWindow(_allUciInfos.Values.ToArray(), textBlockPlayerBlackEngine.Text);
             var showDialog = selectInstalledEngineForGameWindow.ShowDialog();
@@ -1150,12 +1306,77 @@ namespace www.SoLaNoSoft.com.BearChessWin
         }
 
 
-        private void NumericUpDownUserControl_OnValueChanged(object sender, int e)
+        private void ButtonPlayerWhiteBCS_OnClick(object sender, RoutedEventArgs e)
         {
-            if (!(sender is NumericUpDownUserControl numericUpDownUserControl))
+            textBlockPlayerWhiteEngine.Text = string.IsNullOrWhiteSpace(_bcsPlayerWhite) ?  Constants.BCServerPlayer : _bcsPlayerWhite;
+            textBlockPlayerWhiteEngine.ToolTip = _allUciInfos[Constants.BCServerPlayer].OriginName;
+            buttonConfigureWhite.Visibility = Visibility.Hidden;
+            PlayerWhiteConfigValues = _allUciInfos[Constants.BCServerPlayer];
+            SetPonderControl(PlayerWhiteConfigValues, textBlockPonderWhite, imagePonderWhite, imagePonderWhite2,
+                textBlockEloWhite, imageBookWhite, imageBookWhite2);
+            SetRelaxedVisibility();
+            SetForMessChessEngines();
+        }
+
+        private void ButtonPlayerBlackBCS_OnClick(object sender, RoutedEventArgs e)
+        {
+            textBlockPlayerBlackEngine.Text = string.IsNullOrWhiteSpace(_bcsPlayerBlack) ? Constants.BCServerPlayer : _bcsPlayerBlack;
+            textBlockPlayerBlackEngine.ToolTip = _allUciInfos[Constants.BCServerPlayer].OriginName;
+            buttonConfigureBlack.Visibility = Visibility.Hidden;
+            PlayerBlackConfigValues = _allUciInfos[Constants.BCServerPlayer];
+            SetPonderControl(PlayerBlackConfigValues, textBlockPonderBlack, imagePonderBlack, imagePonderBlack2,
+                textBlockEloBlack, imageBookBlack, imageBookBlack2);
+            SetRelaxedVisibility();
+            SetForMessChessEngines();
+        }
+
+        private void MenuItemConfigureWhitePlayer_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (PlayerWhiteConfigValues.IsPlayer)
             {
-                return;
+                var playerWindow = new PlayerWindow(PlayerWhiteConfigValues.OriginName,
+                    PlayerWhiteConfigValues.GetConfiguredElo().ToString())
+                {
+                    Owner = this
+                };
+                var showDialog = playerWindow.ShowDialog();
+                if (showDialog == true)
+                {
+                    PlayerWhiteConfigValues.OriginName = $"{playerWindow.LastName},{playerWindow.FirstName}";
+                    PlayerWhiteConfigValues.SetElo(playerWindow.Elo);
+                    buttonPlayerWhite.ToolTip = PlayerWhiteConfigValues.OriginName;
+                }
             }
         }
+
+        private void MenuItemConfigureBlackPlayer_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (PlayerBlackConfigValues.IsPlayer)
+            {
+                var playerWindow = new PlayerWindow(PlayerBlackConfigValues.OriginName,
+                    PlayerBlackConfigValues.GetConfiguredElo().ToString())
+                {
+                    Owner = this
+                };
+                var showDialog = playerWindow.ShowDialog();
+                if (showDialog == true)
+                {
+                    PlayerBlackConfigValues.OriginName = $"{playerWindow.LastName},{playerWindow.FirstName}";
+                    PlayerBlackConfigValues.SetElo(playerWindow.Elo);
+                    buttonPlayerBlack.ToolTip = PlayerBlackConfigValues.OriginName;
+                }
+            }
+        }
+
+        private void CheckBoxPublish_OnChecked(object sender, RoutedEventArgs e)
+        {
+            checkBoxPublishContinue.IsEnabled = true;
+        }
+
+        private void CheckBoxPublish_OnUnchecked(object sender, RoutedEventArgs e)
+        {
+            checkBoxPublishContinue.IsEnabled = false;
+        }
+
     }
 }

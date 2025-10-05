@@ -17,8 +17,8 @@ namespace www.SoLaNoSoft.com.BearChess.BCServerEngine
     public class UciWrapper : IUciWrapper
     {
 
-        private IBearChessServerClient _serverClient;
-        private ILogging _logging;
+        private readonly IBearChessServerClient _serverClient;
+        private readonly ILogging _logging;
         private readonly ConcurrentQueue<string> _messagesFromGui = new ConcurrentQueue<string>();
         private readonly ConcurrentQueue<string> _messagesToGui = new ConcurrentQueue<string>();
         private bool _quitReceived;
@@ -34,6 +34,7 @@ namespace www.SoLaNoSoft.com.BearChess.BCServerEngine
 
         private void _serverClient_ServerMessage(object sender, BearChessServerMessage e)
         {
+            _logging?.LogDebug($"Server message : {e.Message}");
             _messagesToGui.Enqueue($"bestmove {e.Message}");
         }
 

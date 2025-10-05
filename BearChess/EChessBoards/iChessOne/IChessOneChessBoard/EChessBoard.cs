@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
+using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 
 namespace www.SoLaNoSoft.com.BearChess.IChessOneChessBoard
@@ -92,6 +94,8 @@ namespace www.SoLaNoSoft.com.BearChess.IChessOneChessBoard
         private SetLEDsParameter _lastSendMoveParameters = new SetLEDsParameter();
         private SetLEDsParameter _lastSendThinkingParameters = new SetLEDsParameter();
         private int _currentEvalColor;
+        private bool _whiteKingOnBasePosition = false;
+        private bool _blackKingOnBasePosition = false;
 
         public EChessBoard(string basePath, ILogging logger, EChessBoardConfiguration configuration)
         {            
@@ -546,10 +550,10 @@ namespace www.SoLaNoSoft.com.BearChess.IChessOneChessBoard
             }
 
             var dataFromBoard = _serialCommunication.GetFromBoard();
-            if (dataFromBoard.FromBoard.Equals(_lastData))
-            {
-               return new DataFromBoard(_lastResult, dataFromBoard.Repeated);
-            }
+            //if (dataFromBoard.FromBoard.Equals(_lastData))
+            //{
+            //   return new DataFromBoard(_lastResult, dataFromBoard.Repeated);
+            //}
 
             _lastData = dataFromBoard.FromBoard;
             var allData = dataFromBoard.FromBoard.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
@@ -636,9 +640,42 @@ namespace www.SoLaNoSoft.com.BearChess.IChessOneChessBoard
 
                 if (!plineIsValid(pLine))
                 {
-                    return new DataFromBoard(string.Empty);
+                    return new DataFromBoard(_lastResult, dataFromBoard.Repeated);
                 }
-                _lastResult = GetPiecesFen(pLine, _playWithWhite);                
+                var fenLine = GetPiecesFen(pLine, _playWithWhite);
+
+                if (!fenLine.Contains("k") || !fenLine.Contains("K"))
+                {
+                    return new DataFromBoard(fenLine, dataFromBoard.Repeated);
+                }
+            
+                if (!string.IsNullOrWhiteSpace(_lastResult) && !_lastResult.Equals(fenLine))
+                {
+                    var fastChessBoard = new FastChessBoard();
+                    fastChessBoard.Init(fenLine, Array.Empty<string>());
+                    if (_whiteKingOnBasePosition)
+                    {
+                        if (fastChessBoard.WhiteKingOnCastleMove())
+                        {
+                            return new DataFromBoard(
+                                _lastResult.Contains(UnknownPieceCode) ? string.Empty : _lastResult,
+                                dataFromBoard.Repeated);
+                        }
+                    }
+
+                    if (_blackKingOnBasePosition)
+                    {
+                        if (fastChessBoard.BlackKingOnCastleMove())
+                        {
+                            return new DataFromBoard(
+                                _lastResult.Contains(UnknownPieceCode) ? string.Empty : _lastResult,
+                                dataFromBoard.Repeated);
+                        }
+                    }
+                    _whiteKingOnBasePosition = fastChessBoard.WhiteKingOnBasePosition();
+                    _blackKingOnBasePosition = fastChessBoard.BlackKingOnBasePosition();
+                }
+                _lastResult = fenLine;
             }
 
             return new DataFromBoard(_lastResult, dataFromBoard.Repeated);
@@ -665,6 +702,8 @@ namespace www.SoLaNoSoft.com.BearChess.IChessOneChessBoard
             }
             _currentColor = Fields.COLOR_WHITE;
             _prevColor = Fields.COLOR_WHITE;
+            _whiteKingOnBasePosition = true;
+            _blackKingOnBasePosition = true;
         }
 
      
@@ -1053,7 +1092,7 @@ namespace www.SoLaNoSoft.com.BearChess.IChessOneChessBoard
             //
         }
 
-        public override void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack, int secondBlack)
+        public override void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments)
         {
             //
         }
@@ -1073,8 +1112,11 @@ namespace www.SoLaNoSoft.com.BearChess.IChessOneChessBoard
             //
         }
 
+        public override void ResetClock()
+        {
+            //
+        }
 
-      
 
         public override bool CheckComPort(string portName, string baud)
         {

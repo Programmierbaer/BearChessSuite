@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Properties"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
         Title="{x:Static p:Resources.SpeechSoundConfiguration}" Height="680" Width="500" SizeToContent="Height"> 
     <Grid>
         <Grid.RowDefinitions>
@@ -109,7 +109,7 @@
             <Border Margin="5" BorderBrush="Gray" BorderThickness="1">
                 <Grid Margin="5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="130" />
+                        <ColumnDefinition Width="170" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
@@ -145,7 +145,7 @@
             <Border Margin="5" BorderBrush="Gray" BorderThickness="1">
                 <Grid Margin="5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="130" />
+                        <ColumnDefinition Width="170" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
@@ -181,7 +181,7 @@
             <Border Margin="5" BorderBrush="Gray" BorderThickness="1">
                 <Grid Margin="5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="130" />
+                        <ColumnDefinition Width="170" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>

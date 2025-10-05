@@ -22,6 +22,7 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessBTTools
 
         public string DeviceName => string.Empty;
         public string Baud => string.Empty;
+        public int DeviceIndex { get; set; }
 
         public int ReadTimeout { get; set; }
         public int WriteTimeout { get; set; }
@@ -45,6 +46,7 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessBTTools
 
         public BTComPort(string boardName, BluetoothAddress btAddress, bool useChesstimation)
         {
+            DeviceIndex = -1;
             if (btAddress == null)
             {
                 string ident = useChesstimation ? "Chesstimation" : "0";

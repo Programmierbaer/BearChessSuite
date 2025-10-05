@@ -6,6 +6,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
+using www.SoLaNoSoft.com.BearChess.BCServerEngine;
+using www.SoLaNoSoft.com.BearChess.BearChessCommunication;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChess.FicsClient;
 using www.SoLaNoSoft.com.BearChessBase;
@@ -121,6 +123,32 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         Bottom = 0,
                         Right = 0
                     };
+        }
+
+        public UciLoader(UciInfo uciInfo, IBearChessServerClient serverClient, ILogging logger)
+        {
+            IsLoaded = false;
+            _uciInfo = uciInfo;
+            _logger = logger;
+            _lookForBookMoves = false;
+            _openingBook = null;
+            _bookMove = null;
+            _uciWrapper = new BearChess.BCServerEngine.UciWrapper(serverClient, logger);
+            var threadReadGui = new Thread(_uciWrapper.Run) { IsBackground = true };
+            threadReadGui.Start();
+            var threadReading = new Thread(ReadFromEngine) { IsBackground = true };
+            threadReading.Start();
+            var threadSending = new Thread(SendToEngine) { IsBackground = true };
+            threadSending.Start();
+            IsLoaded = true;
+            _initFen = string.Empty;
+            _rect = new RECT
+            {
+                Top = 0,
+                Left = 0,
+                Bottom = 0,
+                Right = 0
+            };
         }
 
         public UciLoader(UciInfo uciInfo, ILogging logger, IElectronicChessBoard eChessBoard, string boardName)

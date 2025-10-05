@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Properties"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Windows" WindowStartupLocation="CenterOwner"
         mc:Ignorable="d" ResizeMode="NoResize" SizeToContent="Height"
         Title="{x:Static p:Resources.ConfigurePGN}" Height="300" Width="250">
@@ -26,11 +26,13 @@
                      <RowDefinition Height="Auto"></RowDefinition>
                      <RowDefinition Height="Auto"></RowDefinition>
                      <RowDefinition Height="Auto"></RowDefinition>
+                     <RowDefinition Height="Auto"></RowDefinition>
                  </Grid.RowDefinitions>
                     <CheckBox Margin="5" Grid.Row="0" Name="CheckBoxComment" Content="{x:Static p:Resources.Comments}"></CheckBox>
                     <CheckBox Margin="5" Grid.Row="1" Name="CheckBoxMoveTime" Content="{x:Static p:Resources.MoveTime}"></CheckBox>
                     <CheckBox Margin="5" Grid.Row="2" Name="CheckBoxEvaluation" Content="{x:Static p:Resources.Evaluation}"></CheckBox>
                     <CheckBox Margin="5" Grid.Row="3" Name="CheckBoxSymbols" Content="{x:Static p:Resources.Symbols}"></CheckBox>
+                    <CheckBox Margin="5" Grid.Row="4" Name="CheckBoxClock" Content="{x:Static p:Resources.ClockTime}"></CheckBox>
                 </Grid>
             </GroupBox>
         </Grid>

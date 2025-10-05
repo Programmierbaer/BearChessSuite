@@ -4,33 +4,78 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessServerWin.Windows"
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessServerWin.Properties"        
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
         mc:Ignorable="d" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" SizeToContent="Height"
-        Title="BearChess Server" Height="200" Width="300">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-        </Grid.RowDefinitions>
+        Title="BearChess Server" Height="230" Width="385">
+    <StackPanel>
+        <GroupBox Width="355" Margin="5" Header="{x:Static p:Resources.Language}" HorizontalAlignment="Left" >
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
 
-        <TextBlock Margin="5" Grid.Column="0" Grid.Row="0" FontWeight="SemiBold" Text="{x:Static p:Resources.ServerName}"/>
-        <TextBox Margin="5" Name="textBlockServer" Grid.Column="1" Grid.Row="0">localhost</TextBox>
+                <RadioButton Grid.Row="0" Grid.Column="0" GroupName="country" Name="radioButtonGlob" IsChecked="True" 
+                             AutomationProperties.HelpText="{x:Static p:Resources.LocalCountry}" 
+                             Margin="10,5" ToolTip="{x:Static p:Resources.LocalCountry}">
+                    <Image Width="16" Height="16" Source="../Assets/Icons/globe_model.png" />
+                </RadioButton>
+                <RadioButton Grid.Row="0" Grid.Column="1" GroupName="country" Name="radioButtonGB" Margin="10,5" 
+                             AutomationProperties.HelpText="English language" 
+                             ToolTip="English" >
+                    <Image Width="16" Height="16" Source="../Assets/Icons/flag_great_britain.png" />
+                </RadioButton>
+                <RadioButton Grid.Row="0" Grid.Column="2" GroupName="country" Margin="10,5" Name="radioButtonDE"
+                              AutomationProperties.HelpText="Deutsche Sprache" 
+                             ToolTip="Deutsch">
+                    <Image Width="16" Height="16" Source="../Assets/Icons/flag_germany.png" />
+                </RadioButton>
+            </Grid>
+        </GroupBox>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
 
-        <TextBlock Margin="5" Grid.Column="0" Grid.Row="1" FontWeight="SemiBold" Text="{x:Static p:Resources.Port}"/>
-        <TextBox Margin="5" Name="textBlockPort" Grid.Column="1" Grid.Row="1">8888</TextBox>
+            <TextBlock Margin="5" Grid.Column="0" Grid.Row="0" FontWeight="SemiBold"
+                       Text="{x:Static p:Resources.ServerName}" />
+            <TextBox Margin="5,5,10,5" Name="textBlockServer" TextChanged="textBlockServer_TextChanged" Grid.Column="1" Grid.Row="0">localhost</TextBox>
 
-        <DockPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="5" DockPanel.Dock="Bottom" LastChildFill="False">
-            <Button Name="buttonOk" Margin="5,5,5,5" DockPanel.Dock="Left"  Width="28" Height="28" Background="Transparent" BorderBrush="Transparent" IsDefault="True" Click="ButtonOk_OnClick" >
-                <Image Source="../Assets/Icons/accept_button.png" ></Image>
+            <TextBlock Margin="5" Grid.Column="0" Grid.Row="1" FontWeight="SemiBold"
+                       Text="{x:Static p:Resources.PortBC}" />
+            <TextBox Margin="5,5,10,5" Name="textBlockPortBCServer" Grid.Column="1" Grid.Row="1">8888</TextBox>
+            <TextBlock Margin="5" Grid.Column="0" Grid.Row="2" FontWeight="SemiBold"
+                       Text="{x:Static p:Resources.PortWeb}" />
+            <TextBox Margin="5,5,10,5" Name="textBlockPortWebServer" TextChanged="textBlockServer_TextChanged" Grid.Column="1" Grid.Row="2">8080</TextBox>
+            <StackPanel  Grid.Column="0" Grid.Row="3"  Orientation="Horizontal">
+            <TextBlock Margin="5" Grid.Column="0" Grid.Row="3" FontWeight="SemiBold" Text="{x:Static p:Resources.Path}" />
+                <Button Name="buttonCopy" Click="buttonCopy_Click" Width="20" Height="20" Background="Transparent" BorderBrush="Transparent">
+                    <Image Source="../Assets/Icons/clipboard_sign_out.png"></Image>
+                </Button>
+            </StackPanel>
+            <TextBlock TextWrapping="Wrap" Name="textBlockPath" Margin="5" Grid.Column="1" Grid.Row="3" />
+        </Grid>
+
+        <DockPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Margin="5" DockPanel.Dock="Bottom"
+                   LastChildFill="False">
+            <Button Name="buttonOk" Margin="5,5,5,5" DockPanel.Dock="Left" Width="28" Height="28"
+                    Background="Transparent"
+                    BorderBrush="Transparent" IsDefault="True" Click="ButtonOk_OnClick">
+                <Image Source="../Assets/Icons/accept_button.png"></Image>
             </Button>
-            <Button Name="buttonCancel"  Margin="5,5,5,5" DockPanel.Dock="Right"  Width="28" Height="28"  Background="Transparent" BorderBrush="Transparent" IsCancel="True">
-                <Image Source="../Assets/Icons/cancel.png" ></Image>
+            <Button Name="buttonCancel" Margin="5,5,5,5" DockPanel.Dock="Right" Width="28" Height="28"
+                    Background="Transparent" BorderBrush="Transparent" IsCancel="True">
+                <Image Source="../Assets/Icons/cancel.png"></Image>
             </Button>
         </DockPanel>
-    </Grid>
+    </StackPanel>
 </Window>

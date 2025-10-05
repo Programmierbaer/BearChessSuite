@@ -1,0 +1,131 @@
+﻿<Window x:Class="www.SoLaNoSoft.com.BearChessWin.ReplaceTournamentParticipantWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Windows"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
+        xmlns:bearChessWin="clr-namespace:www.SoLaNoSoft.com.BearChessWin"
+        mc:Ignorable="d"  Icon="../Assets/Icons/cup_gold.png"
+        Title="{x:Static p:Resources.ChangeParticipants}" Height="450" Width="850">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" Grid.Row="0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="5">
+                <Label Margin="5" VerticalAlignment="Center" Content="{x:Static p:Resources.NameDialog}" />
+                <TextBox Name="textBoxGameEvent" Margin="0,5,5,5" Height="30" Width="200"
+                         HorizontalAlignment="Left" VerticalAlignment="Center"
+                         VerticalContentAlignment="Center">
+                    My Tournament
+                </TextBox>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="5">
+                <RadioButton Name="radioButtonCreateNew" GroupName="Replace" Margin="5" IsChecked="True" Content="{x:Static p:Resources.CreateNewTournament}"/>
+                <RadioButton Name="radioButtonOverride"  GroupName="Replace" Margin="5" >
+                    <TextBlock Foreground="Red"  FontWeight="DemiBold" Text="{x:Static p:Resources.ReplaceOverrideTournament}"></TextBlock>
+                </RadioButton>
+            </StackPanel>
+        </StackPanel>
+        <Grid Name="gridEngines" Grid.Column="1" Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="290" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="3">
+                <Button Name="buttonReplace" Margin="5,60,5,5" Width="32" Height="32" Background="Transparent"
+                        Visibility="Visible" ToolTip="{x:Static p:Resources.ChangeParticipants}"
+                        BorderBrush="Transparent" Click="ButtonReplace_OnClick">
+                    <Image Source="../Assets/Icons/arrow_repeat_once.png" />
+                </Button>
+                <Button Name="buttonReset" Margin="5,5,5,5" Width="32" Height="32" Background="Transparent"
+                        Visibility="Visible" ToolTip="{x:Static p:Resources.Reset}"
+                        BorderBrush="Transparent" Click="ButtonReset_OnClick">
+                    <Image Source="../Assets/Icons/recycle.png" />
+                </Button>
+                <Border BorderThickness="1" BorderBrush="Gray"></Border>
+                <Button Name="buttonConfig" Margin="5" Width="32" Height="32" Background="Transparent"
+                        ToolTip="{x:Static p:Resources.ConfigureSelectedEngine}"
+                        BorderBrush="Transparent" Click="ButtonConfig_OnClick">
+                    <Image Source="../Assets/Icons/cog.png" />
+                </Button>
+            </StackPanel>
+
+            <Label Name="labelParticipants" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Margin="5"
+                   Content="{x:Static p:Resources.Participants}">
+            </Label>
+
+            <DataGrid Grid.Row="1" Grid.Column="0" Name="dataGridEnginePlayer" ItemsSource="{Binding}"
+                      Margin="5"
+                      AutoGenerateColumns="False"
+                      SelectionMode="Single" IsReadOnly="True" AllowDrop="True">
+                <DataGrid.Resources>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"
+                                     Color="CornflowerBlue" />
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}"
+                                     Color="White" />
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Name}" Width="200">
+                        <DataGridTextColumn.Header>
+                            <TextBlock Text="{x:Static p:Resources.Name}"></TextBlock>
+                        </DataGridTextColumn.Header>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <Label Name="labelEngines" VerticalAlignment="Top" Grid.Row="0" Grid.Column="2" Margin="5"
+                   Content="{x:Static p:Resources.AvailableEngines}">
+            </Label>
+            <DataGrid Grid.Row="1" Grid.Column="2" Name="dataGridEngine" ItemsSource="{Binding}" Margin="5"
+                      AutoGenerateColumns="False"
+                      SelectionMode="Single" IsReadOnly="True" AllowDrop="True">
+                <DataGrid.Resources>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"
+                                     Color="CornflowerBlue" />
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}"
+                                     Color="White" />
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Name}" Width="200">
+                        <DataGridTextColumn.Header>
+                            <TextBlock Text="{x:Static p:Resources.Name}"></TextBlock>
+                        </DataGridTextColumn.Header>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <StackPanel Margin="5" Grid.Row="2" Grid.Column="2" Orientation="Horizontal">
+                <TextBlock Text="{x:Static p:Resources.Name}"></TextBlock>
+                <TextBox Name="textBoxFilter" Margin="5,0" Grid.Row="2" Width="189"
+                         TextChanged="textBoxFilter_TextChanged" Grid.Column="2">
+                </TextBox>
+            </StackPanel>
+
+        </Grid>
+        <DockPanel Margin="5" VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
+                   Grid.Column="0"
+                   Grid.Row="1" Grid.ColumnSpan="2" LastChildFill="False">
+            <Button Name="buttonOk" Click="ButtonOk_OnClick" Margin="15,5,5,5" DockPanel.Dock="Left"
+                    Background="Transparent" BorderBrush="Transparent">
+                <Image Source="../Assets/Icons/accept_button.png" Width="32" Height="32" />
+            </Button>
+            <Button Name="buttonCancel" Click="ButtonCancel_OnClick" Margin="5,5,20,5"
+                    DockPanel.Dock="Right"
+                    Background="Transparent" BorderBrush="Transparent">
+                <Image Source="../Assets/Icons/cancel.png" Width="32" Height="32" />
+            </Button>
+        </DockPanel>
+    </Grid>
+</Window>

@@ -3,13 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessServerWin.Properties" 
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessServerWin.Properties"
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessServerWin.Windows" Closing="TournamentWindow_OnClosing"
         mc:Ignorable="d" WindowStartupLocation="CenterOwner" SizeToContent="WidthAndHeight"
         Title="{x:Static p:Resources.Tournament}" Height="450" Width="800">
-    <Grid Name="gamesGrid">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0">
+            <MenuItem Name="MenuItemSave" Header="{x:Static p:Resources.Save}" Click="MenuItemSave_OnClick" />
+            <MenuItem Header="{x:Static p:Resources.Participants}"/>
+        </Menu>
+        <Grid Grid.Row="1" Name="GridGames">
 
+        </Grid>
     </Grid>
-        
-    
+
 </Window>

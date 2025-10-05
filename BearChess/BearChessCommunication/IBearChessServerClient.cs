@@ -14,6 +14,6 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
 
         event EventHandler<BearChessServerMessage> ServerMessage;
         event EventHandler Connected;
-        event EventHandler DisConnected;
+        event EventHandler<Exception> DisConnected;
     }
 }

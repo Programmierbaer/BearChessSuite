@@ -22,6 +22,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             CheckBoxEvaluation.IsChecked = pgnConfiguration.IncludeEvaluation;
             CheckBoxMoveTime.IsChecked = pgnConfiguration.IncludeMoveTime;
             CheckBoxSymbols.IsChecked = pgnConfiguration.IncludeSymbols;
+            CheckBoxClock.IsChecked = pgnConfiguration.IncludeClock;
         }
 
         private void ButtonOk_OnClick(object sender, RoutedEventArgs e)
@@ -33,6 +34,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 IncludeEvaluation = CheckBoxEvaluation.IsChecked.HasValue && CheckBoxEvaluation.IsChecked.Value,
                 IncludeMoveTime = CheckBoxMoveTime.IsChecked.HasValue && CheckBoxMoveTime.IsChecked.Value,
                 IncludeSymbols = CheckBoxSymbols.IsChecked.HasValue && CheckBoxSymbols.IsChecked.Value,
+                IncludeClock = CheckBoxClock.IsChecked.HasValue && CheckBoxClock.IsChecked.Value,
             });
             DialogResult = true;
         }
@@ -54,6 +56,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             CheckBoxEvaluation.IsChecked = true;
             CheckBoxMoveTime.IsChecked = true;
             CheckBoxSymbols.IsChecked = true;
+            CheckBoxClock.IsChecked = true;
         }
     }
 }

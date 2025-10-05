@@ -20,8 +20,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         public string FirstName => textBlockFirstName.Text.Replace(",", string.Empty);
         public string LastName => textBlockLastName.Text.Replace(",", string.Empty);
+        public string Elo => textBlockElo.Text;
 
-        public PlayerWindow(string playerName)
+        public PlayerWindow(string playerName, string elo)
         {
             InitializeComponent();
             _rm = SpeechTranslator.ResourceManager;
@@ -38,6 +39,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             var strings = playerName.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             textBlockFirstName.Text = strings.Length > 1 ? strings[1].Trim() : string.Empty;
             textBlockLastName.Text = strings.Length > 0 ? strings[0].Trim() : string.Empty;
+            textBlockElo.Text = elo;
             textBlockFirstName.Focus();
         }
 
@@ -78,6 +80,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _synthesizer?.SpeakAsync($"{_rm.GetString("CurrentInput")}");
             _synthesizer?.SpeakAsync($"{_rm.GetString("FirstName")} {textBlockFirstName.Text}");
             _synthesizer?.SpeakAsync($"{_rm.GetString("LastName")} {textBlockLastName.Text}");
+            _synthesizer?.SpeakAsync($"{_rm.GetString("Elo")} {textBlockElo.Text}");
         }
 
         private void ButtonCancel_OnGotFocus(object sender, RoutedEventArgs e)
@@ -88,6 +91,12 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private void PlayerWindow_OnClosing(object sender, CancelEventArgs e)
         {
             _synthesizer?.Clear();
+        }
+
+        private void TextBlockElo_OnGotFocus(object sender, RoutedEventArgs e)
+        {
+            _synthesizer?.SpeakAsync($"{_rm.GetString("EditField")} {_rm.GetString("Elo")}");
+            _synthesizer?.SpeakAsync($"{_rm.GetString("CurrentInput")} {textBlockElo.Text}");
         }
     }
 }

@@ -89,6 +89,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         private SolidColorBrush _bookArrowColor;
         private readonly ResourceManager _rm;
         private static object _lock = new object();
+        private bool _isPurePlayerGame = false;
 
 
         public GraphicsChessBoardUserControl()
@@ -230,7 +231,6 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         {
             _canvas = canvas;
         }
-
 
         public void SetBoardMaterial(string fieldId, string whiteFileName, string blackFileName)
         {
@@ -894,7 +894,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
 
         public void ShowRotateButton(bool showButton)
         {
-            buttonRotate.Visibility = showButton ? Visibility.Visible : Visibility.Hidden;
+            buttonRotate.Visibility = showButton && !_isPurePlayerGame ? Visibility.Visible : Visibility.Hidden;
         }
 
         public void SetInPositionMode(bool inPositionMode, string fenPosition, bool acceptMouse)
@@ -1320,12 +1320,13 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             TagFields();
         }
 
-        public void SetPlayer(string whitePlayer, string blackPlayer)
+        public void SetPlayer(string whitePlayer, string blackPlayer, bool isPlayerGame)
         {
             _whitePlayer = whitePlayer;
             _blackPlayer = blackPlayer;
             textBlockWhitePlayer.Text = WhiteOnTop ? _whitePlayer : _blackPlayer;
             textBlockBlackPlayer.Text = WhiteOnTop ? _blackPlayer : _whitePlayer;
+            _isPurePlayerGame = isPlayerGame;
         }
 
 
@@ -1563,9 +1564,9 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             buttonForceMove.ToolTip = show ? _rm.GetString("ForceMove") : _rm.GetString("SwitchColor");
             imageForceMove.Visibility = Visibility.Collapsed;
             imageSwitchColor.Visibility = Visibility.Collapsed;
-            imageForceMove.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
-            imageSwitchColor.Visibility = show ? Visibility.Collapsed : Visibility.Visible;
-            buttonForceMove.Visibility = Visibility.Visible;
+            imageForceMove.Visibility = show && !_isPurePlayerGame ? Visibility.Visible : Visibility.Collapsed;
+            imageSwitchColor.Visibility = show || _isPurePlayerGame ? Visibility.Collapsed : Visibility.Visible;
+            buttonForceMove.Visibility = !_isPurePlayerGame ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public void HideForceMove()
@@ -1607,42 +1608,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             moveStepAllForward.Visibility = allow && !_isConnected ? Visibility.Visible : Visibility.Hidden;
             moveStepBack.Visibility = allow && !_isConnected ? Visibility.Visible : Visibility.Hidden;
             moveStepForward.Visibility = allow && !_isConnected ? Visibility.Visible : Visibility.Hidden;
-        }
-
-        //protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
-        //{
-        //    base.OnRenderSizeChanged(sizeInfo);
-        //    Size sizeInfoPreviousSize = sizeInfo.PreviousSize;
-        //    Size sizeInfoNewSize = sizeInfo.NewSize;
-        //    // ReSharper disable once CompareOfFloatsByEqualityOperator
-        //    if (_firstSize.Width == 0)
-        //    {
-        //        _firstSize = sizeInfoPreviousSize;
-        //    }
-
-        //    if (_firstSize.Width > 0)
-        //    {
-        //        if (sizeInfoNewSize.Width > _firstSize.Width || sizeInfoNewSize.Height > _firstSize.Height)
-        //        {
-        //            double d = Math.Round(sizeInfoNewSize.Width - _firstSize.Width) / 10;
-        //            double d2 = Math.Round(sizeInfoNewSize.Height - _firstSize.Height) / 10;
-        //            ChessBackgroundFieldSize = 45 + Math.Min(d, d2);
-        //            ChessFieldSize = 38 + Math.Min(d, d2);
-        //            ControlButtonSize = 35 + Math.Min(d, d2);
-        //        }
-        //        else
-        //        {
-        //            double d = Math.Round(_firstSize.Width - sizeInfoNewSize.Width) / 5;
-        //            double d2 = Math.Round(_firstSize.Height - sizeInfoNewSize.Height) / 5;
-        //            double chessFieldSize = 38 - Math.Min(d, d2);
-        //            double hessBackgroundFieldSize = 45 - Math.Min(d, d2);
-        //            double buttonFieldSize = 30 - Math.Min(d, d2);
-        //            ChessBackgroundFieldSize = hessBackgroundFieldSize > 45 ? hessBackgroundFieldSize : 45;
-        //            ChessFieldSize = chessFieldSize > 38 ? chessFieldSize : 38;
-        //            ControlButtonSize = buttonFieldSize > 35 ? buttonFieldSize : 35;
-        //        }
-        //    }
-        //}
+        }      
 
 
         private void MovePauseGame_OnClick(object sender, RoutedEventArgs e)
@@ -1982,6 +1948,11 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
                 _fromFieldTag = 0;
                 _toFieldTag = 0;
             }
+        }
+
+        public void MakeMove(int fromField, int toField)
+        {
+            OnMakeMoveEvent(new MoveEventArgs(fromField, toField));
         }
 
         protected virtual void OnMakeMoveEvent(MoveEventArgs e)

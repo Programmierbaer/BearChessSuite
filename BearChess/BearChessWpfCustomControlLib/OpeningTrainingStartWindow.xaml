@@ -1,0 +1,159 @@
+﻿<Window x:Class="www.SoLaNoSoft.com.BearChessWpfCustomControlLib.OpeningTrainingStartWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties" 
+        mc:Ignorable="d" WindowStartupLocation="CenterOwner" 
+        Title="{x:Static p:Resources.OpeningTraining}" Height="600" Width="1000">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="200"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <DataGrid Name="dataGridBook" ItemsSource="{Binding}" Grid.Row="0" Margin="5" AutoGenerateColumns="False" HorizontalAlignment="Left"
+               VerticalScrollBarVisibility="Auto" SelectionChanged="DataGrid_OnSelectionChanged" Width="500"
+               SelectionMode="Single" IsReadOnly="True">
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"
+                              Color="CornflowerBlue" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White" />
+            </DataGrid.Resources>
+          
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Name}" Width="Auto">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="{x:Static p:Resources.Name}" />
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+                <DataGridTextColumn Binding="{Binding FileName}" Width="100">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="{x:Static p:Resources.FileName}" />
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+                <DataGridTextColumn Binding="{Binding PositionsCount}" Width="Auto">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="{x:Static p:Resources.Positions}" />
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+                <DataGridTextColumn Binding="{Binding MovesCount}" Width="Auto">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="{x:Static p:Resources.Moves}" />
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+                <DataGridTextColumn Binding="{Binding GamesCount}" Width="Auto">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="{x:Static p:Resources.Games}" />
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+                <DataGridTextColumn Binding="{Binding Size}" Width="Auto">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="{x:Static p:Resources.SizeBytes}" />
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+                
+            </DataGrid.Columns>
+        </DataGrid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+          
+            <DataGrid Name="dataGridEcoCodes" ItemsSource="{Binding}" Margin="5" Grid.Row="0" Grid.Column="0" AutoGenerateColumns="False" VerticalScrollBarVisibility="Auto"
+                      SelectionMode="Single" IsReadOnly="True" SelectionChanged="DataGrid_OnSelectionChanged">
+                <DataGrid.Resources>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"
+                                     Color="CornflowerBlue" />
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White" />
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Code}" Width="70" CanUserSort="False">
+                        <DataGridTextColumn.Header>
+                            <TextBlock Text="Code" />
+                        </DataGridTextColumn.Header>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Binding="{Binding Name}" Width="Auto"  CanUserSort="False">
+                        <DataGridTextColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="ToolTip" Value="{Binding Name}" />
+                            </Style>
+                        </DataGridTextColumn.CellStyle>
+                        <DataGridTextColumn.Header>
+                            <TextBlock Text="{x:Static p:Resources.Name}" />
+                        </DataGridTextColumn.Header>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Binding="{Binding Moves}" Width="Auto"  CanUserSort="False">
+                        <DataGridTextColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="ToolTip" Value="{Binding Moves}" />
+                            </Style>
+                        </DataGridTextColumn.CellStyle>
+                        <DataGridTextColumn.Header>
+                            <TextBlock Text="{x:Static p:Resources.Moves}" />
+                        </DataGridTextColumn.Header>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <local:SimpleChessboardUserControl x:Name="simpleChessboard" Margin="5" Grid.Column="1" Grid.Row="0"></local:SimpleChessboardUserControl>
+            <StackPanel Orientation="Horizontal"  Grid.Row="1" Grid.Column="0" >
+                <TextBlock Margin="5">Filter:</TextBlock>
+                <TextBox Name="textBoxFilter" Margin="5" Width="300" TextChanged="TextBoxFilter_OnTextChanged"></TextBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" >
+                <Border Margin="5" BorderBrush="Black" BorderThickness="0.3">
+                    <StackPanel Margin="5,0,0,0" Orientation="Horizontal" >
+                        <CheckBox Name="checkBoxShowNextMove" Checked="CheckBoxShowNextMove_OnChecked" Unchecked="CheckBoxShowNextMove_OnUnchecked" VerticalAlignment="Center" Content="{x:Static p:Resources.ShowNextOpeningMove}" FontWeight="DemiBold" />
+                       <local:NumericUpDownUserControl Margin="5"  TextWidthProperty="30" x:Name="numericUpDownUserControlInterval" MinValue="1" MaxValue="60" Value="3"/>
+                       <Label VerticalAlignment="Center" Content="{x:Static p:Resources.Sec}" />
+                    </StackPanel>
+                </Border>
+                <Border Margin="5" BorderBrush="Black" BorderThickness="0.3">
+                    <StackPanel Margin="5,0,0,0" Orientation="Horizontal" >
+                        <CheckBox Name="checkBoxMakeMove" Checked="CheckBoxMakeMove_OnChecked" Unchecked="CheckBoxMakeMove_OnUnchecked" VerticalAlignment="Center" Margin="0" FontWeight="DemiBold"  Content="{x:Static p:Resources.ExecuteMoveAutomatically}" />
+                        <RadioButton Name="radioButtonWhite" Margin="5,0,0,0" VerticalContentAlignment="Center" GroupName="WhiteOrBlack" Content="{x:Static p:Resources.White}" IsChecked="True"></RadioButton>
+                        <RadioButton Name="radioButtonBlack"  Margin="5,0,0,0" VerticalContentAlignment="Center" GroupName="WhiteOrBlack"  Content="{x:Static p:Resources.Black}"></RadioButton>
+                        <Border Margin="10,3,0,3" BorderThickness="0.2" BorderBrush="DarkGray">
+
+                        </Border>
+                        <Label VerticalAlignment="Center"  Margin="5,0,0,0" Content="{x:Static p:Resources.Selection}" />
+                        <RadioButton Name="radioButtonBest" Margin="5,0,0,0" GroupName="Variation"
+                                     VerticalAlignment="Center" HorizontalAlignment="Center"
+                                     ToolTip="{x:Static p:Resources.AlwaysChooseBestMove}" Content="{x:Static p:Resources.Best}"/>
+                        <RadioButton Name="radioButtonFlexible" Margin="5,0,0,0" GroupName="Variation" IsChecked="True"
+                                     VerticalAlignment="Center" HorizontalAlignment="Center"
+                                     ToolTip="{x:Static p:Resources.ChooseBetterMove}" Content="{x:Static p:Resources.Flexible}"/>
+                        <RadioButton Name="radioButtonWide" Margin="5,0,5,0" GroupName="Variation"
+                                     VerticalAlignment="Center" HorizontalAlignment="Center"
+                                     ToolTip="{x:Static p:Resources.ChooseAnyMove}" Content="{x:Static p:Resources.Wide}" />
+                    </StackPanel>
+                </Border>
+                <Border Margin="5" BorderBrush="Black" BorderThickness="0.3">
+                    <CheckBox Name="checkBoxAllowEcoChange" VerticalAlignment="Center" Margin="5,0,5,0" Content="{x:Static p:Resources.AllowEcoChange}" />
+                </Border>
+            </StackPanel>
+        </Grid>
+        <DockPanel Margin="5" Grid.Row="2" LastChildFill="False">
+            <Button Margin="5" DockPanel.Dock="Left" Name="buttonOk" Click="ButtonOk_OnClick" Background="Transparent"
+                 BorderBrush="Transparent" IsEnabled="False" >
+                <Image Source="/Assets/Icons/accept_button.png" Width="32" Height="32" />
+            </Button>
+
+            <Button Margin="25,5,5,5" DockPanel.Dock="Right" Name="buttonCancel" Click="ButtonCancel_OnClick"
+                 Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.Exit}">
+                <Image Source="/Assets/Icons/cancel.png" Width="32" Height="32" />
+            </Button>
+           
+        </DockPanel>
+    </Grid>
+
+</Window>

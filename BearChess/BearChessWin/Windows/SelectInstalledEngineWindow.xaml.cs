@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Xml.Serialization;
 using Microsoft.Win32;
 using www.SoLaNoSoft.com.BearChessBase;
+using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 using www.SoLaNoSoft.com.BearChessTools;
 using www.SoLaNoSoft.com.BearChessWpfCustomControlLib;
 
@@ -30,6 +31,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private readonly ResourceManager _rm;
         private readonly bool _blindUserSaySelection;
         private readonly bool _blindUser;
+        private readonly ILogging _logger;
 
         public UciInfo SelectedEngine => (UciInfo) dataGridEngine.SelectedItem;
 
@@ -46,7 +48,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _blindUser = Configuration.Instance.GetBoolValue("blindUser", false);
         }
 
-        public SelectInstalledEngineWindow(IEnumerable<UciInfo> uciInfos, string lastEngineId, string uciPath) : this()
+        public SelectInstalledEngineWindow(IEnumerable<UciInfo> uciInfos, string lastEngineId, string uciPath, ILogging logger) : this()
         {
             _uciInfos =  new ObservableCollection<UciInfo>(uciInfos.Where(u => !u.IsPlayer && !u.IsChessServer).OrderBy(e => e.Name).ToList());
             var firstOrDefault = _uciInfos.FirstOrDefault(u => u.Id.Equals(lastEngineId));
@@ -55,6 +57,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 firstOrDefault = _uciInfos.Count > 0 ? _uciInfos[0] : null;
             }
             _uciPath = uciPath;
+            _logger = logger;
             dataGridEngine.ItemsSource = _uciInfos;
             if (firstOrDefault != null)
             {
@@ -411,7 +414,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     foreach (var multiParameter in multiParameters)
                     {
-                        uciInstaller = new UciInstaller();
+                        uciInstaller = new UciInstaller(_logger);
                         uciInfo = uciInstaller.Install(fileName, multiParameter.ParameterName,multiParameter.NewIndicator);
                        
                         if (!uciInfo.Valid)
@@ -466,7 +469,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     }
                     return;
                 }
-                uciInstaller = new UciInstaller();
+                uciInstaller = new UciInstaller(_logger);
                 uciInfo = uciInstaller.Install(fileName,  parameters, string.Empty);
                 if (!string.IsNullOrWhiteSpace(engineName))
                 {

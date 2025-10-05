@@ -317,9 +317,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _allUciInfos.Clear();
 
             var array = uciInfos.Where(u => u.IsActive).OrderBy(u => u.Name).ToArray();
-            textBlockPlayerWhiteEngine.Text = Constants.Player;
+            textBlockPlayerWhiteEngine.Text = Constants.Player1;
             textBlockPlayerWhiteEngine.ToolTip = _rm.GetString("AHumanBeingAsAPlayer");
-            textBlockPlayerBlackEngine.Text = Constants.Player;
+            textBlockPlayerBlackEngine.Text = Constants.Player1;
             textBlockPlayerBlackEngine.ToolTip = _rm.GetString("AHumanBeingAsAPlayer");
 
             for (var i = 0; i < array.Length; i++)
@@ -686,20 +686,20 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void ButtonPlayerBlack_OnClick(object sender, RoutedEventArgs e)
         {
-            textBlockPlayerBlackEngine.Text = Constants.Player;
-            textBlockPlayerBlackEngine.ToolTip = _allUciInfos[Constants.Player].OriginName;
+            textBlockPlayerBlackEngine.Text = Constants.Player1;
+            textBlockPlayerBlackEngine.ToolTip = _allUciInfos[Constants.Player1].OriginName;
             buttonConfigureBlack.Visibility = Visibility.Hidden;
-            PlayerBlackConfigValues = _allUciInfos[Constants.Player];
+            PlayerBlackConfigValues = _allUciInfos[Constants.Player1];
             SetPonderControl(PlayerBlackConfigValues, textBlockPonderBlack, imagePonderBlack, imagePonderBlack2, textBlockEloBlack, imageBookBlack, imageBookBlack2);
             CheckForEstimateElo();
         }
 
         private void ButtonPlayerWhite_OnClick(object sender, RoutedEventArgs e)
         {
-            textBlockPlayerWhiteEngine.Text = Constants.Player;
-            textBlockPlayerWhiteEngine.ToolTip = _allUciInfos[Constants.Player].OriginName;
+            textBlockPlayerWhiteEngine.Text = Constants.Player1;
+            textBlockPlayerWhiteEngine.ToolTip = _allUciInfos[Constants.Player1].OriginName;
             buttonConfigureWhite.Visibility = Visibility.Hidden;
-            PlayerWhiteConfigValues = _allUciInfos[Constants.Player];
+            PlayerWhiteConfigValues = _allUciInfos[Constants.Player1];
             SetPonderControl(PlayerWhiteConfigValues, textBlockPonderWhite, imagePonderWhite, imagePonderWhite2, textBlockEloWhite, imageBookWhite, imageBookWhite2);
             CheckForEstimateElo();
         }

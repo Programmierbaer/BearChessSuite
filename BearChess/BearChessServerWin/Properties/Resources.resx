@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="na" xml:space="preserve">
+    <value>Black</value>
+  </data>
   <data name="Bluetooth" xml:space="preserve">
     <value>Bluetooth</value>
   </data>
@@ -162,11 +165,20 @@
   <data name="Connect" xml:space="preserve">
     <value>Connect</value>
   </data>
+  <data name="Current" xml:space="preserve">
+    <value>Current</value>
+  </data>
+  <data name="Depth" xml:space="preserve">
+    <value>Depth</value>
+  </data>
   <data name="DGTEBoard" xml:space="preserve">
     <value>DGT EBoard</value>
   </data>
   <data name="ElfacunModule" xml:space="preserve">
     <value>Elfacun Module</value>
+  </data>
+  <data name="Elo" xml:space="preserve">
+    <value>Elo</value>
   </data>
   <data name="Error" xml:space="preserve">
     <value>Error</value>
@@ -186,14 +198,35 @@
   <data name="IsRunning" xml:space="preserve">
     <value>Is running</value>
   </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
   <data name="NumberOfBoards" xml:space="preserve">
     <value>Number of boards</value>
+  </data>
+  <data name="Participants" xml:space="preserve">
+    <value>Participants</value>
   </data>
   <data name="Port" xml:space="preserve">
     <value>Port</value>
   </data>
+  <data name="PortBC" xml:space="preserve">
+    <value>Port BearChess Server</value>
+  </data>
   <data name="PortMustBeANumber" xml:space="preserve">
     <value>Port must be a number</value>
+  </data>
+  <data name="PortsAreEqual" xml:space="preserve">
+    <value>The port numbers for the BearchChess Server and the web server must be different</value>
+  </data>
+  <data name="PortWeb" xml:space="preserve">
+    <value>Port web server</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SaveTournament" xml:space="preserve">
+    <value>Save tournament</value>
   </data>
   <data name="Server" xml:space="preserve">
     <value>Server</value>
@@ -203,6 +236,15 @@
   </data>
   <data name="Start" xml:space="preserve">
     <value>Start</value>
+  </data>
+  <data name="StartBCServer" xml:space="preserve">
+    <value>BearChess Server</value>
+  </data>
+  <data name="StartStop" xml:space="preserve">
+    <value>Start/Stop</value>
+  </data>
+  <data name="StartWebServer" xml:space="preserve">
+    <value>BearChess Webserver</value>
   </data>
   <data name="Stop" xml:space="preserve">
     <value>Stop</value>
@@ -218,5 +260,71 @@
   </data>
   <data name="Tournaments" xml:space="preserve">
     <value>Tournaments</value>
+  </data>
+  <data name="White" xml:space="preserve">
+    <value>White</value>
+  </data>
+  <data name="Author" xml:space="preserve">
+    <value>Author</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="Black" xml:space="preserve">
+    <value>Black</value>
+  </data>
+  <data name="NotFilledAllFields" xml:space="preserve">
+    <value>You have not filled in all the input fields.</value>
+  </data>
+  <data name="SaveEntriesAnyWay" xml:space="preserve">
+    <value>Save entries anyway?</value>
+  </data>
+  <data name="MissingParameter" xml:space="preserve">
+    <value>Missing parameter</value>
+  </data>
+  <data name="StopWebServer" xml:space="preserve">
+    <value>Do you want to stop the web server?</value>
+  </data>
+  <data name="WebServerStopped" xml:space="preserve">
+    <value>Webserver stopped</value>
+  </data>
+  <data name="WebServerStarted" xml:space="preserve">
+    <value>Webserver started</value>
+  </data>
+  <data name="ServerStopped" xml:space="preserve">
+    <value>Server stopped</value>
+  </data>
+  <data name="ServerStarted" xml:space="preserve">
+    <value>Server started</value>
+  </data>
+  <data name="Connected" xml:space="preserve">
+    <value>Connected</value>
+  </data>
+  <data name="Disconnected" xml:space="preserve">
+    <value>Disconnected</value>
+  </data>
+  <data name="RestartBearChessServer" xml:space="preserve">
+    <value>In order for the changes to take effect, you must restart BearChess Server</value>
+  </data>
+  <data name="PublishTournament" xml:space="preserve">
+    <value>Publish tournament</value>
+  </data>
+  <data name="NewGame" xml:space="preserve">
+    <value>New game</value>
+  </data>
+  <data name="PublishingStarted" xml:space="preserve">
+    <value>Publishing started</value>
+  </data>
+  <data name="PublishingStopped" xml:space="preserve">
+    <value>Publishing stopped</value>
+  </data>
+  <data name="Information" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="Publish" xml:space="preserve">
+    <value>Publish</value>
+  </data>
+  <data name="StopPublishing" xml:space="preserve">
+    <value>Do you want to stop the publishing?</value>
   </data>
 </root>

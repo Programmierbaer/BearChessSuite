@@ -7,11 +7,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
     public interface INewGameWindow
     {
         bool ContinueGame { get; }
+        bool CasualGame { get; }
         string PlayerBlack { get; }
         string PlayerWhite { get; }
         bool RelaxedMode { get; }
         bool SeparateControl { get; }
         bool StartFromBasePosition { get; }
+        bool PublishGame { get; }
+        bool PublishGameContinuously { get; }
+        string GameEvent { get; }
 
         void DisableContinueAGame();
         UciInfo GetPlayerBlackConfigValues();
@@ -19,7 +23,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
         TimeControl GetTimeControlBlack();
         TimeControl GetTimeControlWhite();
         void InitializeComponent();
-        void SetNames(UciInfo[] uciInfos, string lastSelectedEngineIdWhite, string lastSelectedEngineIdBlack);
+        void SetNames(UciInfo[] uciInfos, string lastSelectedEngineIdWhite, string lastSelectedEngineIdBlack, bool allowEngines);
+        void SetBCServerPlayer(string bcsPlayerWhite, string bcsPlayerBlack, string tournamentName, int bcsOwnColor);
         void SetRelaxedMode(bool relaxed);
         void SetStartFromBasePosition(bool startFromBasePosition);
         void SetTimeControlBlack(TimeControl timeControl);

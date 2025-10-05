@@ -32,8 +32,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         public SelectInstalledBookWindow(BookInfo[] openingBooks, string bookPath)
         {
-            _bookPath = bookPath;
             InitializeComponent();
+            _bookPath = bookPath;
             Top = Configuration.Instance.GetWinDoubleValue("InstalledBookWindowTop", Configuration.WinScreenInfo.Top, SystemParameters.VirtualScreenHeight, SystemParameters.VirtualScreenWidth, "300");
             Left = Configuration.Instance.GetWinDoubleValue("InstalledBookWindowLeft", Configuration.WinScreenInfo.Left, SystemParameters.VirtualScreenHeight, SystemParameters.VirtualScreenWidth, "400");
             Height = Configuration.Instance.GetDoubleValue("InstalledBookWindowHeight", "250");

@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Security.Cryptography;
 using System.Threading;
 using www.SoLaNoSoft.com.BearChessBase;
+using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 
 namespace www.SoLaNoSoft.com.BearChessWin
 {
@@ -10,16 +13,27 @@ namespace www.SoLaNoSoft.com.BearChessWin
     {
         private Process _engineProcess;
         private UciInfo _uciInfo;
+        
+        private ILogging _logger;
+
+        public UciInstaller(ILogging logger)
+        {
+            _logger = logger;
+        }
 
         public UciInfo Install(string fileName, string parameters, string newIndicator)
         {
+            _logger?.LogDebug($"Install new engine {fileName} {parameters}");
             if (!string.IsNullOrWhiteSpace(newIndicator))
             {
                 fileName = fileName.Replace(@"\MessChess\MessChess.exe", @"\MessNew\MessNew.exe");
+                _logger?.LogDebug($"Change file name to {fileName}");
             }
-
-            _uciInfo = new UciInfo(fileName);
-            _uciInfo.CommandParameter = parameters;
+            
+            _uciInfo = new UciInfo(fileName)
+            {
+                CommandParameter = parameters
+            };
             _engineProcess = new Process
             {
                 StartInfo =
@@ -34,18 +48,19 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 }
 
             };
+            _logger?.LogDebug($"Process start");
             _engineProcess.Start();
             Thread thread = new Thread(ReadFromEngine) { IsBackground = true };
             thread.Start();
-            _uciInfo.Valid = thread.Join(5000);
+            _uciInfo.Valid = thread.Join(10000);
             try
             {
                 _engineProcess.Kill();
                 _engineProcess.Dispose();
             }
-            catch
+            catch (Exception ex) 
             {
-                //
+                _logger?.LogError(ex);
             }
 
             if (fileName.ToLower().Contains("wasp") || !_uciInfo.CanMultiPV())
@@ -57,18 +72,18 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void ReadFromEngine()
         {
-
+            _logger?.LogDebug($"Start read from engine");
             try
             {
                 string waitingFor = "uciok";
+                _logger?.LogDebug($"Send uci");
                 _engineProcess.StandardInput.Write("uci");
                 _engineProcess.StandardInput.Write("\n");
-
                 while (true)
                 {
-
                     var readToEnd = _engineProcess.StandardOutput.ReadLine();
-
+                    _logger?.LogDebug($"Read from engine: {readToEnd}");
+                  
                     if (!string.IsNullOrWhiteSpace(readToEnd) && readToEnd.Equals(waitingFor))
                     {
                         break;
@@ -93,13 +108,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     }
 
                 }
+                _logger.LogDebug($"Send quit");
                 _engineProcess.StandardInput.Write("quit");
                 _engineProcess.StandardInput.Write("\n");
                 Thread.Sleep(100);
             }
-            catch
+            catch (Exception ex)
             {
-                //
+                _logger?.LogError(ex);
             }
         }
     }

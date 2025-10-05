@@ -4,6 +4,9 @@ using www.SoLaNoSoft.com.BearChessBase.Definitions;
 
 namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.Loader
 {
+
+
+
     public class TabutronicCernoLoader : AbstractLoader
     {
 

@@ -45,8 +45,14 @@
     <Compile Include="IBearChessController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerChessBoardConfiguration.cs" />
+    <Compile Include="UciInstaller.cs" />
+    <Compile Include="UciLoader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BasicWebServer-master\Clifton.WebServer\Clifton.WebServer.csproj">
+      <Project>{34ba120b-8d01-4dc0-b841-2ae17a8b5258}</Project>
+      <Name>Clifton.WebServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BearChessBaseLib\BearChessBaseLib.csproj">
       <Project>{b298b210-c007-4f95-84ca-b0b8ad26281b}</Project>
       <Name>BearChessBaseLib</Name>
@@ -59,6 +65,13 @@
       <Project>{a6bcdc78-1edc-40c7-936f-880423360ba3}</Project>
       <Name>BearChessEChessBoard</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EngineDefs\EngineDefs.csproj">
+      <Project>{af37ad09-e359-497a-94af-e4cb12fc5ded}</Project>
+      <Name>EngineDefs</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

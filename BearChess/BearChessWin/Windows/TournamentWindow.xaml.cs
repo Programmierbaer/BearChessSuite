@@ -38,6 +38,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         public event EventHandler<int> ContinueTournamentSelected;
         public event EventHandler<int> CloneTournamentSelected;
         public event EventHandler<int> RepeatGameSelected;
+        public event EventHandler<DatabaseTournament> ParticipantChanged;
         private readonly ResourceManager _rm;
 
 
@@ -347,7 +348,17 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     {
                        continue;
                     }
-                    var pairing = _tournamentManager.GetPairing(gamesCount);
+
+                    int[] pairing;
+                    if (databaseGameSimple.Pair1 > 0 || databaseGameSimple.Pair2 > 0)
+                    {
+                        pairing = new[] { databaseGameSimple.Pair1, databaseGameSimple.Pair2 };
+                    }
+                    else
+                    {
+                        pairing = _tournamentManager.GetPairing(gamesCount);
+                    }
+
                     _tournamentInfoWindow.AddResult(databaseGameSimple.Result, pairing);
                     gamesCount++;
                 }
@@ -405,6 +416,27 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     dataGridTournament.ItemsSource = _database.LoadTournament();
                     dataGridGames.ItemsSource = null;
                 }
+            }
+        }
+
+        private void MenuItemChangeParticipant_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (dataGridTournament.SelectedItems.Count == 0)
+            {
+                return;
+            }
+            if (dataGridTournament.SelectedItems.Count > 1)
+            {
+                MessageBox.Show(_rm.GetString("SelectOnlyOneTournament"), _rm.GetString("CannotRename"),
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var selectedItem = dataGridTournament.SelectedItems[0];
+            if (selectedItem is DatabaseTournament tournament)
+            {
+                ParticipantChanged?.Invoke(this,tournament);
+                Close();
             }
         }
     }

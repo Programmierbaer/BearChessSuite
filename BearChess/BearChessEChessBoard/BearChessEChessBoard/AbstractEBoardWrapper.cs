@@ -58,6 +58,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         public event EventHandler HelpRequestedEvent;
         public event EventHandler<string[]> ProbeMoveEvent;
         public event EventHandler<string> GameEndEvent;
+        public event EventHandler<ClockFromBoard> ClockEvent;
 
         protected AbstractEBoardWrapper(string name, string basePath)
         {
@@ -238,10 +239,10 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             _board?.Ignore(ignore);
         }
 
-        public void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack,
-            int secondBlack)
+        public void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack,
+            int secondBlack, int increments)
         {
-            _board?.SetClock(hourWhite, minuteWhite, secWhite, hourBlack, minuteBlack, secondBlack);
+            _board?.SetClock(hourWhite, minuteWhite, secondWhite, hourBlack, minuteBlack, secondBlack, increments);
         }
 
         public void StartClock(bool white)
@@ -252,6 +253,11 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         public void DisplayOnClock(string display)
         {
             _board?.DisplayOnClock(display);
+        }
+
+        public void ResetClock()
+        {
+            _board?.ResetClock();
         }
 
         public bool MultiColorLEDs => _board?.MultiColorLEDs ?? false;
@@ -400,13 +406,13 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
 
 
 
-        public void ShowMove(SetLEDsParameter setLeDsParameter)
+        public void ShowMove(SetLEDsParameter setLEDsParameter)
         {
-            _internalChessBoard.MakeMove(setLeDsParameter.FieldNames[0], setLeDsParameter.FieldNames[1],
-                setLeDsParameter.Promote);
+            _internalChessBoard.MakeMove(setLEDsParameter.FieldNames[0], setLEDsParameter.FieldNames[1],
+                setLEDsParameter.Promote);
             var position = _internalChessBoard.GetPosition();
             _waitForFen.Enqueue(position);
-            _board?.SetLedForFields(setLeDsParameter);
+            _board?.SetLedForFields(setLEDsParameter);
             _stop = false;
         }
 
@@ -710,6 +716,11 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                     continue;
                 }
 
+                if (piecesFen.ClockInformation != null)
+                {
+                    ClockEvent?.Invoke(this, piecesFen.ClockInformation);
+                    continue;
+                }
                 if (string.IsNullOrWhiteSpace(piecesFen.FromBoard) ||
                     piecesFen.FromBoard.Equals(_board?.UnknownPieceCode))
                 {
@@ -852,7 +863,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             _fileLogger?.LogDebug($"AB: MoveEvent from board: {fenPosition}");
             // Calculate move from current position to new fen position
             var move = _internalChessBoard.GetMove(fenPosition, _inDemoMode);
-            if (string.IsNullOrWhiteSpace(move))
+            if (string.IsNullOrWhiteSpace(move) || move.Length<4)
             {
                 _fileLogger?.LogDebug("AB: Move is invalid");
                 return;
@@ -911,6 +922,10 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                 var fenPosition = _board?.GetPiecesFen();
                 if (fenPosition == null || string.IsNullOrWhiteSpace(fenPosition.FromBoard))
                 {
+                    if (fenPosition?.ClockInformation != null)
+                    {
+                        return fenPosition;
+                    }
                     return null;
                 }
 

@@ -217,7 +217,7 @@ namespace www.SoLaNoSoft.com.BearChess.PegasusChessBoard
                 _probingFields.TryDequeue(out _);
             }
         }
-        public override void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack, int secondBlack)
+        public override void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments)
         {
             //
         }
@@ -233,6 +233,10 @@ namespace www.SoLaNoSoft.com.BearChess.PegasusChessBoard
         }
 
         public override void DisplayOnClock(string display)
+        {
+            //
+        }
+        public override void ResetClock()
         {
             //
         }
@@ -494,27 +498,30 @@ namespace www.SoLaNoSoft.com.BearChess.PegasusChessBoard
                 return new DataFromBoard(_prevSend, 3);
             }
 
-            if (_prevRead.Equals(dataFromBoard.FromBoard))
+            if (strings[0] == _boardDump)
             {
-                _equalReadCount++;
-            }
-            else
-            {
-                _logger?.LogDebug($"GetPiecesFen: Changes from {_prevRead} to {dataFromBoard.FromBoard}");
-                _prevRead = dataFromBoard.FromBoard;
-                _equalReadCount = 0;
-            }
-
-            if (_equalReadCount < 5)
-            {
-                if (string.IsNullOrWhiteSpace(_prevSend))
+                if (_prevRead.Equals(dataFromBoard.FromBoard))
                 {
-                    _prevSend = _workingChessBoard.GetFenPosition()
-                        .Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[0];
+                    _equalReadCount++;
+                }
+                else
+                {
+                    _logger?.LogDebug($"GetPiecesFen: Changes from {_prevRead} to {dataFromBoard.FromBoard}");
+                    _prevRead = dataFromBoard.FromBoard;
+                    _equalReadCount = 0;
                 }
 
-                _logger?.LogDebug($"GetPiecesFen: _equalReadCount {_equalReadCount} return {_prevSend}");
-                return new DataFromBoard(_prevSend, 3);
+                if (_equalReadCount < 5)
+                {
+                    if (string.IsNullOrWhiteSpace(_prevSend))
+                    {
+                        _prevSend = _workingChessBoard.GetFenPosition()
+                            .Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[0];
+                    }
+
+                    _logger?.LogDebug($"GetPiecesFen: _equalReadCount {_equalReadCount} return {_prevSend}");
+                    return new DataFromBoard(_prevSend, 3);
+                }
             }
 
             if (strings[0] == _boardDump)

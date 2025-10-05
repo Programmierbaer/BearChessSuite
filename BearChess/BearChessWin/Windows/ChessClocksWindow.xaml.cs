@@ -8,6 +8,7 @@ using System.Windows.Media;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessTools;
+using Timer = System.Timers.Timer;
 
 namespace www.SoLaNoSoft.com.BearChessWin
 {
@@ -29,6 +30,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private bool _stop = true;
         private DateTime _stopTime;
         private readonly Stopwatch _stopwatch;
+        private readonly Timer _timer;
         private readonly ResourceManager _rm;
 
 
@@ -37,6 +39,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
             InitializeComponent();
             _rm = SpeechTranslator.ResourceManager;
             _stopwatch = new Stopwatch();
+            _timer = new Timer(1000);
+            _timer.Elapsed += _timer_Elapsed;
             CountDown = true;
             _capture = capture;
             _configuration = configuration;
@@ -72,12 +76,25 @@ namespace www.SoLaNoSoft.com.BearChessWin
         }
 
         public bool CountDown { get; set; }
-        
+        public bool SimpleClockMode
+        {
+            get;
+            set;
+        }
+
         public void SetConfiguration(string capture, Configuration configuration)
         { 
         }
 
         public event EventHandler TimeOutEvent;
+
+        private void _timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            var addSeconds = _currentTime.AddSeconds(-1);
+            Dispatcher?.Invoke(() => {
+                SetDigitalNumbers(addSeconds.Hour, addSeconds.Minute, addSeconds.Second);
+            });
+        }
 
         public ClockTime GetClockTime()
         {
@@ -145,7 +162,26 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 Go();
             }
+        }
 
+        public void OverrideTime(int hh, int mm, int ss)
+        {
+            {
+                Stop();
+            }
+            if (!SimpleClockMode)
+            {
+                _stopwatch.Reset();
+            }
+
+            SetDigitalNumbers(hh, mm, ss);
+            ToolTip = Title;
+            borderWarning.Visibility = Visibility.Hidden;
+            _duration = TimeSpan.Zero;
+
+            {
+                Go();
+            }
         }
 
         public void SetContinueTime(ClockTime clockTime, int extraSeconds = 0)
@@ -178,6 +214,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 return;
             }
+            if (SimpleClockMode)
+            {
+                _timer.Enabled = false;
+                return;
+            }
 
             _stopwatch.Stop();
             _stop = true;
@@ -205,7 +246,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
         {
             _goTime = DateTime.Now;
             _stop = false;
-            _stopwatch.Start();
+            if (SimpleClockMode)
+            {
+                _timer.Enabled = true;
+            }
+            else
+            {
+                _stopwatch.Start();
+            }
         }
 
         private void SetDigitalNumbers(int hh, int mm, int ss)
@@ -260,7 +308,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 Thread.Sleep(100);
 
-                if (_stop)
+                if (_stop || SimpleClockMode || _startTime.Equals(DateTime.MinValue))
                 {
                     continue;
                 }
@@ -296,8 +344,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         }
                     }
                 });
-
-                if (CountDown && _stopTime.Hour == 0 && _stopTime.Minute == 0 && _stopTime.Second == 0)
+                if (CountDown && _stopTime.Day != _goTime.Day)
                 {
                     TimeOutEvent?.Invoke(this, EventArgs.Empty);
                     _stop = true;

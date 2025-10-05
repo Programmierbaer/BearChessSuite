@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\SQLite.3.13.0\build\net45\SQLite.props" Condition="Exists('..\packages\SQLite.3.13.0\build\net45\SQLite.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -14,6 +15,8 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -39,8 +42,30 @@
     <ApplicationIcon>BearChessServer.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.ApplicationInsights, Version=2.23.0.29, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.2.23.0\lib\net46\Microsoft.ApplicationInsights.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.SQLite, Version=1.0.119.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\lib\net46\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.DiagnosticSource, Version=9.0.0.5, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.9.0.5\lib\net462\System.Diagnostics.DiagnosticSource.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.6.1\lib\net462\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -64,8 +89,20 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.de.resx</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\DetailChessBoardUserControl.xaml.cs">
+      <DependentUpon>DetailChessBoardUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\EngineInfoLineUserControl.xaml.cs">
+      <DependentUpon>EngineInfoLineUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\EngineInfoUserControl.xaml.cs">
+      <DependentUpon>EngineInfoUserControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\SmallChessboardUserControl.xaml.cs">
       <DependentUpon>SmallChessboardUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\BoardDetailWindow.xaml.cs">
+      <DependentUpon>BoardDetailWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\ConfigureServerWindow.xaml.cs">
       <DependentUpon>ConfigureServerWindow.xaml</DependentUpon>
@@ -73,8 +110,14 @@
     <Compile Include="Windows\QueryTournamentWindow.xaml.cs">
       <DependentUpon>QueryTournamentWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\SelectInstalledEngineWindow.xaml.cs">
+      <DependentUpon>SelectInstalledEngineWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\TournamentWindow.xaml.cs">
       <DependentUpon>TournamentWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\UciConfigWindow.xaml.cs">
+      <DependentUpon>UciConfigWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -92,7 +135,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UserControls\DetailChessBoardUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\EngineInfoLineUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\EngineInfoUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\SmallChessboardUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\BoardDetailWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -104,7 +163,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\SelectInstalledEngineWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\TournamentWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\UciConfigWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -133,6 +200,7 @@
     </EmbeddedResource>
     <Resource Include="Assets\Fonts\MERIFONT.TTF" />
     <Resource Include="Assets\Fonts\MISCHESS.TTF" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -153,6 +221,10 @@
     <Resource Include="Assets\BearChessServer.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BasicWebServer-master\Clifton.WebServer\Clifton.WebServer.csproj">
+      <Project>{34ba120b-8d01-4dc0-b841-2ae17a8b5258}</Project>
+      <Name>Clifton.WebServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BearChessBaseLib\BearChessBaseLib.csproj">
       <Project>{b298b210-c007-4f95-84ca-b0b8ad26281b}</Project>
       <Name>BearChessBaseLib</Name>
@@ -538,6 +610,39 @@
     <Resource Include="Assets\Icons\world_edit.png" />
     <Resource Include="Assets\Icons\YellowBorder.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Assets\Stone\black.png" />
+    <Resource Include="Assets\Stone\Symbol\BishopB.png" />
+    <Resource Include="Assets\Stone\Symbol\BishopW.png" />
+    <Resource Include="Assets\Stone\Symbol\GreenBorder.png" />
+    <Resource Include="Assets\Stone\Symbol\KingB.png" />
+    <Resource Include="Assets\Stone\Symbol\KingW.png" />
+    <Resource Include="Assets\Stone\Symbol\KnightB.png" />
+    <Resource Include="Assets\Stone\Symbol\KnightW.png" />
+    <Resource Include="Assets\Stone\Symbol\PawnB.png" />
+    <Resource Include="Assets\Stone\Symbol\PawnW.png" />
+    <Resource Include="Assets\Stone\Symbol\QueenB.png" />
+    <Resource Include="Assets\Stone\Symbol\QueenW.png" />
+    <Resource Include="Assets\Stone\Symbol\RookB.png" />
+    <Resource Include="Assets\Stone\Symbol\RookW.png" />
+    <Resource Include="Assets\Stone\white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\world_go.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\server.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\ftp.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\SQLite.3.13.0\build\net45\SQLite.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SQLite.3.13.0\build\net45\SQLite.props'))" />
+    <Error Condition="!Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets'))" />
+  </Target>
+  <Import Project="..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" />
 </Project>

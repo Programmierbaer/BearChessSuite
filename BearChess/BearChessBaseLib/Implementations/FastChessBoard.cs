@@ -21,7 +21,45 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             _displayCountryType = DisplayCountryType.GB;
         }
 
-      
+        public string GetFigureOnField(string fieldName)
+        {
+            return _allFields.TryGetValue(fieldName, out var field) ? field : string.Empty;
+        }
+
+
+        public bool WhiteKingOnBasePosition()
+        {
+            return GetFigureOnField("e1").Equals(FenCodes.WhiteKing);
+        }
+
+        public bool WhiteKingOnCastlePosition()
+        {
+            return (GetFigureOnField("g1").Equals(FenCodes.WhiteKing) && GetFigureOnField("f1").Equals(FenCodes.WhiteRook)) ||
+                   (GetFigureOnField("c1").Equals(FenCodes.WhiteKing) && GetFigureOnField("d1").Equals(FenCodes.WhiteRook));
+        }
+
+        public bool WhiteKingOnCastleMove()
+        {
+            return (GetFigureOnField("g1").Equals(FenCodes.WhiteKing) && !GetFigureOnField("f1").Equals(FenCodes.WhiteRook)) ||
+                   (GetFigureOnField("c1").Equals(FenCodes.WhiteKing) && !GetFigureOnField("d1").Equals(FenCodes.WhiteRook));
+        }
+
+        public bool BlackKingOnCastlePosition()
+        {
+            return (GetFigureOnField("g8").Equals(FenCodes.BlackKing) && GetFigureOnField("f8").Equals(FenCodes.BlackRook)) ||
+                   (GetFigureOnField("c8").Equals(FenCodes.BlackKing) && GetFigureOnField("d8").Equals(FenCodes.BlackRook));
+        }
+
+        public bool BlackKingOnCastleMove()
+        {
+            return (GetFigureOnField("g8").Equals(FenCodes.BlackKing) && !GetFigureOnField("f8").Equals(FenCodes.BlackRook)) ||
+                   (GetFigureOnField("c8").Equals(FenCodes.BlackKing) && !GetFigureOnField("d8").Equals(FenCodes.BlackRook));
+        }
+
+        public bool BlackKingOnBasePosition()
+        {
+            return GetFigureOnField("e1").Equals(FenCodes.BlackKing);
+        }
 
         public void SetDisplayTypes(DisplayFigureType figureType, DisplayMoveType moveType, DisplayCountryType countryType)
         {
@@ -30,11 +68,9 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             _displayCountryType = countryType;
         }
 
-      
 
         public void Init(string[] allMoves)
         {
-           
             _allFields.Clear();
             _allFields["a1"] = FenCodes.WhiteRook;
             _allFields["b1"] = FenCodes.WhiteKnight;

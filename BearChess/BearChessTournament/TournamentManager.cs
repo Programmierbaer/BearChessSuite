@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessDatabase;
@@ -24,14 +25,38 @@ namespace www.SoLaNoSoft.com.BearChessTournament
         public int Init(CurrentTournament currentTournament)
         {
             _currentTournament = currentTournament;
-            _tournamentId = _database.SaveTournament(_currentTournament,
-                                           GetNumberOfTotalGames(_currentTournament.TournamentType,
-                                                                 _currentTournament.Players.Length,
-                                                                 _currentTournament.Cycles));
+          
             FillPairing();
+            _tournamentId = _database.SaveTournament(_currentTournament,
+                GetNumberOfTotalGames(_currentTournament.TournamentType,
+                    _currentTournament.Players.Length,
+                    _currentTournament.Cycles), _pairing);
             return _tournamentId;
         }
 
+        public bool ValidForReplace(int tournamentId)
+        {
+            return _database.PairingExists(tournamentId);
+        }
+
+        public int CloneTournament(int tournamentId)
+        {
+            return _database.CloneTournament(tournamentId);
+        }
+
+        public void ReplaceParticipant(UciInfo oldPlayer, UciInfo newPlayer)
+        {
+            for (int i = 0; i < _currentTournament.Players.Length; i++)
+            {
+                if (_currentTournament.Players[i].Id.Equals(oldPlayer.Id))
+                {
+                    _currentTournament.Players[i] = newPlayer;
+                    _database.DeleteTournamentGamesWithPairing(_tournamentId, i);
+                    _database.UpdateTournament(_tournamentId, _currentTournament);
+                    break;
+                }
+            }
+        }
 
         public CurrentTournament Load(int tournamentId)
         {
@@ -39,7 +64,6 @@ namespace www.SoLaNoSoft.com.BearChessTournament
             _currentTournament = _database.LoadTournament(tournamentId).CurrentTournament;
             FillPairing();
             return _currentTournament;
-
         }
 
         public CurrentTournament LoadByGame(int gameId)
@@ -52,7 +76,7 @@ namespace www.SoLaNoSoft.com.BearChessTournament
 
         }
 
-        public void SaveGame(DatabaseGame currentGame)
+        public void SaveGame(DatabaseGame currentGame, int[] pairing)
         {
             if (currentGame.CurrentGame.RepeatedGame)
             {
@@ -60,7 +84,7 @@ namespace www.SoLaNoSoft.com.BearChessTournament
             }
             else
             {
-                _database.SaveTournamentGamePair(_tournamentId, _database.Save(currentGame, false));
+                _database.SaveTournamentGamePair(_tournamentId, _database.Save(currentGame, false),pairing);
             }
           
         }
@@ -71,38 +95,58 @@ namespace www.SoLaNoSoft.com.BearChessTournament
             {
                 return null;
             }
-
+            CurrentGame currentGame = null;
             int gamesCount = _database.GetTournamentGamesCount(_tournamentId);
             var numberOfTotalGames = GetNumberOfTotalGames(_currentTournament.TournamentType,
-                                                           _currentTournament.Players.Length,
-                                                           _currentTournament.Cycles);
+                _currentTournament.Players.Length,
+                _currentTournament.Cycles);
             int gamesPerCycle = numberOfTotalGames / _currentTournament.Cycles;
-            CurrentGame currentGame = null;
-            if (gamesCount < numberOfTotalGames)
+            var nextParing = _database.GetNextParing(_tournamentId);
+            if (nextParing != null)
             {
+                currentGame = new CurrentGame(_currentTournament.Players[nextParing[0]],
+                    _currentTournament.Players[nextParing[1]],
+                    _currentTournament.GameEvent,
+                    _currentTournament.TimeControl, _currentTournament.TimeControl,
+                    _currentTournament.Players[nextParing[0]].Name,
+                    _currentTournament.Players[nextParing[1]].Name,
+                    startFromBasePosition: true, duelEngine: true, duelGames: 1, false)
+                {
+                    Round = (int)Math.Ceiling(((decimal)(gamesCount + 1) / gamesPerCycle)),
+                    Pair1 = nextParing[0],
+                    Pair2 = nextParing[1],
+                };
+            }
+            if (nextParing == null)
+            {
+                if (gamesCount < numberOfTotalGames)
+                {
 
-                int[] pair = _pairing[gamesCount];
+                    int[] pair = _pairing[gamesCount];
 
-                currentGame = new CurrentGame(_currentTournament.Players[pair[0]],
-                                              _currentTournament.Players[pair[1]],
-                                              _currentTournament.GameEvent,
-                                              _currentTournament.TimeControl, _currentTournament.TimeControl,
-                                              _currentTournament.Players[pair[0]].Name,
-                                              _currentTournament.Players[pair[1]].Name,
-                                              startFromBasePosition: true, duelEngine: true, duelGames: 1,false)
-                              {
-                                  Round = (int)Math.Ceiling(((decimal)(gamesCount + 1) / gamesPerCycle))
-                              };
+                    currentGame = new CurrentGame(_currentTournament.Players[pair[0]],
+                        _currentTournament.Players[pair[1]],
+                        _currentTournament.GameEvent,
+                        _currentTournament.TimeControl, _currentTournament.TimeControl,
+                        _currentTournament.Players[pair[0]].Name,
+                        _currentTournament.Players[pair[1]].Name,
+                        startFromBasePosition: true, duelEngine: true, duelGames: 1, false)
+                    {
+                        Round = (int)Math.Ceiling(((decimal)(gamesCount + 1) / gamesPerCycle)),
+                        Pair1 = pair[0],
+                        Pair2 = pair[1],
+                    };
+
+                }
 
             }
-
 
             return currentGame;
         }
 
         public int[] GetPairing()
         {
-            var tournamentGamesCount = _database.GetTournamentGamesCount(_tournamentId)-1;
+            var tournamentGamesCount = _database.GetTournamentGamesCount(_tournamentId);
             return _pairing[tournamentGamesCount];
         }
 
@@ -111,10 +155,38 @@ namespace www.SoLaNoSoft.com.BearChessTournament
             return _pairing[gamesCount];
         }
 
+        public List<int[]> GetPairingList()
+        {
+            return _pairing;
+        }
+
+
+        public static int GetNumberOfTotalGames(TournamentTypeEnum tournamentType, int numberOfPlayers, int cycles)
+        {
+            if (numberOfPlayers < 2)
+            {
+                return 0;
+            }
+
+            if (tournamentType == TournamentTypeEnum.RoundRobin)
+            {
+                int extraGame = numberOfPlayers % 2 == 0 ? 0 : 1;
+                
+                return numberOfPlayers * (numberOfPlayers - 1) / 2 * cycles;
+                // return ((numberOfPlayers) / 2 * (numberOfPlayers - 1) + extraGame ) * cycles;
+            }
+
+            if (tournamentType == TournamentTypeEnum.Gauntlet)
+            {
+                return (numberOfPlayers - 1) * cycles;
+            }
+
+            return 0;
+        }
 
         private void FillPairing()
         {
-            
+
             bool switchColor = false;
             int n = _currentTournament.Players.Length;
             _pairing.Clear();
@@ -159,54 +231,6 @@ namespace www.SoLaNoSoft.com.BearChessTournament
                 }
             }
         }
-
-        public static int GetNumberOfTotalGames(TournamentTypeEnum tournamentType, int numberOfPlayers, int cycles)
-        {
-            if (numberOfPlayers < 2)
-            {
-                return 0;
-            }
-
-            if (tournamentType == TournamentTypeEnum.RoundRobin)
-            {
-                int extraGame = numberOfPlayers % 2 == 0 ? 0 : 1;
-                
-                return numberOfPlayers * (numberOfPlayers - 1) / 2 * cycles;
-                // return ((numberOfPlayers) / 2 * (numberOfPlayers - 1) + extraGame ) * cycles;
-            }
-
-            if (tournamentType == TournamentTypeEnum.Gauntlet)
-            {
-                return (numberOfPlayers - 1) * cycles;
-            }
-
-            return 0;
-        }
-
-        //private int[][][] GetCalculatedSchedule(int participants, int tours = 1)
-        //{
-        //    return Enumerable.Range(0, tours)
-        //            .Select(tour => GetCalculatedSchedule(participants))
-        //            .Select(SwapResults)
-        //            .SelectMany(r => r)
-        //            .ToArray();
-
-        //    int[][][] SwapResults(int[][][] schedule, int tourNumber)
-        //    {
-        //        if (tourNumber % 2 == 1)
-        //        {
-        //            for (int i = 0; i < schedule.Length; i++)
-        //                for (int j = 0; j < schedule[i].Length; j++)
-        //                {
-        //                    int number = schedule[i][j][0];
-        //                    schedule[i][j][0] = schedule[i][j][1];
-        //                    schedule[i][j][1] = number;
-        //                }
-        //        }
-
-        //        return schedule;
-        //    }
-        //}
 
         private static int[][][] GetCalculatedSchedule(int participants)
         {

@@ -88,10 +88,6 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Sentio.ChessBoard
             _chessFields[r, l] = true;
         }
 
-        private bool IsBitSet(byte b, int pos)
-        {
-            return (b & (1 << pos)) != 0;
-        }
 
         public bool IsFigureOn(int fieldId)
         {
@@ -107,9 +103,29 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Sentio.ChessBoard
             return IsFigureOn(Fields.GetFieldNumber(fieldName));
         }
 
-        public bool IsFigureOn(int i, int j)
+        public string DumpBoard()
+        {
+            string result = string.Empty;
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 7; j >= 0; j--)
+                {
+                    result += IsFigureOn(i, j) ? " x " : " - ";
+                }
+
+                result += Environment.NewLine;
+            }
+            return result;
+        }
+
+        private bool IsFigureOn(int i, int j)
         {
             return _chessFields[i, j];
+        }
+
+        private bool IsBitSet(byte b, int pos)
+        {
+            return (b & (1 << pos)) != 0;
         }
     }
 }

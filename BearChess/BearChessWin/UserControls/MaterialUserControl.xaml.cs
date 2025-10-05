@@ -103,21 +103,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     ["P"] = 0
                 }
             };
-            //_logger?.LogDebug($"Top figures count: {topFigures.Length}");
-            //foreach (var chessFigure in topFigures)
-            //{
-            //    _logger?.LogDebug($"  {chessFigure.FenFigureCharacter}");
-            //}
-            //_logger?.LogDebug($"Bottom figures count: {bottomFigures.Length}");
-            //foreach (var chessFigure in bottomFigures)
-            //{
-            //    _logger?.LogDebug($"  {chessFigure.FenFigureCharacter}");
-            //}
-            //_logger?.LogDebug($"Played moves list count: {playedMoveList.Length}");
-            //foreach (var move in playedMoveList)
-            //{
-            //    _logger?.LogDebug($"  {move}");
-            //}
+           
             _topLine = string.Empty;
             _topLineDiff = string.Empty;
             _bottomLine = string.Empty;

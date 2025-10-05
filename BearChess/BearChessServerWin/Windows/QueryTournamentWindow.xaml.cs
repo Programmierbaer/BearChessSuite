@@ -24,6 +24,8 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
         public string TournamentName => textBoxName.Text;
         public int BoardsCount => numericUpDownUserControBoards.Value;
 
+        public bool PublishTournament => checkBoxPublish.IsChecked.HasValue && checkBoxPublish.IsChecked.Value;
+
         public QueryTournamentWindow()
         {
             InitializeComponent();           

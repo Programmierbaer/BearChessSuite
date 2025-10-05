@@ -7,6 +7,7 @@ using System.Threading;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
+using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 
 namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
@@ -165,6 +166,9 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
         private string _currentEval = "0";
         private readonly int _currentColor;
         private LedCorner _ledCorner;
+        private string _lastFenLine = string.Empty;
+        private bool _whiteKingOnBasePosition = false;
+        private bool _blackKingOnBasePosition = false;
 
 
         public string Version { get; private set; }
@@ -596,9 +600,45 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             {
                 return new DataFromBoard(UnknownPieceCode, dataFromBoard.Repeated);
             }
+            if (!result.Contains("k") || !result.Contains("K"))
+            {
+                return new DataFromBoard(result, dataFromBoard.Repeated);
+            }
+            if (!string.IsNullOrWhiteSpace(_lastFenLine) && !_lastFenLine.Equals(result))
+            {
 
-            return new DataFromBoard(result, dataFromBoard.Repeated) {IsFieldDump = isDump};
+                var fastChessBoard = new FastChessBoard();
+                fastChessBoard.Init(result, Array.Empty<string>());
+                if (_whiteKingOnBasePosition)
+                {
+                    if (fastChessBoard.WhiteKingOnCastleMove())
+                    {
+                        return new DataFromBoard(
+                            _lastFenLine.Contains(UnknownPieceCode) ? string.Empty : _lastFenLine,
+                            dataFromBoard.Repeated);
+                    }
+                }
 
+                if (_blackKingOnBasePosition)
+                {
+                    if (fastChessBoard.BlackKingOnCastleMove())
+                    {
+                        return new DataFromBoard(
+                            _lastFenLine.Contains(UnknownPieceCode) ? string.Empty : _lastFenLine,
+                            dataFromBoard.Repeated);
+                    }
+                }
+                _whiteKingOnBasePosition = fastChessBoard.WhiteKingOnBasePosition();
+                _blackKingOnBasePosition = fastChessBoard.BlackKingOnBasePosition();
+            }
+            if (result.Contains(UnknownPieceCode))
+            {
+                return new DataFromBoard(_lastFenLine, dataFromBoard.Repeated);
+            }
+            _lastFenLine = result;
+
+
+            return new DataFromBoard(_lastFenLine, dataFromBoard.Repeated);
         }
 
         public override DataFromBoard GetDumpPiecesFen()
@@ -610,6 +650,9 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
         {
             lock (_locker)
             {
+                _whiteKingOnBasePosition = true;
+                _blackKingOnBasePosition = true;
+                _lastFenLine = string.Empty;
                 _probingFields.TryDequeue(out _);
                 _currentEval = "0";
                 if (!PieceRecognition)
@@ -671,7 +714,12 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
         public override event EventHandler HelpRequestedEvent;
         public override event EventHandler<string> GameEndEvent;
 
-        public override void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack, int secondBlack)
+        public override void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments)
+        {
+            //
+        }
+
+        public override void ResetClock()
         {
             //
         }
@@ -1093,7 +1141,7 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
         private LedCorner GetLedCorner(decimal eval)
         {
             var dimEvalAdvantage = _boardConfiguration.ExtendedConfig[0].DimEvalAdvantage;
-            LedCorner ledCorner = new LedCorner()
+            var ledCorner = new LedCorner()
             {
                 LowerLeft = false,
                 LowerRight = false,
@@ -1164,7 +1212,7 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
 
                     if (eval >= 1 || eval <= -1)
                     {
-                        fromField = GetEvalFieldName(1,eval);
+                        fromField = GetEvalFieldName(1, eval);
                         toField = GetEvalFieldName(1, eval);
                     }
 

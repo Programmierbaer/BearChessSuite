@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWin"
-             xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Properties" 
+             xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
              mc:Ignorable="d" Background="AliceBlue" Width="662"
              d:DesignHeight="150" d:DesignWidth="670">
     <Border Name="borderAll" BorderThickness="1" BorderBrush="Gray">

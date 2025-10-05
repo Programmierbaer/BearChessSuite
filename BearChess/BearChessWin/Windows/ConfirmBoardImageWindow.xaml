@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:bearChessWin="clr-namespace:www.SoLaNoSoft.com.BearChessWin"
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Properties"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
         Loaded="ConfirmBoardImageWindow_OnLoaded"
         mc:Ignorable="d" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner"
         Title="{x:Static p:Resources.ConfirmBoardSelection}" Height="600" Width="400" ResizeMode="NoResize">

@@ -7,6 +7,7 @@ using System.Threading;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
+using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 
 namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
@@ -46,6 +47,9 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
         private readonly ExtendedEChessBoardConfiguration _extendedConfiguration;
         private static readonly object _lock = new object();
         private readonly ConcurrentQueue<string[]> _flashFields = new ConcurrentQueue<string[]>();
+        private string _prevFenLine = string.Empty;
+        private bool _whiteKingOnBasePosition = false;
+        private bool _blackKingOnBasePosition = false;
 
         public ECernoSpectrumChessBoard(string basePath, ILogging logger, EChessBoardConfiguration configuration)
         {
@@ -338,7 +342,7 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
                 Array.Copy(FieldArray, _lastSendBytes, FieldArray.Length);
                 if (forceOff)
                 {
-                    _serialCommunication.Send(AllOff, true);
+                    _serialCommunication.Send(AllOff, forceOff);
                 }
                 else
                 {
@@ -650,6 +654,7 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
 
             lock (_locker)
             {
+                var fenLine = string.Empty;
                 try
                 {
                     DataFromBoard boardData = null;
@@ -693,7 +698,6 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
                     }
 
                     var codes = new string[40];
-                    var fenLine = string.Empty;
                     if (string.Join(" ", dataArray).Contains(
                             "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"))
                     {
@@ -761,12 +765,51 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
                         fenLine += GetFenLine(codes, out _).Replace("/", string.Empty);
                     }
 
+                    if (fenLine.Contains(UnknownPieceCode) )
+                    {
+                        return new DataFromBoard(string.Empty);
+                    }
+                    if (!fenLine.Contains("k") || !fenLine.Contains("K"))
+                    {
+                        return new DataFromBoard(
+                            fenLine.Contains(UnknownPieceCode) ? string.Empty : fenLine,
+                            boardData.Repeated);
+                    }
+                    if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(fenLine))
+                    {
+                        var fastChessBoard = new FastChessBoard();
+                        fastChessBoard.Init(fenLine, Array.Empty<string>());
+                        if (_whiteKingOnBasePosition)
+                        {
+                            if (fastChessBoard.WhiteKingOnCastleMove())
+                            {
+                                return new DataFromBoard(
+                                    _prevFenLine.Contains(UnknownPieceCode) ? string.Empty : _prevFenLine,
+                                    boardData.Repeated);
+                            }
+                        }
+
+                        if (_blackKingOnBasePosition)
+                        {
+                            if (fastChessBoard.BlackKingOnCastleMove())
+                            {
+                                return new DataFromBoard(
+                                    _prevFenLine.Contains(UnknownPieceCode) ? string.Empty : _prevFenLine,
+                                    boardData.Repeated);
+                            }
+                        }
+                        _whiteKingOnBasePosition = fastChessBoard.WhiteKingOnBasePosition();
+                        _blackKingOnBasePosition = fastChessBoard.BlackKingOnBasePosition();
+                    }
+                    _prevFenLine = fenLine;
                     return new DataFromBoard(fenLine.Contains(UnknownPieceCode) ? string.Empty : fenLine,
                         boardData.Repeated);
                 }
                 catch (Exception ex)
                 {
-                    _logger?.LogError($"B: GetPiecesFen: {ex.Message} ");
+                    
+                    _logger?.LogError($"B: GetPiecesFen: {fenLine} {ex.Message} ");
+                    _logger?.LogError($"B: GetPiecesFen: {ex.StackTrace}");
                 }
                 return new DataFromBoard(string.Empty);
             }
@@ -780,6 +823,9 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
         protected override void SetToNewGame()
         {
             _currentEval = string.Empty;
+            _prevFenLine = string.Empty;
+            _whiteKingOnBasePosition = true;
+            _blackKingOnBasePosition = true;
             SetAllLEDsOff(true);
         }
 
@@ -826,7 +872,11 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
         public override event EventHandler HelpRequestedEvent;
         public override event EventHandler<string> GameEndEvent;
 
-        public override void SetClock(int hourWhite, int minuteWhite, int secWhite, int hourBlack, int minuteBlack, int secondBlack)
+        public override void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments)
+        {
+            //
+        }
+        public override void ResetClock()
         {
             //
         }

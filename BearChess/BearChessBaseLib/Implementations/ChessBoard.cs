@@ -573,7 +573,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
         }
 
         /// <inheritdoc />
-        public void MakePgnMove(string pgnMove, string comment, string emt)
+        public void MakePgnMove(string pgnMove, string comment, string emt, string clock)
         {
             if (string.IsNullOrWhiteSpace(pgnMove) || pgnMove.Equals("*") || pgnMove.Equals("1-0") || pgnMove.Equals("0-1") || pgnMove.Equals("1/2-1/2"))
             {
@@ -727,6 +727,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                 var lastMove = _allPlayedMoves.Last().Value.GetMove(EnemyColor);
                 lastMove.Comment = comment;
                 lastMove.ElapsedMoveTime = emt;
+                lastMove.ClockTime = clock;
                 lastMove.EvaluationSymbol = firstPositionSign;
                 lastMove.MoveSymbol = firstMoveSign;
             }
@@ -747,6 +748,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                                 var lastMove = _allPlayedMoves.Last().Value.GetMove(EnemyColor);
                                 lastMove.Comment = comment;
                                 lastMove.ElapsedMoveTime = emt;
+                                lastMove.ClockTime = clock;
                                 lastMove.EvaluationSymbol = firstPositionSign;
                                 lastMove.MoveSymbol = firstMoveSign;
                                 return;
@@ -758,6 +760,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                             var lastMove = _allPlayedMoves.Last().Value.GetMove(EnemyColor);
                             lastMove.Comment = comment;
                             lastMove.ElapsedMoveTime = emt;
+                            lastMove.ClockTime = clock;
                             lastMove.EvaluationSymbol = firstPositionSign;
                             lastMove.MoveSymbol = firstMoveSign;
                             return;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
 
@@ -61,8 +62,15 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             {
                 return;
             }
+
+            if (!speakForce)
+            {
+                speakForce = blindUser;
+            }
             var speechLongMove = config.GetBoolValue("speechLongMove", true);
             var useBlindNames = config.GetBoolValue("blindUserSayFideRules", true);
+            var blindSpeechLongMove = config.GetBoolValue("blindUserSayLong", false);
+            var blindSpeechShortMove = config.GetBoolValue("blindUserSayShort", false);
             var speechLanguageTag = config
                 .GetConfigValue("selectedSpeechCulture", CultureInfo.CurrentCulture.IetfLanguageTag).ToLower();
             var synthesizer = BearChessSpeech.Instance;
@@ -193,26 +201,64 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                     {
                         if (speakForce)
                         {
-                            synthesizer.SpeakForce(
-                                $"{additionalInfo} {figureName} {shortMoveIdentifier} {toFieldFieldName} {SpeechTranslator.GetFigureName(promoteFigureId, speechLanguageTag, config)}");
+                            if (blindSpeechLongMove)
+                            {
+                                synthesizer.SpeakForce(
+                                    $"{additionalInfo} {figureName} {SpeechTranslator.GetFrom(speechLanguageTag, config)} {fromFieldFieldName}, " +
+                                    $"{SpeechTranslator.GetTo(speechLanguageTag, config)} {toFieldFieldName} {SpeechTranslator.GetFigureName(promoteFigureId, speechLanguageTag, config)}");
+                            }
+                            else
+                            {
+                                synthesizer.SpeakForce(
+                                    $"{additionalInfo} {figureName} {shortMoveIdentifier} {toFieldFieldName} {SpeechTranslator.GetFigureName(promoteFigureId, speechLanguageTag, config)}");
+                            }
                         }
                         else
                         {
-                            synthesizer.SpeakAsync(
-                                $"{additionalInfo} {figureName} {shortMoveIdentifier} {toFieldFieldName} {SpeechTranslator.GetFigureName(promoteFigureId, speechLanguageTag, config)}");
+                            if (blindSpeechLongMove)
+                            {
+                                synthesizer.SpeakAsync(
+                                    $"{additionalInfo} {figureName} {SpeechTranslator.GetFrom(speechLanguageTag, config)} {fromFieldFieldName}, " +
+                                    $"{SpeechTranslator.GetTo(speechLanguageTag, config)} {toFieldFieldName} {SpeechTranslator.GetFigureName(promoteFigureId, speechLanguageTag, config)}");
+                            }
+                            else
+                            {
+
+                                synthesizer.SpeakAsync(
+                                    $"{additionalInfo} {figureName} {shortMoveIdentifier} {toFieldFieldName} {SpeechTranslator.GetFigureName(promoteFigureId, speechLanguageTag, config)}");
+                            }
                         }
                     }
                     else
                     {
                         if (speakForce)
                         {
-                            synthesizer.SpeakForce(
-                                $"{additionalInfo} {SpeechTranslator.GetFigureName(fromFieldFigureId, speechLanguageTag, config)} {shortMoveIdentifier} {SpeechTranslator.GetCapture(speechLanguageTag, config)} {toFieldFieldName} {SpeechTranslator.GetFigureName(promoteFigureId, speechLanguageTag, config)}");
+                            if (blindSpeechLongMove)
+                            {
+                                synthesizer.SpeakForce(
+                                    $"{additionalInfo} {figureName} {SpeechTranslator.GetFrom(speechLanguageTag, config)} {fromFieldFieldName}, " +
+                                    $"{SpeechTranslator.GetCapture(speechLanguageTag, config)} {SpeechTranslator.GetFigureName(toFieldFigureId, speechLanguageTag, config)} {toFieldFieldName} {SpeechTranslator.GetFigureName(promoteFigureId, speechLanguageTag, config)}");
+                            }
+                            else
+                            {
+                                synthesizer.SpeakForce(
+                                    $"{additionalInfo} {figureName} {shortMoveIdentifier} {SpeechTranslator.GetCapture(speechLanguageTag, config)} {toFieldFieldName} {SpeechTranslator.GetFigureName(promoteFigureId, speechLanguageTag, config)}");
+                            }
                         }
                         else
                         {
-                            synthesizer.SpeakAsync(
-                                $"{additionalInfo} {SpeechTranslator.GetFigureName(fromFieldFigureId, speechLanguageTag, config)} {shortMoveIdentifier} {SpeechTranslator.GetCapture(speechLanguageTag, config)} {toFieldFieldName} {SpeechTranslator.GetFigureName(promoteFigureId, speechLanguageTag, config)}");
+                            if (blindSpeechLongMove)
+                            {
+                                synthesizer.SpeakAsync(
+                                    $"{additionalInfo} {figureName} {SpeechTranslator.GetFrom(speechLanguageTag, config)} {fromFieldFieldName}, " +
+                                    $"{SpeechTranslator.GetCapture(speechLanguageTag, config)} {SpeechTranslator.GetFigureName(toFieldFigureId, speechLanguageTag, config)} {toFieldFieldName} {SpeechTranslator.GetFigureName(promoteFigureId, speechLanguageTag, config)}");
+                            }
+                            else
+                            {
+
+                                synthesizer.SpeakAsync(
+                                    $"{additionalInfo} {figureName} {shortMoveIdentifier} {SpeechTranslator.GetCapture(speechLanguageTag, config)} {toFieldFieldName} {SpeechTranslator.GetFigureName(promoteFigureId, speechLanguageTag, config)}");
+                            }
                         }
                     }
                 }

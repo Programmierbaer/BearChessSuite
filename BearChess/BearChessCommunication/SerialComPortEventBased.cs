@@ -14,6 +14,8 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
         private readonly ILogging _logging;
         public string PortName { get; }
         public string Baud { get; }
+        public int DeviceIndex { get; set; }
+
         public string DeviceName => string.Empty;
 
         private readonly SerialPort _serialPort;
@@ -24,6 +26,7 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
 
         public SerialComPortEventBased(string comport, int baud, Parity parity, ILogging logging)
         {
+            DeviceIndex = -1;
             _logging = logging;
             PortName = comport;
             Baud = baud.ToString();

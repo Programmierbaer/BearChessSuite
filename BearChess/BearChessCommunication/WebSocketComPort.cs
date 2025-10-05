@@ -10,12 +10,15 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
         public string PortName { get; }
         public string DeviceName => string.Empty;
         public string Baud { get; }
+        public int DeviceIndex { get; set; }
+
         private WebSocket _webSocket;
        
         private readonly ConcurrentQueue<string> _allLines = new ConcurrentQueue<string>();
 
         public WebSocketComPort(string webSocketAddr)
         {
+            DeviceIndex = -1;
             if (!(webSocketAddr.IndexOf(":")>4))
             {
                 webSocketAddr += ":8888";
