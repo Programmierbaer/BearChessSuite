@@ -20,6 +20,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         public bool ClockBeep { get; set; }
         public bool ClockUseExtern { get; set; }
         public bool ClockUseIntern { get; set; }
+        public bool ClockTimeEasyRead { get; set; }
         public int BeepDuration { get; set; }
         public bool LongMoveFormat { get; set; }
         public int ScanTime { get; set; }
@@ -75,6 +76,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             SendLEDCommands = false;
             ClockUseExtern = false;
             ClockUseIntern = true;
+            ClockTimeEasyRead = false;
         }
 
         public static EChessBoardConfiguration Load(string fileName)
@@ -124,6 +126,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                     configuration.SendLEDCommands = savedConfig.SendLEDCommands;
                     configuration.ClockUseIntern = savedConfig.ClockUseIntern;
                     configuration.ClockUseExtern = savedConfig.ClockUseExtern;
+                    configuration.ClockTimeEasyRead = savedConfig.ClockTimeEasyRead;
                 }
                 else
                 {

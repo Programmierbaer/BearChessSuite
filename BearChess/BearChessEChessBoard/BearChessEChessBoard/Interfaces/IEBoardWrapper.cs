@@ -118,9 +118,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         /// <summary>
         /// Calibrate board
         /// </summary>
-        bool Calibrate();
-
-        
+        bool Calibrate();        
 
         void SendInformation(string message);
         string RequestInformation(string message);

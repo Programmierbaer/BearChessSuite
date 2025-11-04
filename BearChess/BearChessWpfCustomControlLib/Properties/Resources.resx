@@ -2904,4 +2904,19 @@
   <data name="SaveBlindGamesAutomatically" xml:space="preserve">
     <value>Save games automatically (document folder)</value>
   </data>
+  <data name="TimeOffSetInSec" xml:space="preserve">
+    <value>time offset in sec.</value>
+  </data>
+  <data name="ClockEasyRead" xml:space="preserve">
+    <value>Only reading</value>
+  </data>
+  <data name="SecPlus" xml:space="preserve">
+    <value>sec. plus</value>
+  </data>
+  <data name="MSSecondsperMove" xml:space="preserve">
+    <value>ms. per move</value>
+  </data>
+  <data name="ShowGraphicalPositionScore" xml:space="preserve">
+    <value>Show graphical evaluations</value>
+  </data>
 </root>

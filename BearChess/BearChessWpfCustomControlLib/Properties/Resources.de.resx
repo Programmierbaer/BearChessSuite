@@ -2904,4 +2904,19 @@
   <data name="SaveBlindGamesAutomatically" xml:space="preserve">
     <value>Partien automatisch speichern (Ordner Dokumente)</value>
   </data>
+  <data name="TimeOffSetInSec" xml:space="preserve">
+    <value>Zeitausgleich in sek.</value>
+  </data>
+  <data name="ClockEasyRead" xml:space="preserve">
+    <value>Nur Auslesen</value>
+  </data>
+  <data name="SecPlus" xml:space="preserve">
+    <value>Sek. plus</value>
+  </data>
+  <data name="MSSecondsperMove" xml:space="preserve">
+    <value>ms. pro Zug</value>
+  </data>
+  <data name="ShowGraphicalPositionScore" xml:space="preserve">
+    <value>Zeige Bewertungsgrafik</value>
+  </data>
 </root>

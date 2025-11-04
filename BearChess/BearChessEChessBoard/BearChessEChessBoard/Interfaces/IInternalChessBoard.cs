@@ -24,6 +24,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         string GetMove(string newFenPosition, bool ignoreRule);
 
         Move GetAlternateMove(string newFenPosition);
+        Move[] GetAlternateMoves(string newFenPosition);
 
         string GetChangedFigure(string oldFenPosition, string newFenPosition);
 

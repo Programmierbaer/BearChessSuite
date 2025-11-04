@@ -229,15 +229,30 @@
                 <Border Name="borderTimePerGameWithIncrement" Grid.Column="1" Grid.Row="2" BorderBrush="Gray"
                         Margin="5"
                         BorderThickness="0" Visibility="Collapsed">
+                  
                     <StackPanel Orientation="Horizontal">
                         <local:NumericUpDownUserControl x:Name="numericUpDownUserControlTimePerGameWith" Height="40"
-                                                        MinValue="1" MaxValue="999" Value="5"
-                                                         />
+                                                        MinValue="1" MaxValue="60" Value="5"
+                        />
                         <Label VerticalAlignment="Center" Content="{x:Static p:Resources.Plus}" />
                         <local:NumericUpDownUserControl x:Name="numericUpDownUserControlTimePerGameIncrement"
                                                         Height="40"
-                                                        MinValue="1" MaxValue="60" Value="3" />
+                                                        MinValue="1" MaxValue="999" Value="3" />
                         <Label VerticalAlignment="Center" Content="{x:Static p:Resources.SecondsPerMove}" />
+                    </StackPanel>
+                </Border>
+                <Border Name="borderTimePerGameWithIncrementSeconds" Grid.Column="1" Grid.Row="2" BorderBrush="Gray"
+                        Margin="5"
+                        BorderThickness="0" Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal">
+                        <local:NumericUpDownUserControl x:Name="numericUpDownUserControlTimePerGameSecondsWith" Height="40"
+                                                        MinValue="1" MaxValue="60" Value="5"
+                        />
+                        <Label VerticalAlignment="Center" Content="{x:Static p:Resources.SecPlus}" />
+                        <local:NumericUpDownUserControl x:Name="numericUpDownUserControlTimePerGameSecondsIncrement"
+                                                        Height="40"
+                                                        MinValue="1" MaxValue="999" Value="3" />
+                        <Label VerticalAlignment="Center" Content="{x:Static p:Resources.MSSecondsperMove}" />
                     </StackPanel>
                 </Border>
                 <Border Name="borderTimePerGivenMoves" Grid.Column="1" Grid.Row="2" BorderBrush="Gray"
@@ -346,6 +361,20 @@
                                                         Height="40"
                                                         MinValue="1" MaxValue="60" Value="3" />
                         <Label VerticalAlignment="Center" Content="{x:Static p:Resources.SecondsPerMove}" />
+                    </StackPanel>
+                </Border>
+                <Border Name="borderTimePerGameWithIncrementSeconds2" Grid.Column="1" Grid.Row="3" BorderBrush="Gray"
+                        Margin="5"
+                        BorderThickness="0" Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal">
+                        <local:NumericUpDownUserControl x:Name="numericUpDownUserControlTimePerGameSecondsWith2" Height="40"
+                                                        MinValue="1" MaxValue="60" Value="5"
+                        />
+                        <Label VerticalAlignment="Center" Content="{x:Static p:Resources.SecPlus}" />
+                        <local:NumericUpDownUserControl x:Name="numericUpDownUserControlTimePerGameSecondsIncrement2"
+                                                        Height="40"
+                                                        MinValue="1" MaxValue="999" Value="3" />
+                        <Label VerticalAlignment="Center" Content="{x:Static p:Resources.MSSecondsperMove}" />
                     </StackPanel>
                 </Border>
                 <Border Name="borderTimePerGivenMoves2" Grid.Column="1" Grid.Row="3" BorderBrush="Gray"

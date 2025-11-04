@@ -4,10 +4,37 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWin.UserControls"
+             xmlns:bearChessWpfCustomControlLib="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib;assembly=BearChessWpfCustomControlLib"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800" x:ClassModifier="internal">
     <Grid>
-        
-        <WrapPanel Grid.Column="0" Name="stackPanelEngines" Orientation="Horizontal" Margin="1"/>
+
+        <WrapPanel  Grid.Column="0" Grid.Row="0"  Orientation="Horizontal" Margin="1">
+            <WrapPanel  Name="stackPanelEngines" Orientation="Horizontal" Margin="1"/>
+            <Border  Background="AliceBlue"  BorderBrush="Gray" BorderThickness="1" Margin="1">
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Button DockPanel.Dock="Right"  Height="32" VerticalAlignment="Top" Name="buttonHide" Width="32" Margin="5" Grid.Column="1" Grid.Row="0"  Click="ButtonHide_OnClick" Background="Transparent" BorderBrush="Transparent" >
+                        <Image Source="../Assets/Icons/eye.png"></Image>
+                    </Button>
+                    <Button DockPanel.Dock="Right"  Height="32" VerticalAlignment="Top" Name="buttonHide1" Width="32" Margin="5" Grid.Column="1" Grid.Row="0"  Click="ButtonHide_OnClick" Background="Transparent" BorderBrush="Transparent" Visibility="Collapsed">
+                        <Image Source="../Assets/Icons/eye_half.png"></Image>
+                    </Button>
+                    <Button DockPanel.Dock="Right"  Height="32" VerticalAlignment="Top" Name="buttonHide2" Width="32" Margin="5" Grid.Column="1" Grid.Row="0"  Click="ButtonHide_OnClick" Background="Transparent" BorderBrush="Transparent" Visibility="Collapsed">
+                        <Image Source="../Assets/Icons/eye_close.png"></Image>
+                    </Button>
+
+                    <bearChessWpfCustomControlLib:EngineValueGraphUserControl Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Height="100" Margin="5" Width="600" x:Name="engineValueGraph" HorizontalAlignment="Left" VerticalAlignment="Top" />
+
+                </Grid>
+            </Border>
+        </WrapPanel>
     </Grid>
 </UserControl>

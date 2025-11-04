@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
-using System.Runtime.InteropServices.ComTypes;
 using System.Xml.Serialization;
 using www.SoLaNoSoft.com.BearChessBase;
 
@@ -12,19 +9,50 @@ namespace www.SoLaNoSoft.com.BearChess.Engine
     public static class BearChessEngine
     {
 
-        private static void InstallInternalBearChessEngine(string binPath, string uciPath)
+        private static void InstallInternalEngine(string binPath, string uciPath, string engineFileName, string logoFileName,
+                                                  string bookFileName, string engineGuid, string newName, string newOriginName, bool isInternalBearChessEngine = false)
         {
             try
             {
-                string sourcePath = Path.Combine(binPath, Constants.InternalBearChessEngineGUID);
+                bool isBuddy = false;
+                bool isBearChess = false;
+                string sourcePath = Path.Combine(binPath, engineGuid);
                 if (!Directory.Exists(sourcePath))
                 {
                     return;
                 }
-                string targetPath = Path.Combine(uciPath, Constants.InternalBearChessEngineGUID);
+                string targetPath = Path.Combine(uciPath, engineGuid);
                 if (!Directory.Exists(targetPath))
                 {
                     Directory.CreateDirectory(targetPath);
+                }
+                else
+                {
+                    var oldFiles = Directory.GetFiles(targetPath);
+                    foreach (var file in oldFiles)
+                    {
+                        try
+                        {
+                            if (File.Exists(file))
+                            {
+                                if (file.EndsWith(".uci", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    var serializer = new XmlSerializer(typeof(UciInfo));
+
+                                    TextReader textReader = new StreamReader(file);
+                                    var savedConfig = (UciInfo)serializer.Deserialize(textReader);
+                                    textReader.Close();
+                                    isBearChess = savedConfig.IsProbing;
+                                    isBuddy = savedConfig.IsBuddy;
+                                }
+                                File.Delete(file);
+                            }
+                        }
+                        catch
+                        {
+                            //
+                        }
+                    }
                 }
                 var dir = new DirectoryInfo(sourcePath);
                 foreach (FileInfo file in dir.GetFiles())
@@ -32,18 +60,38 @@ namespace www.SoLaNoSoft.com.BearChess.Engine
                     string targetFilePath = Path.Combine(targetPath, file.Name);
                     if (file.Extension.Equals(".uci"))
                     {
-                        var serializer = new XmlSerializer(typeof(UciInfo));
-                        TextReader textReader = new StreamReader(file.FullName);
-                        var origConfig = (UciInfo)serializer.Deserialize(textReader);
-                        origConfig.FileName = Path.Combine(binPath, Constants.InternalBearChessEngineGUID, Constants.InternalChessEngineSpikeFileName);
-                        origConfig.LogoFileName = Path.Combine(binPath, Constants.InternalBearChessEngineGUID, Constants.InternalChessEngineSpikeLogoFileName);
-                        origConfig.IsInternalBearChessEngine = true;
-                        origConfig.IsInternalChessEngine = false;
-                        textReader.Close();
-                        TextWriter textWriter = new StreamWriter(file.FullName, false);
-                        serializer.Serialize(textWriter, origConfig);
-                        textWriter.Close();
                         file.CopyTo(targetFilePath, true);
+                        var serializer = new XmlSerializer(typeof(UciInfo));                      
+
+                        TextReader textReader = new StreamReader(targetFilePath);
+                        var savedConfig = (UciInfo)serializer.Deserialize(textReader);
+                        textReader.Close();
+                        
+                        if (!string.IsNullOrEmpty(newName))
+                        {
+                            savedConfig.Name = newName;
+                        }
+                        if (!string.IsNullOrEmpty(newOriginName))
+                        {
+                            savedConfig.OriginName = newOriginName;
+                        }                        
+                        savedConfig.IsInternalChessEngine = !isInternalBearChessEngine;
+                        savedConfig.IsInternalBearChessEngine = isInternalBearChessEngine;
+                        savedConfig.FileName =  Path.Combine(binPath, engineGuid, engineFileName);
+                        if (!string.IsNullOrEmpty(logoFileName))
+                        {
+                            savedConfig.LogoFileName = Path.Combine(binPath, engineGuid, logoFileName);
+                        }
+                        if (!string.IsNullOrEmpty(bookFileName))
+                        {
+                            savedConfig.SetOpeningBook(Path.Combine(binPath, engineGuid, bookFileName));
+                        }
+
+                        savedConfig.IsBuddy = isBuddy;
+                        savedConfig.IsProbing = isBearChess;
+                        TextWriter textWriter = new StreamWriter(targetFilePath, false);
+                        serializer.Serialize(textWriter, savedConfig);
+                        textWriter.Close();
                     }
                 }
             }
@@ -51,241 +99,92 @@ namespace www.SoLaNoSoft.com.BearChess.Engine
             {
                 //
             }
+        }
+
+        private static void InstallInternalBearChessEngine(string binPath, string uciPath)
+        {
+            InstallInternalEngine(binPath: binPath,
+                uciPath: uciPath,
+                engineFileName: Configuration.Instance.RunOn64Bit ? Constants.InternalChessEngineStockfish64FileName : Constants.InternalChessEngineStockfish32FileName,
+                logoFileName: string.Empty, 
+                bookFileName: string.Empty, 
+                engineGuid: Constants.InternalBearChessEngineGUID, 
+                newName: "Stockfish 11 Internal BearChess", 
+                newOriginName: "Stockfish 11", 
+                isInternalBearChessEngine: true);
         }
 
         private static void InstallInternalChessEngineSpike(string binPath, string uciPath)
         {
-            try
-            {
-                string sourcePath = Path.Combine(binPath, Constants.InternalChessEngineSpikeGUID);
-                if (!Directory.Exists(sourcePath))
-                {
-                    return;
-                }
-                string targetPath = Path.Combine(uciPath, Constants.InternalChessEngineSpikeGUID);
-                if (!Directory.Exists(targetPath))
-                {
-                    Directory.CreateDirectory(targetPath);
-                }
-                var dir = new DirectoryInfo(sourcePath);
-                foreach (FileInfo file in dir.GetFiles())
-                {
-                    string targetFilePath = Path.Combine(targetPath, file.Name);
-                    if (file.Extension.Equals(".uci"))
-                    {
-                        var serializer = new XmlSerializer(typeof(UciInfo));
-                        TextReader textReader = new StreamReader(file.FullName);
-                        var origConfig = (UciInfo)serializer.Deserialize(textReader);
-                        origConfig.FileName = Path.Combine(binPath, Constants.InternalChessEngineSpikeGUID, Constants.InternalChessEngineSpikeFileName);
-                        origConfig.LogoFileName = Path.Combine(binPath, Constants.InternalChessEngineSpikeGUID, Constants.InternalChessEngineSpikeLogoFileName);
-                        origConfig.IsInternalChessEngine = true;
-                        origConfig.IsInternalBearChessEngine = false;
-                        textReader.Close();
-                        TextWriter textWriter = new StreamWriter(file.FullName, false);
-                        if (File.Exists(targetFilePath))
-                        {
-                            textReader = new StreamReader(targetFilePath);
-                            var savedConfig = (UciInfo)serializer.Deserialize(textReader);
-                            textReader.Close();
-                            savedConfig.IsInternalChessEngine = true;
-                            savedConfig.IsInternalBearChessEngine = false;
-                            savedConfig.FileName = origConfig.FileName;
-                            savedConfig.LogoFileName = origConfig.LogoFileName;
-                            serializer.Serialize(textWriter, savedConfig);
-                        }
-                        else
-                        {
-                            serializer.Serialize(textWriter, origConfig);
-                        }
+            InstallInternalEngine(binPath: binPath,
+                uciPath: uciPath, 
+                engineFileName: Constants.InternalChessEngineSpikeFileName, 
+                logoFileName: Constants.InternalChessEngineSpikeLogoFileName, 
+                bookFileName: string.Empty, 
+                engineGuid: Constants.InternalChessEngineSpikeGUID, 
+                newName: string.Empty, 
+                newOriginName: string.Empty);
 
-                        textWriter.Close();
-                        file.CopyTo(targetFilePath, true);
-                    }
-                }
-            }
-            catch
-            {
-                //
-            }
         }
 
         private static void InstallInternalChessEngineWasp(string binPath, string uciPath)
         {
-            try
-            {
-                string sourcePath = Path.Combine(binPath, Constants.InternalChessEngineWaspGUID);
-                if (!Directory.Exists(sourcePath))
-                {
-                    return;
-                }
-                string targetPath = Path.Combine(uciPath, Constants.InternalChessEngineWaspGUID);
-                if (!Directory.Exists(targetPath))
-                {
-                    Directory.CreateDirectory(targetPath);
-                }
-                var dir = new DirectoryInfo(sourcePath);
-                foreach (FileInfo file in dir.GetFiles())
-                {
-                    string targetFilePath = Path.Combine(targetPath, file.Name);
-                    if (file.Extension.Equals(".uci"))
-                    {
-                        var serializer = new XmlSerializer(typeof(UciInfo));
-                        TextReader textReader = new StreamReader(file.FullName);
-                        var origConfig = (UciInfo)serializer.Deserialize(textReader);
-                        origConfig.FileName = Path.Combine(binPath, Constants.InternalChessEngineWaspGUID, Constants.InternalChessEngineWaspFileName);
-                        origConfig.LogoFileName = Path.Combine(binPath, Constants.InternalChessEngineWaspGUID, Constants.InternalChessEngineWaspLogoFileName);
-                        origConfig.IsInternalChessEngine = true;
-                        origConfig.IsInternalBearChessEngine = false;
-                        origConfig.SetOpeningBook(Path.Combine(binPath, Constants.InternalChessEngineWaspGUID, Constants.InternalBookFileNameWaspBIN));
-                        textReader.Close();
-                        TextWriter textWriter = new StreamWriter(file.FullName, false);
-                        if (File.Exists(targetFilePath))
-                        {
-                            textReader = new StreamReader(targetFilePath);
-                            var savedConfig = (UciInfo)serializer.Deserialize(textReader);
-                            textReader.Close();
-                            savedConfig.IsInternalChessEngine = true;
-                            savedConfig.IsInternalBearChessEngine = false;
-                            savedConfig.FileName = origConfig.FileName;
-                            savedConfig.LogoFileName = origConfig.LogoFileName;
-                            serializer.Serialize(textWriter, savedConfig);
-                        }
-                        else
-                        {
-                            serializer.Serialize(textWriter, origConfig);
-                        }
+            InstallInternalEngine(binPath: binPath, 
+                uciPath: uciPath, 
+                engineFileName: Constants.InternalChessEngineWaspFileName, 
+                logoFileName: Constants.InternalChessEngineWaspLogoFileName, 
+                bookFileName: Constants.InternalBookFileNameWaspBIN, 
+                engineGuid: Constants.InternalChessEngineWaspGUID, 
+                newName: "Wasp 7.07 BearChess", 
+                newOriginName: "Wasp 7.07");
 
-                        textWriter.Close();
-                        file.CopyTo(targetFilePath, true);
-                    }
-                 
-                }
-            }
-            catch
-            {
-                //
-            }
         }
 
         private static void InstallInternalChessEngineStockfish(string binPath, string uciPath)
         {
-            try
-            {
-                string sourcePath = Path.Combine(binPath, Constants.InternalChessEngineStockfishGUID);
-                if (!Directory.Exists(sourcePath))
-                {
-                    return;
-                }
-                string targetPath = Path.Combine(uciPath, Constants.InternalChessEngineStockfishGUID);
-                if (!Directory.Exists(targetPath))
-                {
-                    Directory.CreateDirectory(targetPath);
-                }
-                var dir = new DirectoryInfo(sourcePath);
-                foreach (FileInfo file in dir.GetFiles())
-                {
-                    string targetFilePath = Path.Combine(targetPath, file.Name);
-                    if (file.Extension.Equals(".uci"))
-                    {
-                        var serializer = new XmlSerializer(typeof(UciInfo));
-                        TextReader textReader = new StreamReader(file.FullName);
-                        var origConfig = (UciInfo)serializer.Deserialize(textReader);
-                        origConfig.FileName = Path.Combine(binPath, Constants.InternalChessEngineStockfishGUID, Constants.InternalChessEngineStockfishFileName);
-                        origConfig.IsInternalChessEngine = true;
-                        origConfig.IsInternalBearChessEngine = false;
-                        textReader.Close();
-                        TextWriter textWriter = new StreamWriter(file.FullName, false);
-                        if (File.Exists(targetFilePath))
-                        {
-                            textReader = new StreamReader(targetFilePath);
-                            var savedConfig = (UciInfo)serializer.Deserialize(textReader);
-                            textReader.Close();
-                            savedConfig.IsInternalChessEngine = true;
-                            savedConfig.IsInternalBearChessEngine = false;
-                            savedConfig.FileName = origConfig.FileName;
-                            savedConfig.LogoFileName = origConfig.LogoFileName;
-                            serializer.Serialize(textWriter, savedConfig);
-                        }
-                        else
-                        {
-                            serializer.Serialize(textWriter, origConfig);
-                        }
+            InstallInternalEngine(binPath: binPath, 
+                uciPath: uciPath, 
+                engineFileName: Configuration.Instance.RunOn64Bit ? Constants.InternalChessEngineStockfish64FileName : Constants.InternalChessEngineStockfish32FileName, 
+                logoFileName:Constants.InternalChessEngineStockfishLogoFileName, 
+                bookFileName: string.Empty, 
+                engineGuid: Constants.InternalChessEngineStockfishGUID,
+                newName: "Stockfish 11 BearChess",
+                newOriginName: "Stockfish 11");
 
-                        textWriter.Close();
-                        file.CopyTo(targetFilePath, true);
-                    }
-                }
-            }
-            catch
-            {
-                //
-            }
         }
 
         private static void InstallInternalChessEngineFruit(string binPath, string uciPath)
         {
-            try
-            {
-                string sourcePath = Path.Combine(binPath, Constants.InternalChessEngineFruitGUID);
-                if (!Directory.Exists(sourcePath))
-                {
-                    return;
-                }
-                string targetPath = Path.Combine(uciPath, Constants.InternalChessEngineFruitGUID);
-                if (!Directory.Exists(targetPath))
-                {
-                    Directory.CreateDirectory(targetPath);
-                }
-                var dir = new DirectoryInfo(sourcePath);
-                foreach (FileInfo file in dir.GetFiles())
-                {
-                    string targetFilePath = Path.Combine(targetPath, file.Name);
-                    if (file.Extension.Equals(".uci"))
-                    {
-                        var serializer = new XmlSerializer(typeof(UciInfo));
-                        TextReader textReader = new StreamReader(file.FullName);
-                        var origConfig = (UciInfo)serializer.Deserialize(textReader);
-                        origConfig.FileName = Path.Combine(binPath, Constants.InternalChessEngineFruitGUID, Constants.InternalChessEngineFruitFileName);
-                        origConfig.LogoFileName = Path.Combine(binPath, Constants.InternalChessEngineFruitGUID, Constants.InternalChessEngineFruitLogoFileName);
-                        origConfig.IsInternalChessEngine = true;
-                        origConfig.IsInternalBearChessEngine = false;
-                        origConfig.SetOpeningBook(Path.Combine(binPath, Constants.InternalChessEngineFruitGUID, Constants.InternalBookFileNamePerfectBIN));
-                        textReader.Close();
-                        TextWriter textWriter = new StreamWriter(file.FullName, false);
-                        if (File.Exists(targetFilePath))
-                        {
-                            textReader = new StreamReader(targetFilePath);
-                            var savedConfig = (UciInfo)serializer.Deserialize(textReader);
-                            textReader.Close();
-                            savedConfig.IsInternalChessEngine = true;
-                            savedConfig.IsInternalBearChessEngine = false;
-                            savedConfig.FileName = origConfig.FileName;
-                            savedConfig.LogoFileName = origConfig.LogoFileName;
-                            serializer.Serialize(textWriter, savedConfig);
-                        }
-                        else
-                        {
-                            serializer.Serialize(textWriter, origConfig);
-                        }
-
-                        textWriter.Close();
-                        file.CopyTo(targetFilePath, true);
-                    }
-                }
-            }
-            catch
-            {
-                //
-            }
+            InstallInternalEngine(binPath: binPath, 
+                uciPath: uciPath, 
+                engineFileName: Constants.InternalChessEngineFruitFileName, 
+                logoFileName: Constants.InternalChessEngineFruitLogoFileName, 
+                bookFileName: Constants.InternalBookFileNamePerfectBIN, 
+                engineGuid: Constants.InternalChessEngineFruitGUID, 
+                newName: "Fruit 2.1 BearChess", 
+                newOriginName: "Fruit 2.1");
         }
 
-        public static void InstallBearChessEngine(string binPath,  string uciPath)
+        private static void InstallInternalChessEngineCT800(string binPath, string uciPath)
         {
-           InstallInternalBearChessEngine(binPath, uciPath);
-           InstallInternalChessEngineSpike(binPath, uciPath);
-           InstallInternalChessEngineWasp(binPath, uciPath);
-           InstallInternalChessEngineStockfish(binPath, uciPath);
-           InstallInternalChessEngineFruit(binPath, uciPath);
+            InstallInternalEngine(binPath: binPath, 
+                uciPath: uciPath, 
+                engineFileName:  Configuration.Instance.RunOn64Bit ? Constants.InternalChessEngineCT80064FileName : Constants.InternalChessEngineCT80032FileName, 
+                logoFileName: Configuration.Instance.RunOn64Bit ? Constants.InternalChessEngineCT80064LogoFileName : Constants.InternalChessEngineCT80032LogoFileName,
+                bookFileName: string.Empty, 
+                engineGuid: Constants.InternalChessEngineCT800GUID, 
+                newName: string.Empty, newOriginName: string.Empty);
+
+        }
+
+        public static void InstallBearChessEngines(string binPath, string uciPath)
+        {
+            InstallInternalBearChessEngine(binPath, uciPath);
+            InstallInternalChessEngineSpike(binPath, uciPath);
+            InstallInternalChessEngineWasp(binPath, uciPath);
+            InstallInternalChessEngineStockfish(binPath, uciPath);
+            InstallInternalChessEngineFruit(binPath, uciPath);
+            InstallInternalChessEngineCT800(binPath, uciPath);
         }
     }
 }

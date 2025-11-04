@@ -199,7 +199,7 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             PieceRecognition = _serialCommunication.BoardInformation != Constants.MeOne && !_useElfacun && !_useChesstimation;
             ValidForAnalyse = PieceRecognition;
             SelfControlled = false;
-            MultiColorLEDs = PieceRecognition || _useElfacun || _useChesstimation;
+            MultiColorLEDs = true;
             var probingThread = new Thread(ShowProbingMoves) { IsBackground = true };
             probingThread.Start();
             _acceptProbingMoves = true;

@@ -5110,6 +5110,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die ms. per move ähnelt.
+        /// </summary>
+        public static string MSSecondsperMove {
+            get {
+                return ResourceManager.GetString("MSSecondsperMove", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Name ähnelt.
         /// </summary>
         public static string Name {
@@ -6460,6 +6469,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die sec. plus ähnelt.
+        /// </summary>
+        public static string SecPlus {
+            get {
+                return ResourceManager.GetString("SecPlus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Select ähnelt.
         /// </summary>
         public static string Select {
@@ -7617,6 +7635,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         public static string TimePerGameInc {
             get {
                 return ResourceManager.GetString("TimePerGameInc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Time per game in seconds  with increment  ähnelt.
+        /// </summary>
+        public static string TimePerGameIncSeconds {
+            get {
+                return ResourceManager.GetString("TimePerGameIncSeconds", resourceCulture);
             }
         }
         

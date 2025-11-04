@@ -77,7 +77,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             {
                 _gameDate = DateTime.Now;
             }
-            List<Move> myMove = new List<Move>();
+            var myMove = new List<Move>();
             foreach (var move in moveList)
             {
                 myMove.Add(move);
@@ -85,7 +85,10 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
             AllMoves = myMove.ToArray();
             if (currentGame!=null)
-              Round = currentGame.Round;
+            {
+                Round = currentGame.Round;
+            }
+
             Id = 0;
             Continue = false;
             TwicId = 0;

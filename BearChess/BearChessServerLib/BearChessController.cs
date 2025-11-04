@@ -224,10 +224,47 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
             }
         }
 
+        private void ProvideWebServerFiles()
+        {
+            try
+            {
+                var targetPath = Path.Combine(Configuration.Instance.FolderPath, "Website");
+                var websitePath = Assembly.GetExecutingAssembly().Location;
+                var fileInfo = new FileInfo(websitePath);
+                var sourcePath = Path.Combine(fileInfo.DirectoryName, "Website");
+                if (!Directory.Exists(targetPath))
+                {
+                    Directory.CreateDirectory(targetPath);
+                }
+
+                Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories).ToList().ForEach(f =>
+                {
+                    var fi = new FileInfo(f);
+                    var relativePath = f.Substring(sourcePath.Length + 1);
+                    var targetFile = Path.Combine(targetPath, relativePath);
+                    var targetDir = new FileInfo(targetFile).DirectoryName;
+                    if (!Directory.Exists(targetDir))
+                    {
+                        Directory.CreateDirectory(targetDir);
+                    }
+
+                    if (!File.Exists(targetFile))
+                    {
+                        File.Copy(f, targetFile);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logging?.LogError("BCC: Cannot provide web server files", ex);
+            }
+        }
+
         public void StartStopWebServer()
         {
             if (_webServer == null)
             {
+                ProvideWebServerFiles();
                 _webServer = new Server
                 {
                     OnError = ErrorHandler,
@@ -359,19 +396,14 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
         }
         private static string GetWebsitePath()
         {
-            // Path of our exe.
-            var websitePath = Assembly.GetExecutingAssembly().Location;
-           var fi = new FileInfo(websitePath);
-            websitePath = fi.DirectoryName;
-            websitePath += @"\Website";
-            return websitePath;
+            return Path.Combine(Configuration.Instance.FolderPath, "Website");
         }
 
         private  string GetGamesHtmlFilename()
         {
-            var websitePath = Assembly.GetExecutingAssembly().Location;
-            var fileInfo = new FileInfo(websitePath);
-            var path = fileInfo.DirectoryName + @"\Website\Pages\Chess\";
+            var websitePath = Configuration.Instance.FolderPath;
+            //var fileInfo = new FileInfo(websitePath);
+            var path = Path.Combine(websitePath, "Website","Pages","Chess");
             if (!Directory.Exists(path))
             {
                 try
@@ -380,11 +412,10 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
                 }
                 catch (Exception ex)
                 {
-                    _logging?.LogError($"Cannot create {path}");
-                    _logging?.LogError(ex);
+                    _logging?.LogError($"BCC: Cannot create {path}", ex);
                 }
             }
-            return path +@"\BearChess.html";
+            return Path.Combine(path,"BearChess.html");
         }
 
         private void _bearChessServer_ServerStopped(object sender, EventArgs e) => BCServerStopped?.Invoke(this, null);
@@ -490,7 +521,7 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
         {
             try
             {
-                BearChessEngine.InstallBearChessEngine(_binPath, _uciPath);
+                BearChessEngine.InstallBearChessEngines(_binPath, _uciPath);
                 _logging?.LogInfo($"BCC: Reading installed engines from {_uciPath} ");
                 var fileNames = Directory.GetFiles(_uciPath, "*.uci", SearchOption.AllDirectories);
                 int invalidEngines = 0;

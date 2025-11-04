@@ -2840,4 +2840,13 @@
   <data name="SkillLevel" xml:space="preserve">
     <value>Skill level</value>
   </data>
+  <data name="TimePerGameIncSeconds" xml:space="preserve">
+    <value>Time per game in seconds  with increment </value>
+  </data>
+  <data name="MSSecondsperMove" xml:space="preserve">
+    <value>ms. per move</value>
+  </data>
+  <data name="SecPlus" xml:space="preserve">
+    <value>sec. plus</value>
+  </data>
 </root>

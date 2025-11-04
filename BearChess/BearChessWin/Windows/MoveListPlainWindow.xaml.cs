@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Resources;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -25,6 +26,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private readonly Configuration _configuration;
         private readonly PgnConfiguration _pgnConfiguration;
         private int _lastMoveNumber;
+        private int _currentMoveNumber;
         private WrapPanel _wrapPanel;
         private DisplayFigureType _figureType;
         private DisplayMoveType _moveType;
@@ -46,6 +48,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private string _gameStartPosition;
         private readonly ResourceManager _rm;
 
+        public int CurrentMoveNumber => _currentMoveNumber;
+
         public event EventHandler<SelectedMoveOfMoveList> SelectedMoveChanged;
         public event EventHandler<SelectedMoveOfMoveList> ContentChanged;
         public event EventHandler<SelectedMoveOfMoveList> RestartEvent;
@@ -55,9 +59,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _configuration = configuration;
             _pgnConfiguration = configuration.GetPgnConfiguration();
             InitializeComponent();
+            
             _rm = SpeechTranslator.ResourceManager;
             _fontFamily = new FontFamily(new Uri("pack://application:,,,/"), "./Assets/Fonts/#Chess Merida");
             _lastMoveNumber = 0;
+            _currentMoveNumber = 0;
 
             _figureType = (DisplayFigureType)Enum.Parse(typeof(DisplayFigureType),
                                                         _configuration.GetConfigValue(
@@ -142,6 +148,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             stackPanelMoves.Children.Clear();
             _moveList.Clear();
             _lastMoveNumber = 0;
+            _currentMoveNumber = 0;
             textBlockWhitePlayer.Text = string.Empty;
             textBlockBlackPlayer.Text = string.Empty;
             textBlockResult.Text = string.Empty;
@@ -165,6 +172,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _showForWhite = showForWhite;
             stackPanelMoves.Children.Clear();
             _lastMoveNumber = 0;
+            _currentMoveNumber = 0;
             foreach (var move in _moveList)
             {
                 AddInternalMove(move);
@@ -296,6 +304,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     _newPanelAdded = true;
                 }
                 _lastMoveNumber++;
+            }
+            if (move.FigureColor == Fields.COLOR_BLACK)
+            {
+                _currentMoveNumber++;
             }
             if (!_showOnlyMoves)
             {
@@ -612,6 +624,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             stackPanelMoves.Children.Clear();
             _lastMoveNumber = 0;
+            _currentMoveNumber = 0;
             foreach (var move in _moveList)
             {
                 AddInternalMove(move);

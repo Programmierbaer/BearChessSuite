@@ -63,6 +63,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         private PgnGame _pgnGame;
         private string _gameStartPosition;
         private ResourceManager _rm;
+        public int CurrentMoveNumber => _lastMoveNumber;
 
         public event EventHandler<SelectedMoveOfMoveList> SelectedMoveChanged;
         public event EventHandler<SelectedMoveOfMoveList> ContentChanged;

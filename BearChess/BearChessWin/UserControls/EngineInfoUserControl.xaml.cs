@@ -88,7 +88,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             engineInfoLineUserControl1.Background = Background;
             _configuration = configuration;
             _uciInfo = uciInfo;
-            _hideInfo = int.Parse(hideInfo);
+            _hideInfo = 0;
             Color = color;
             EngineName = uciInfo.Name;
             textBlockName.ToolTip = uciInfo.OriginName;
@@ -729,8 +729,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private void ButtonPlus_OnClick(object sender, RoutedEventArgs e)
         {
             _currentMultiPvCount++;
-            var engineInfoLineUserControl = new EngineInfoLineUserControl(_currentMultiPvCount);
-            engineInfoLineUserControl.Background = Background;
+            var engineInfoLineUserControl = new EngineInfoLineUserControl(_currentMultiPvCount)
+            {
+                Background = Background
+            };
             _engineInfoLineUserControls.Add(engineInfoLineUserControl);
             stackPanelMain.Children.Add(engineInfoLineUserControl);
             OnMultiPvEvent(new MultiPvEventArgs(_uciInfo.Name, _currentMultiPvCount));

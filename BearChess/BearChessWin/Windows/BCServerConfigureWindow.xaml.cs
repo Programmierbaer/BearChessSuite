@@ -21,8 +21,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
             textBlockUserNameBCS.Text = _configuration.GetConfigValue("BCUserName", _configuration.GetConfigValue("player",""));
             textBlockServerBCS.Text = _configuration.GetConfigValue("BCServerHostname", "localhost");
             textBlockPortBCS.Text = _configuration.GetConfigValue("BCServerPortnumber", "8888");
-            checkBoxUseBCSforFTP.IsChecked = _configuration.GetBoolValue("BCSforFTP", false);
-            groupBoxFTP.IsEnabled = !configuration.GetBoolValue("BCSforFTP", false);
+            checkBoxUseBCSforFTP.IsChecked = _configuration.GetBoolValue("BCSforFTP", true);
+            groupBoxFTP.IsEnabled = !configuration.GetBoolValue("BCSforFTP", true);
             textBlockUserName.Text = _configuration.GetConfigValue("publishUserName", string.Empty);
             textBlockPassword.Password = _configuration.GetSecureConfigValue("publishPassword", string.Empty);
             textBlockServer.Text = _configuration.GetConfigValue("publishServer", "ftp.server.com");

@@ -1501,6 +1501,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Only reading ähnelt.
+        /// </summary>
+        public static string ClockEasyRead {
+            get {
+                return ResourceManager.GetString("ClockEasyRead", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die hour ähnelt.
         /// </summary>
         public static string ClockHour {
@@ -5137,6 +5146,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die ms. per move ähnelt.
+        /// </summary>
+        public static string MSSecondsperMove {
+            get {
+                return ResourceManager.GetString("MSSecondsperMove", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Name ähnelt.
         /// </summary>
         public static string Name {
@@ -6568,6 +6586,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die sec. plus ähnelt.
+        /// </summary>
+        public static string SecPlus {
+            get {
+                return ResourceManager.GetString("SecPlus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Select ähnelt.
         /// </summary>
         public static string Select {
@@ -7050,6 +7077,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string ShowFiftyRule {
             get {
                 return ResourceManager.GetString("ShowFiftyRule", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Show graphical evaluations ähnelt.
+        /// </summary>
+        public static string ShowGraphicalPositionScore {
+            get {
+                return ResourceManager.GetString("ShowGraphicalPositionScore", resourceCulture);
             }
         }
         
@@ -7779,6 +7815,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string TimeControlDialog {
             get {
                 return ResourceManager.GetString("TimeControlDialog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die time offset in sec. ähnelt.
+        /// </summary>
+        public static string TimeOffSetInSec {
+            get {
+                return ResourceManager.GetString("TimeOffSetInSec", resourceCulture);
             }
         }
         

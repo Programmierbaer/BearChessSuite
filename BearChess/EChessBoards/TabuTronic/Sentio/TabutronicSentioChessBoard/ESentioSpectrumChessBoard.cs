@@ -457,29 +457,7 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Sentio.ChessBoard
             lock (_locker)
             {
 
-                return;
-                if ((fromField == toField) || (fromField <= 0) || (toField <= 0))
-                {
-                    return;
-                }
-
-                _engineColor = _chessBoard.GetFigureOn(fromField).Color;
-                base.AwaitingMove(fromField, toField, promoteFigure);
-                var awaitingChessBoard = new BearChessBase.Implementations.ChessBoard();
-                awaitingChessBoard.Init(_chessBoard);
-                awaitingChessBoard.MakeMove(fromField, toField, promoteFigure);
-                _awaitingFromBoard = new BoardCodeConverter(_playWithWhite);
-                var awaitingChessFigures = awaitingChessBoard.GetFigures(Fields.COLOR_WHITE);
-                foreach (var chessFigure in awaitingChessFigures)
-                {
-                    _awaitingFromBoard.SetFigureOn(chessFigure.Field);
-                }
-
-                awaitingChessFigures = awaitingChessBoard.GetFigures(Fields.COLOR_BLACK);
-                foreach (var chessFigure in awaitingChessFigures)
-                {
-                    _awaitingFromBoard.SetFigureOn(chessFigure.Field);
-                }
+                return;                
             }
         }
         public override void SetAllLEDsOff(bool forceOff)
@@ -1008,33 +986,7 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Sentio.ChessBoard
             catch
             {
                 return new DataFromBoard(_prevSend, 3);
-            }
-            if (_fromBoard.TryDequeue(out var dataFromBoard))
-            {
-                var strings =
-                    dataFromBoard.FromBoard.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                if (strings.Length < 8)
-                {
-                    return new DataFromBoard(string.Empty, 3);
-                }
-
-                var boardCodeConverter = new BoardCodeConverter(strings, _playWithWhite);
-                var dumpFields = new List<string>();
-                foreach (var boardField in Fields.BoardFields)
-                {
-                    if (boardCodeConverter.IsFigureOn(boardField))
-                    {
-                        dumpFields.Add(Fields.GetFieldName(boardField));
-                    }
-                }
-
-                return new DataFromBoard(string.Join(",", dumpFields), 3)
-                {
-                    IsFieldDump = true,
-                    BasePosition = false
-                };
-            }
-            return new DataFromBoard(string.Empty, 3);
+            }            
         }
 
         protected override void SetToNewGame()

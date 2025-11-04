@@ -2835,4 +2835,13 @@
   <data name="SkillLevel" xml:space="preserve">
     <value>Spielstärke</value>
   </data>
+  <data name="TimePerGameIncSeconds" xml:space="preserve">
+    <value>Zeit pro Partie in Sekunden mit Inkrement</value>
+  </data>
+  <data name="MSSecondsperMove" xml:space="preserve">
+    <value>ms. pro Zug</value>
+  </data>
+  <data name="SecPlus" xml:space="preserve">
+    <value>Sek. plus</value>
+  </data>
 </root>

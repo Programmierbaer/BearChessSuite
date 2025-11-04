@@ -7,8 +7,19 @@ using System.Threading.Tasks;
 using System.IO.Compression;
 using System.IO;
 
+
 namespace www.SoLaNoSoft.com.BearChessTools
 {
+
+    public class SendMailForHelp
+    {
+        public static void SendMail(string subject, string body, string fileName)
+        {
+            System.Diagnostics.Process.Start(@"mailto:lars@solanosoft.com?subject="+subject+@"&body="+body+@"&Attach="+fileName);
+
+        }
+    }
+
     public class FileDownload
     {
         public static void Download(string url, string fileName, bool overrideExisting)

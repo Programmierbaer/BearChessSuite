@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Entity;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
@@ -11,7 +10,6 @@ using System.Xml.Serialization;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Interfaces;
-using www.SoLaNoSoft.com.BearChessTools;
 using PgnCreator = www.SoLaNoSoft.com.BearChessBase.Implementations.pgn.PgnCreator;
 using System.Runtime.Serialization.Formatters.Binary;
 using www.SoLaNoSoft.com.BearChessWpfCustomControlLib;
@@ -29,7 +27,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
         private bool _dbExists;
         private bool _inError;
         private int _storageVersion;
-        SQLiteTransaction _sqLiteTransaction;
+        private SQLiteTransaction _sqLiteTransaction;
 
         public Database(Window owner, ILogging logging, string fileName, PgnConfiguration pgnConfiguration)
         {
@@ -86,7 +84,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 if (_connection == null)
                 {
                     LoadDb();
-                    if (_inError)
+                    if (_inError || _connection == null)
                     {
                         return false;
                     }
@@ -107,7 +105,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
         public void Close()
         {
-            _connection.Close();
+            _connection?.Close();
             _inError = false;
         }
 
@@ -121,7 +119,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             try
             {
                 _connection.Open();
-                string sql = "VACUUM; ";
+                const string sql = "VACUUM; ";
                 using (var command = new SQLiteCommand(sql, _connection))
                 {
                     command.ExecuteNonQuery();
@@ -138,7 +136,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
         public string Backup()
         {
-            string target = string.Empty;
+            string target;
             try
             {
                 target = $"{FileName}.bak_{DateTime.UtcNow.ToFileTime()}";
@@ -162,16 +160,17 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
         {
             try
             {
-                if (File.Exists(backupFileName))
+                if (!File.Exists(backupFileName))
                 {
-                    Close();
-                    _connection = null;
-                    File.Copy(backupFileName, FileName, true);
-                    LoadDb();
-                    return string.Empty;
+                    return $"File{Environment.NewLine}{backupFileName}{Environment.NewLine} not found";
                 }
 
-                return $"File{Environment.NewLine}{backupFileName}{Environment.NewLine} not found";
+                Close();
+                _connection = null;
+                File.Copy(backupFileName, FileName, true);
+                LoadDb();
+                return string.Empty;
+
             }
             catch (Exception ex)
             {
@@ -200,7 +199,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             }
         }
 
-        public bool CreateTables()
+        private bool CreateTables()
         {
             if (_inError || !Open())
             {
@@ -212,8 +211,8 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 _storageVersion = -1;
                 if (!TableExists("storageVersion"))
                 {
-                    var sql = "CREATE TABLE storageVersion " +
-                              "(version INTEGER NOT NULL);";
+                    const string sql = "CREATE TABLE storageVersion " +
+                                       "(version INTEGER NOT NULL);";
                     using (var command = new SQLiteCommand(sql, _connection))
                     {
                         command.ExecuteNonQuery();
@@ -496,7 +495,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 }
                 if (_storageVersion == 4)
                 {
-                    string target = $"{FileName}.bak_{DateTime.UtcNow.ToFileTime()}";
+                    var target = $"{FileName}.bak_{DateTime.UtcNow.ToFileTime()}";
                     Close();
                     _connection = null;
                     File.Copy(FileName, target);
@@ -504,7 +503,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     _connection.Open();
 
                     //" byteXML BLOB NOT NULL," +
-                    string sql = "ALTER TABLE games ADD COLUMN byteXML BLOB NOT NULL DEFAULT 0; ";
+                    var sql = "ALTER TABLE games ADD COLUMN byteXML BLOB NOT NULL DEFAULT 0; ";
                     using (var command = new SQLiteCommand(sql, _connection))
                     {
                         command.ExecuteNonQuery();
@@ -664,8 +663,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             return false;
         }
 
-  
-
         private bool TableExists(string tableName)
         {
             var sql = $"SELECT name FROM sqlite_master WHERE type = 'table' AND name = '{tableName}' COLLATE NOCASE";
@@ -690,7 +687,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
         public int[] GetGamesIds()
         {
-            List<int> allIds = new List<int>();
+            var allIds = new List<int>();
             _connection.Open();
             using (var cmd = new SQLiteCommand("select id from games", _connection))
             {
@@ -709,7 +706,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             return allIds.ToArray();
         }
 
-        public DatabaseGame LoadOldGame(int id, PgnConfiguration purePGN)
+        private DatabaseGame LoadOldGame(int id, PgnConfiguration purePgn)
         {
             if (!_dbExists)
             {
@@ -740,7 +737,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
                                 databaseGame.Id = id;
 
-                                var pgnCreator = databaseGame.CurrentGame == null ? new PgnCreator(purePGN) : new PgnCreator(databaseGame.CurrentGame.StartPosition, purePGN);
+                                var pgnCreator = databaseGame.CurrentGame == null ? new PgnCreator(purePgn) : new PgnCreator(databaseGame.CurrentGame.StartPosition, purePgn);
                                 foreach (var databaseGameAllMove in databaseGame.AllMoves)
                                 {
                                     pgnCreator.AddMove(databaseGameAllMove);
@@ -1081,7 +1078,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             try
             {
                 _connection.Open();
-                var sql = "SELECT id, white, black, event, site, result, gameDate, pgn, pgnXml, byteXML, pgnHash, round FROM games WHERE id=@ID;";
+                const string sql = "SELECT id, white, black, event, site, result, gameDate, pgn, pgnXml, byteXML, pgnHash, round FROM games WHERE id=@ID;";
                 var xmlSerializer = new XmlSerializer(typeof(DatabaseGame));
                 using (var cmd = new SQLiteCommand(sql, _connection))
                 {
@@ -1123,11 +1120,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                                     {
                                         pgnCreator.AddMove(databaseGameAllMove);
                                     }
-
-                                    //foreach (var move in pgnCreator.GetAllMoves())
-                                    //{
-                                    //    databaseGame.PgnGame.AddMove(move);
-                                    //}
                                 }
 
                             }
@@ -1217,7 +1209,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     return FilterByFen(fen);
                 }
 
-                string filterSQl = string.Empty;
+                var filterSQl = string.Empty;
                 if (gamesFilter.NoDuelGames)
                 {
                     filterSQl += " AND g.Id NOT IN (SELECT game_id FROM  duelGames) ";
@@ -1243,7 +1235,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     filterSQl += " AND (g.black LIKE @black )";
                 }
 
-                string fenSQl = string.Empty;
+                var fenSQl = string.Empty;
                 if (!string.IsNullOrWhiteSpace(fen))
                 {
                     fenSQl = " JOIN fenToGames as fg ON (g.ID=fg.game_id) " +

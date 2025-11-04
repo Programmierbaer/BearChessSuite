@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib"
         xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties"         
         mc:Ignorable="d" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" SizeToContent="Height"
-        Title="{x:Static p:Resources.ConfigureHoS}" Height="480" Width="480" Icon="Assets/Icons/hos.png">
+        Title="{x:Static p:Resources.ConfigureHoS}" Height="510" Width="480" Icon="Assets/Icons/hos.png">
     <StackPanel>
         <Border Margin="5" BorderBrush="Gray" BorderThickness="1">
             <Grid>
@@ -73,6 +73,11 @@
         </Border>
         <Border  Visibility="Visible" Margin="5" BorderBrush="Gray" BorderThickness="1" >
             <StackPanel >
+                <StackPanel Orientation="Horizontal">
+                    <Image Name="imageLedOn" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" Source="/BearChessWpfCustomControlLib;component/Assets/Icons/lightbulb.png" Width="16" Height="16" />
+                    <Image Name="imageLedOff" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" Source="/BearChessWpfCustomControlLib;component/Assets/Icons/lightbulb_off.png" Width="16" Height="16" />                    
+                    <CheckBox Name="checkBoxSendLED" Margin="5" VerticalAlignment="Center"   ToolTip="{x:Static p:Resources.SendLEDCommandTip}" Content="{x:Static p:Resources.SendLEDCommand}" Unchecked="checkBoxSendLED_Unchecked" Checked="checkBoxSendLED_Checked"/>
+                </StackPanel>
                 <RadioButton GroupName="Hos" Margin="5" Name="checkBoxDefault"   Content="{x:Static p:Resources.NoAdditionalInfo}"></RadioButton>
                 <RadioButton GroupName="Hos" Margin="5" Name="checkBoxOwnMoves"   Content="{x:Static p:Resources.ShowOwnMoves}"></RadioButton>
                 <RadioButton GroupName="Hos" Margin="5" Name="checkBoxPossibleMoves"   Content="{x:Static p:Resources.ShowAllMovesSelectedFigure}"></RadioButton>
@@ -91,7 +96,12 @@
                     </CheckBox>
                 </StackPanel>
                 <RadioButton GroupName="Clock" Margin="5" Name="RadioButtonUseIntern" Content="{x:Static p:Resources.ClockUseIntern}"></RadioButton>
-                <RadioButton GroupName="Clock" Margin="5" Name="RadioButtonUseExtern" Content="{x:Static p:Resources.ClockUseExtern}"></RadioButton>
+                <StackPanel>
+                   <RadioButton GroupName="Clock" Margin="5" Name="RadioButtonUseExtern" Checked="RadioButtonUseExtern_OnChecked" Unchecked="RadioButtonUseExtern_OnUnchecked" Content="{x:Static p:Resources.ClockUseExtern}"></RadioButton>
+                    <CheckBox Name="checkBoxClockEasyRead" VerticalAlignment="Center" Margin="20,5,5,5" 
+                              Content="{x:Static p:Resources.ClockEasyRead}">
+                    </CheckBox>
+                </StackPanel>
             </StackPanel>
         </Border>
             <Grid>

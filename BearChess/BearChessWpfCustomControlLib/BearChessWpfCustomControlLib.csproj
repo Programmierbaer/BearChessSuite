@@ -134,6 +134,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="EngineValueGraphUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="GraphicsChessBoardUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -291,6 +295,9 @@
     </Compile>
     <Compile Include="EditWindow.xaml.cs">
       <DependentUpon>EditWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EngineValueGraphUserControl.xaml.cs">
+      <DependentUpon>EngineValueGraphUserControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="GraphicsChessBoardUserControl.xaml.cs">
       <DependentUpon>GraphicsChessBoardUserControl.xaml</DependentUpon>

@@ -1,26 +1,38 @@
 ﻿using System;
+using System.Data.Entity;
 using www.SoLaNoSoft.com.BearChess.BearChessCommunication;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChess.FicsClient;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
-using www.SoLaNoSoft.com.BearChessTools;
+using www.SoLaNoSoft.com.BearChessBase.Implementations;
+using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 using Move = www.SoLaNoSoft.com.BearChessBase.Implementations.Move;
 using TimeControl = www.SoLaNoSoft.com.BearChessBase.Implementations.TimeControl;
 
 namespace www.SoLaNoSoft.com.BearChessWin
 {
-    public interface IEngineWindow
+
+    public interface IEngineGraphWindow
     {
+        void AddEngineName(string engineName, int color);
+        void RemoveEngineName(string engineName);
+        void BestMoveBy(string engineName);
+        void AddValue(string engineName, decimal score);
+        void ClearAll();
+    }
+
+    public interface IEngineWindow : IEngineGraphWindow
+    {
+        
         event EventHandler<EngineEventArgs> EngineEvent;
         event EventHandler Closed;
 
         double Left { get; set; }
-
         double Top { get; set; }
-
         int EnginesCount { get; }
 
+        void ShowGraphWindow(bool show);
         void Show();
         void Close();
         void CloseLogWindow();
@@ -45,7 +57,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         void AddMoveForCoaches(string fromField, string toField, string promote);
         void MakeMove(string fromField, string toField, string promote, string engineName = "");
         void SetFen(string fen, string moves, string engineName = "");
-        void SetFenForProbing(string fen, Move[] moves);
+        void SetFenForProbing(string fen, Move[] moves); 
         void ClearTimeControl();
         void StopForCoaches();
         void Stop(string engineName = "");

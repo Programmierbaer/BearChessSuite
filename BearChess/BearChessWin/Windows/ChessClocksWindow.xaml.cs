@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Media;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
+using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 using www.SoLaNoSoft.com.BearChessTools;
 using Timer = System.Timers.Timer;
 
@@ -32,11 +33,13 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private readonly Stopwatch _stopwatch;
         private readonly Timer _timer;
         private readonly ResourceManager _rm;
+        protected readonly ILogging _fileLogger;
 
 
-        public ChessClocksWindow(string capture, Configuration configuration, double top, double left)
+        public ChessClocksWindow(string capture, Configuration configuration, double top, double left, ILogging logging)
         {
             InitializeComponent();
+            _fileLogger = logging;
             _rm = SpeechTranslator.ResourceManager;
             _stopwatch = new Stopwatch();
             _timer = new Timer(1000);
@@ -82,7 +85,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             set;
         }
 
-        public void SetConfiguration(string capture, Configuration configuration)
+        public void SetConfiguration(string capture, Configuration configuration, ILogging logging)
         { 
         }
 
@@ -91,9 +94,13 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private void _timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             var addSeconds = _currentTime.AddSeconds(-1);
-            Dispatcher?.Invoke(() => {
-                SetDigitalNumbers(addSeconds.Hour, addSeconds.Minute, addSeconds.Second);
-            });
+            if (addSeconds.Hour <= _currentTime.Hour)
+            {
+                Dispatcher?.Invoke(() =>
+                {
+                    SetDigitalNumbers(addSeconds.Hour, addSeconds.Minute, addSeconds.Second);
+                });
+            }
         }
 
         public ClockTime GetClockTime()
@@ -164,22 +171,34 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
         }
 
-        public void OverrideTime(int hh, int mm, int ss)
+        public void OverrideTime(int hh, int mm, int ss, bool stopAndGo)
         {
+            int currentSecond = -1;
+            int diffCurrentSecond = -1;
+            _fileLogger?.LogDebug($"Clock {_capture}: Stop and go? {stopAndGo} ");
+            _fileLogger?.LogDebug($"Clock {_capture}: Stop ");
+            Stop();
+            if (stopAndGo)
             {
-                Stop();
+                currentSecond = _currentTime.Hour * 3600 + _currentTime.Minute * 60 + _currentTime.Second;
+                _fileLogger?.LogDebug($"Clock {_capture}: Current: {_currentTime.Hour}:{_currentTime.Minute}:{_currentTime.Second}  Override: {hh}:{mm}:{ss}");
+                diffCurrentSecond = (hh * 3600 + mm * 60 + ss) - currentSecond;
             }
             if (!SimpleClockMode)
             {
                 _stopwatch.Reset();
             }
-
+            if (SimpleClockMode && currentSecond > 0)
+            {
+                _fileLogger?.LogDebug($"Clock {_capture}: diff seconds: {diffCurrentSecond} ");
+            }
             SetDigitalNumbers(hh, mm, ss);
             ToolTip = Title;
             borderWarning.Visibility = Visibility.Hidden;
             _duration = TimeSpan.Zero;
-
+            if (stopAndGo)
             {
+                _fileLogger?.LogDebug($"Clock {_capture}: Go ");
                 Go();
             }
         }
@@ -340,7 +359,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
                         if (!_stop)
                         {
-                            SetDigitalNumbers(_stopTime.Hour, _stopTime.Minute, _stopTime.Second);
+                            if (_stopTime.Day != _goTime.Day)
+                            {
+                                SetDigitalNumbers(0, 0, 0);
+                            }
+                            else
+                            {
+                                SetDigitalNumbers(_stopTime.Hour, _stopTime.Minute, _stopTime.Second);
+                            }
                         }
                     }
                 });

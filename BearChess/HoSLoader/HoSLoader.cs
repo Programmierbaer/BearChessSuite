@@ -73,6 +73,7 @@ namespace www.SoLaNoSoft.com.BearChess.HoSLoader
             {
                 eChessBoardConfiguration.ShowOwnMoves = false;
                 eChessBoardConfiguration.ExtendedConfig[0].ShowOwnMoves = false;
+                eChessBoardConfiguration.SendLEDCommands = true;
             }
             EChessBoardConfiguration.Save(eChessBoardConfiguration, fileName);
         }

@@ -41,7 +41,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
                 Directory.CreateDirectory(fileInfo.DirectoryName);
                 Directory.CreateDirectory(Path.Combine(fileInfo.DirectoryName, "log"));
             }
-            _eChessBoardConfiguration = EChessBoardConfiguration.Load(_fileName);            
+            _eChessBoardConfiguration = EChessBoardConfiguration.Load(_fileName);                      
             checkBoxDefault.IsChecked = true;
             checkBoxOwnMoves.IsChecked = _eChessBoardConfiguration.ShowOwnMoves;
             checkBoxPossibleMoves.IsChecked = _eChessBoardConfiguration.ShowPossibleMoves;
@@ -58,6 +58,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             RadioButtonUseIntern.IsEnabled = _eChessBoardConfiguration.UseClock;
             checkBoxSwitchSide.IsChecked = !_eChessBoardConfiguration.ClockSwitchSide;
             checkBoxSwitchSide.IsEnabled = _eChessBoardConfiguration.UseClock;
+            checkBoxSendLED.IsChecked = _eChessBoardConfiguration.SendLEDCommands;
+            imageLedOn.Visibility = _eChessBoardConfiguration.SendLEDCommands ? Visibility.Visible : Visibility.Collapsed;
+            imageLedOff.Visibility = _eChessBoardConfiguration.SendLEDCommands ? Visibility.Collapsed : Visibility.Visible;
+            checkBoxDefault.IsEnabled = _eChessBoardConfiguration.SendLEDCommands;
+            checkBoxOwnMoves.IsEnabled = _eChessBoardConfiguration.SendLEDCommands;
+            checkBoxPossibleMoves.IsEnabled = _eChessBoardConfiguration.SendLEDCommands;
+            checkBoxBestMove.IsEnabled = _eChessBoardConfiguration.SendLEDCommands;
+            checkBoxClockEasyRead.IsEnabled = RadioButtonUseExtern.IsChecked.HasValue && RadioButtonUseExtern.IsChecked.Value;
+            checkBoxClockEasyRead.IsChecked = _eChessBoardConfiguration.ClockTimeEasyRead;
             SetScanText();
         }
         private void ButtonOk_OnClick(object sender, RoutedEventArgs e)
@@ -71,6 +80,9 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             _eChessBoardConfiguration.ClockUseExtern = RadioButtonUseExtern.IsChecked.HasValue && RadioButtonUseExtern.IsChecked.Value;
             _eChessBoardConfiguration.ClockUseIntern = RadioButtonUseIntern.IsChecked.HasValue && RadioButtonUseIntern.IsChecked.Value;
             _eChessBoardConfiguration.ClockSwitchSide = !(checkBoxSwitchSide.IsChecked.HasValue && checkBoxSwitchSide.IsChecked.Value);
+            _eChessBoardConfiguration.SendLEDCommands = checkBoxSendLED.IsChecked.HasValue && checkBoxSendLED.IsChecked.Value;
+            _eChessBoardConfiguration.ClockTimeEasyRead =
+                checkBoxClockEasyRead.IsChecked.HasValue && checkBoxClockEasyRead.IsChecked.Value;
             EChessBoardConfiguration.Save(_eChessBoardConfiguration, _fileName);
             DialogResult = true;
         }
@@ -131,6 +143,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             RadioButtonUseExtern.IsEnabled = true;
             RadioButtonUseIntern.IsEnabled = true;
             checkBoxSwitchSide.IsEnabled = true;
+            checkBoxClockEasyRead.IsEnabled = RadioButtonUseExtern.IsChecked.HasValue && RadioButtonUseExtern.IsChecked.Value;
         }
 
         private void CheckBoxUseClock_OnUnchecked(object sender, RoutedEventArgs e)
@@ -138,6 +151,37 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             RadioButtonUseExtern.IsEnabled = false;
             RadioButtonUseIntern.IsEnabled = false;
             checkBoxSwitchSide.IsEnabled = false;
+            checkBoxClockEasyRead.IsEnabled = false;
+        }
+
+        private void checkBoxSendLED_Checked(object sender, RoutedEventArgs e)
+        {
+            imageLedOn.Visibility = Visibility.Visible;
+            imageLedOff.Visibility =  Visibility.Collapsed;
+            checkBoxDefault.IsEnabled = true;
+            checkBoxOwnMoves.IsEnabled = true;
+            checkBoxPossibleMoves.IsEnabled = true;
+            checkBoxBestMove.IsEnabled = true;
+        }
+
+        private void checkBoxSendLED_Unchecked(object sender, RoutedEventArgs e)
+        {
+            imageLedOn.Visibility = Visibility.Collapsed;
+            imageLedOff.Visibility = Visibility.Visible;
+            checkBoxDefault.IsEnabled = false;
+            checkBoxOwnMoves.IsEnabled = false;
+            checkBoxPossibleMoves.IsEnabled = false;
+            checkBoxBestMove.IsEnabled = false;
+        }
+
+        private void RadioButtonUseExtern_OnUnchecked(object sender, RoutedEventArgs e)
+        {
+            checkBoxClockEasyRead.IsEnabled = false;
+        }
+
+        private void RadioButtonUseExtern_OnChecked(object sender, RoutedEventArgs e)
+        {
+            checkBoxClockEasyRead.IsEnabled = true;
         }
     }
 }

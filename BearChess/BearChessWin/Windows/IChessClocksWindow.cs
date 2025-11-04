@@ -1,7 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
-using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase;
+using www.SoLaNoSoft.com.BearChessBase.Implementations;
+using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 
 namespace www.SoLaNoSoft.com.BearChessWin
 {
@@ -15,7 +16,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         void SetTime(ClockTime clockTime, int extraSeconds = 0);
         void SetTime(int hh, int mm, int ss, int extraSeconds = 0);
         void CorrectTime(int hh, int mm, int ss);
-        void OverrideTime(int hh, int mm, int ss);
+        void OverrideTime(int hh, int mm, int ss, bool stopAndGo);
         void SetContinueTime(ClockTime clockTime, int extraSeconds = 0);
         void SetTooltip(string tooltip);
         void SetInfo(string info);
@@ -33,6 +34,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
         double Left { get; set; }
         double Height { get; set; }
         double Width { get; set; }
-        void SetConfiguration(string capture, Configuration configuration);
+        void SetConfiguration(string capture, Configuration configuration, ILogging logging);
     }
 }

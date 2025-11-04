@@ -3,6 +3,7 @@ using System.Linq;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
+using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 
 namespace www.SoLaNoSoft.com.BearChess.EChessBoard
 {
@@ -146,6 +147,28 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         public Move GetAlternateMove(string newFenPosition)
         {
             return _moveListWithFen.FirstOrDefault(m => m.Fen.StartsWith(newFenPosition));
+        }
+
+        public Move[] GetAlternateMoves(string newFenPosition)
+        {
+            var moves = new List<Move>();
+            foreach (var move in _bearChessBoard.GenerateFenPositionList())
+            {
+                var chessBoard = new ChessBoard();
+                chessBoard.Init();
+                chessBoard.SetPosition(move.Fen);
+                var posList = chessBoard.GenerateFenPositionList();
+                foreach (var item in posList)
+                {
+                    if (item.Fen.StartsWith(newFenPosition))
+                    {                        
+                        moves.Add(move);
+                        moves.Add(item);
+                        return moves.ToArray();
+                    }
+                }
+            }
+            return moves.ToArray();
         }
 
         public string GetChangedFigure(string oldFenPosition, string newFenPosition)

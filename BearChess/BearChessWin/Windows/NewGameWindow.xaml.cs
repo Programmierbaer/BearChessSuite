@@ -163,7 +163,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                             SpeechTranslator.ResourceManager.GetString("TimePerGameInc")));
                         comboBoxTimeControl2.Items.Add(new TimeControlValue(timeControlEnum,
                             SpeechTranslator.ResourceManager.GetString("TimePerGameInc")));
-                        break;
+                        break;                 
                     case TimeControlEnum.TimePerMoves:
                         if (!_tournamentMode)
                         {
@@ -172,7 +172,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
                             comboBoxTimeControl2.Items.Add(new TimeControlValue(timeControlEnum,
                                 SpeechTranslator.ResourceManager.GetString("TimePerMoves")));
                         }
-
                         break;
                     default:
                         break;
@@ -198,7 +197,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private bool PublishIsConfigured()
         {
-            if (_bcServerConnected && _configuration.GetBoolValue("BCSforFTP", false))
+            if (_bcServerConnected && _configuration.GetBoolValue("BCSforFTP", true))
             {
                 return true;
             }
@@ -207,7 +206,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             isConfigured = isConfigured && !string.IsNullOrWhiteSpace(_configuration.GetSecureConfigValue("publishPassword", string.Empty));
             isConfigured = isConfigured && !string.IsNullOrWhiteSpace(_configuration.GetConfigValue("publishServer", string.Empty));
 
-            return isConfigured && !_configuration.GetBoolValue("BCSforFTP", false);
+            return isConfigured && !_configuration.GetBoolValue("BCSforFTP", true);
         }
 
         public UciInfo GetPlayerBlackConfigValues()
@@ -241,6 +240,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 timeControl.Value1 = numericUpDownUserControlTimePerGameWith.Value;
                 timeControl.Value2 = numericUpDownUserControlTimePerGameIncrement.Value;
             }
+          
 
             if (timeControlValue?.TimeControl == TimeControlEnum.TimePerGame)
             {
@@ -329,7 +329,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     timeControl.Value1 = numericUpDownUserControlTimePerGameWith2.Value;
                     timeControl.Value2 = numericUpDownUserControlTimePerGameIncrement2.Value;
                 }
-
+               
                 if (timeControlValue?.TimeControl == TimeControlEnum.TimePerGame)
                 {
                     timeControl.TimeControlType = TimeControlEnum.TimePerGame;
@@ -550,6 +550,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     numericUpDownUserControlTimePerGameWith.Value = timeControl.Value1;
                     numericUpDownUserControlTimePerGameIncrement.Value = timeControl.Value2;
                     break;
+             
                 case TimeControlEnum.TimePerMoves:
                     numericUpDownUserControlTimePerGivenMoves.Value = timeControl.Value1;
                     numericUpDownUserControlTimePerGivensMovesMin.Value = timeControl.Value2;
@@ -666,9 +667,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void ButtonOk_OnClick(object sender, RoutedEventArgs e)
         {
-            _configuration.SetBoolValue("allowAlternateMoves", checkBoxAlternateMove.IsChecked.HasValue && checkBoxAlternateMove.IsChecked.Value);
-            _configuration.SetBoolValue("checkForAlternateMoves", 
-            checkBoxAlternateMove.IsChecked.HasValue && checkBoxAlternateMove.IsChecked.Value &&
+            _configuration.SetBoolValue("allowAlternateMoves",    checkBoxAlternateMove.IsChecked.HasValue && checkBoxAlternateMove.IsChecked.Value);
+            _configuration.SetBoolValue("checkForAlternateMoves", checkBoxAlternateMove.IsChecked.HasValue && checkBoxAlternateMove.IsChecked.Value &&
                 checkBoxAlternateMove.Visibility == Visibility.Visible);
             _configuration.SetConfigValue("gameEvent", textBoxEvent.Text);
             DialogResult = true;
@@ -683,6 +683,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         {
             borderTimePerGame.Visibility = Visibility.Collapsed;
             borderTimePerGameWithIncrement.Visibility = Visibility.Collapsed;
+            borderTimePerGameWithIncrementSeconds.Visibility = Visibility.Collapsed;
             borderTimePerGivenMoves.Visibility = Visibility.Collapsed;
             borderAverageTimePerMove.Visibility = Visibility.Collapsed;
             borderDepth.Visibility = Visibility.Collapsed;
@@ -695,6 +696,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 case TimeControlEnum.TimePerGameIncrement:
                     borderTimePerGameWithIncrement.Visibility = Visibility.Visible;                    
                     return;
+             
                 case TimeControlEnum.TimePerGame:
                     borderTimePerGame.Visibility = Visibility.Visible;
                     return;
@@ -723,7 +725,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 return;
             }
             SetControlsForTC(comboBoxTimeControl.SelectedItem as TimeControlValue);
-
         }
 
 
@@ -1234,6 +1235,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         {
             borderTimePerGame2.Visibility = Visibility.Collapsed;
             borderTimePerGameWithIncrement2.Visibility = Visibility.Collapsed;
+            borderTimePerGameWithIncrementSeconds2.Visibility = Visibility.Collapsed;
             borderTimePerGivenMoves2.Visibility = Visibility.Collapsed;
             borderAverageTimePerMove2.Visibility = Visibility.Collapsed;
             borderDepth2.Visibility = Visibility.Collapsed;

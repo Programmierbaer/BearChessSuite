@@ -52,15 +52,23 @@
         public const string InternalChessEngineSpikeFileName = "Spike1.4.exe";
         public const string InternalChessEngineSpikeLogoFileName = "spike.bmp";
         public const string InternalChessEngineWaspGUID = "uci786394AR61D34D84AC17D8E80BBB70B3";
-        public const string InternalChessEngineWaspFileName = "Wasp704-windows-avx.exe";
+        public const string InternalChessEngineWaspFileName = "Wasp707-windows-avx.exe";
         public const string InternalChessEngineWaspLogoFileName = "wasp_logo_small.jpg";
 
         public const string InternalChessEngineStockfishGUID = "uciE7E6DD5EC01E4CBC808A77AC7201AF7E";
-        public const string InternalChessEngineStockfishFileName = "stockfish_13_win_x64.exe";
+        public const string InternalChessEngineStockfish64FileName = "stockfish_20011801_x64.exe";
+        public const string InternalChessEngineStockfish32FileName = "stockfish_20011801_32bit.exe";
+        public const string InternalChessEngineStockfishLogoFileName = "stockfish.png";
 
         public const string InternalChessEngineFruitGUID = "uci5EFDC788C1354A02B46816D584EE0D1B";
         public const string InternalChessEngineFruitFileName = "Fruit-2-3-1.exe";
         public const string InternalChessEngineFruitLogoFileName = "fruit-logo.jpg";
+
+        public const string InternalChessEngineCT800GUID = "uciB1E0608247C14FCFA2E162E59AD0E7A1";
+        public const string InternalChessEngineCT80064FileName = "CT800_V1.46_x64.exe";
+        public const string InternalChessEngineCT80032FileName = "CT800_V1.46_x32.exe";
+        public const string InternalChessEngineCT80064LogoFileName = "CT800_V1.46_64.png";
+        public const string InternalChessEngineCT80032LogoFileName = "CT800_V1.46_32.png";
 
 
         public const string InternalBookGUIDPerfectCTG = "bkBE73C64DBAC142FA8F89BE74B3E75CDD";

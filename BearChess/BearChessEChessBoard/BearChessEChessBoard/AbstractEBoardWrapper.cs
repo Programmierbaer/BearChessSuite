@@ -683,7 +683,9 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             string batteryLevel = string.Empty;
             string batteryStatus = string.Empty;
             bool alterMoveDetected = false;
-          
+            bool alterMovesDetected = false;
+            Move[] alterMoves = null;
+
             _fileLogger?.LogDebug("AB: Handle board");
             while (!_stopCommunication)
             {
@@ -806,11 +808,31 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                 var checkForAlternateMoves = Configuration.Instance.GetBoolValue("checkForAlternateMoves", false);
                 if (checkForAlternateMoves)
                 {
+                    if (piecesFen.FromBoard.StartsWith("r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R"))
+                    {
+                        alterMoveDetected = false;
+                    }
                     var alternateMove = _internalChessBoard.GetAlternateMove(piecesFen.FromBoard);
                     if (alternateMove != null)
                     {
+                        _fileLogger?.LogDebug($"AB: Alternate move detected: {alternateMove.FromFieldName}{alternateMove.ToFieldName}");
                         _internalChessBoard.TakeBack();
                         alterMoveDetected = true;
+                    }
+                    else
+                    {
+                        alterMoves = _internalChessBoard.GetAlternateMoves(piecesFen.FromBoard);
+                        if (alterMoves != null && alterMoves.Length > 0)
+                        {
+                            _fileLogger?.LogDebug($"AB: Alternate move sequence detected: {alterMoves[0].FromFieldName}{alterMoves[0].ToFieldName} {alterMoves[1].FromFieldName}{alterMoves[1].ToFieldName} ");
+                            _fileLogger?.LogDebug($"AB: OnMoveEvent: {alterMoves[0].FromFieldName}{alterMoves[0].ToFieldName} ");
+                            potentialMove = string.Empty;
+                            OnMoveEvent(alterMoves[0].Fen);
+                            _fileLogger?.LogDebug($"AB: OnMoveEvent: {alterMoves[1].FromFieldName}{alterMoves[1].ToFieldName} ");
+                            OnMoveEvent(alterMoves[1].Fen);
+                            currentFen = piecesFen.FromBoard;
+                            continue;
+                        }
                     }
                 }
 

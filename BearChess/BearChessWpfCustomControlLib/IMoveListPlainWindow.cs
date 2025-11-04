@@ -15,6 +15,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         event EventHandler<SelectedMoveOfMoveList> SelectedMoveChanged;
         event EventHandler<SelectedMoveOfMoveList> ContentChanged;
         event EventHandler<SelectedMoveOfMoveList> RestartEvent;
+        int CurrentMoveNumber { get; }
         void SetPlayerAndResult(CurrentGame currentGame, string gameStartPosition, PgnGame pgnGame);
         void SetPlayer(string player, int color);
         void SetStartPosition(string gameStartPosition);

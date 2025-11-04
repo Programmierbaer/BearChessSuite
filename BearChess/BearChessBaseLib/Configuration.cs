@@ -1,6 +1,7 @@
 ﻿using InTheHand.Net;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -105,6 +106,8 @@ namespace www.SoLaNoSoft.com.BearChessBase
             get;
         }
 
+        public int StartPathNumner { get; }
+
         public PgnConfiguration GetDefaultPgnConfiguration()
         {
             return new PgnConfiguration()
@@ -161,6 +164,20 @@ namespace www.SoLaNoSoft.com.BearChessBase
             get;
         }
 
+        private int BearChessInstancesRunning()
+        {
+            int count = 0;
+            var processes = Process.GetProcesses();
+            foreach (var process in processes)
+            {
+                if (process.ProcessName.Equals("bearchesswin", StringComparison.OrdinalIgnoreCase))
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
         private Configuration()
         {
             RunOn64Bit = Environment.Is64BitProcess;
@@ -173,8 +190,25 @@ namespace www.SoLaNoSoft.com.BearChessBase
             var bearChessConst = IsBearChessServer ? Constants.BearChessServer : Constants.BearChess;
             FolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), bearChessConst);
             DeviceIndexPath = FolderPath;
+            try
+            {
+                var countRunning = BearChessInstancesRunning();
+                if (countRunning == 1)
+                {
+                    var strings = Directory.GetFiles(DeviceIndexPath, "*.devIndex", SearchOption.TopDirectoryOnly);
+                    foreach (var s in strings)
+                    {
+                        File.Delete(s);
+                    }
+                }
+            }
+            catch
+            {
+                // 
+            }
             var args = Environment.GetCommandLineArgs();
             Standalone = false;
+            StartPathNumner = 0;
             bool clearPositions = false;
             for (var i = 1; i < args.Length; i++)
             {
@@ -200,6 +234,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
                                     if (int.TryParse(pathValue, out var value))
                                     {
                                         FolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), $"{bearChessConst}_{value}");
+                                        StartPathNumner = value;
                                     }
                                     else
                                     {

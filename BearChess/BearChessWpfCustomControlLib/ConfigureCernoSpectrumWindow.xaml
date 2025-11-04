@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib"
         xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties" 
         mc:Ignorable="d" WindowStartupLocation="CenterOwner" ResizeMode="NoResize"        
-        Title="{x:Static p:Resources.ConfigureCernoSpectrum}" Height="880" Width="620" SizeToContent="WidthAndHeight">
+        Title="{x:Static p:Resources.ConfigureCernoSpectrum}" Width="620" SizeToContent="WidthAndHeight">
     <StackPanel>
         <Border Margin="5" BorderBrush="Gray" BorderThickness="1">
             <Grid>
@@ -77,7 +77,7 @@
         </Border>
 
         <Border Name="borderLEDs" Margin="5" BorderBrush="Gray" BorderThickness="1">
-            <TabControl Height="620">
+            <TabControl>
                 <TabItem Header="{x:Static p:Resources.LEDs}">
                     <StackPanel>
 
@@ -139,294 +139,325 @@
                             <Image Grid.Column="5" Grid.Row="0" Source="Assets/Icons/lightning.png" Visibility="Visible"
                            Width="20" HorizontalAlignment="Center" ToolTip="{x:Static p:Resources.Brightness}" />
 
-                            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"
+                            <ScrollViewer CanContentScroll="True" Height="390" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="7">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"
                               Margin="25,0,0,0" ToolTip="{x:Static p:Resources.FromField}"
                               Grid.Column="0" Grid.Row="1" Text="{x:Static p:Resources.MoveFrom}"/>
-                            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"
+                                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"
                                Margin="25,0,0,0" ToolTip="{x:Static p:Resources.ToField}"
                                Grid.Column="0" Grid.Row="2" Text="{x:Static p:Resources.MoveTo}"/>
-                            <local:NumericUpDownUserControl Margin="5,0,5,0" Grid.Column="2" Grid.Row="1"
+                                    <local:NumericUpDownUserControl Margin="5,0,5,0" Grid.Column="2" Grid.Row="1"
                                                            x:Name="numericUpDownUserControlMoveFromRed"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,0,5,0" Grid.Column="3" Grid.Row="1"
+                                    <local:NumericUpDownUserControl Margin="5,0,5,0" Grid.Column="3" Grid.Row="1"
                                                            x:Name="numericUpDownUserControlMoveFromGreen"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,0,5,0" Grid.Column="4" Grid.Row="1"
+                                    <local:NumericUpDownUserControl Margin="5,0,5,0" Grid.Column="4" Grid.Row="1"
                                                            x:Name="numericUpDownUserControlMoveFromBlue"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"
                                       Grid.Column="5"
                                       Grid.Row="1" Name="checkBoxFlashMoveFrom" Checked="RadioButtonSync_OnChecked" />
 
-                            <Button Grid.Column="7" Grid.Row="1" Margin="6,9,6,8" Name="buttonShowMoveFrom"
+                                    <Button Grid.Column="7" Grid.Row="1" Margin="6,9,6,8" Name="buttonShowMoveFrom"
                             Background="Transparent"  ToolTip="{x:Static p:Resources.ShowLEDs}"
                             BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
-                                <Image Source="Assets/Icons/eye.png" />
-                            </Button>
+                                        <Image Source="Assets/Icons/eye.png" />
+                                    </Button>
 
-                            <local:NumericUpDownUserControl Margin="5,0,5,0" Grid.Column="2" Grid.Row="2"
+                                    <local:NumericUpDownUserControl Margin="5,0,5,0" Grid.Column="2" Grid.Row="2"
                                                            x:Name="numericUpDownUserControlMoveToRed"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,0,5,0" Grid.Column="3" Grid.Row="2"
+                                    <local:NumericUpDownUserControl Margin="5,0,5,0" Grid.Column="3" Grid.Row="2"
                                                            x:Name="numericUpDownUserControlMoveToGreen"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,0,5,0" Grid.Column="4" Grid.Row="2"
+                                    <local:NumericUpDownUserControl Margin="5,0,5,0" Grid.Column="4" Grid.Row="2"
                                                            x:Name="numericUpDownUserControlMoveToBlue"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                          
 
-                            <Button Grid.Column="7" Grid.Row="3" Margin="6,13,6,14" Name="buttonShowInvalid"
-                            Background="Transparent"  ToolTip="{x:Static p:Resources.ShowLEDs}"
-                            BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
-                                <Image Source="Assets/Icons/eye.png" />
-                            </Button>
-                            <Button Grid.Column="7" Grid.Row="4" Margin="6,11,6,11" Name="buttonShowTakeBack"
-                            Background="Transparent"  ToolTip="{x:Static p:Resources.ShowLEDs}"
-                            BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
-                                <Image Source="Assets/Icons/eye.png" />
-                            </Button>
-                            <Button Grid.Column="7" Grid.Row="5" Margin="6,11,6,11" Name="buttonShowHint"
-                            Background="Transparent"  ToolTip="{x:Static p:Resources.ShowLEDs}"
-                            BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
-                                <Image Source="Assets/Icons/eye.png" />
-                            </Button>
-                            <Button Grid.Column="7" Grid.Row="6" Margin="6,11,6,11" Name="buttonShowBookMove"
-                            Background="Transparent"  ToolTip="{x:Static p:Resources.ShowLEDs}"
-                            BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
-                                <Image Source="Assets/Icons/eye.png" />
-                            </Button>
-                            <Button Grid.Column="7" Grid.Row="7" Margin="6,11,6,11" Name="buttonShowCurrentColor"
-                            Background="Transparent"  ToolTip="{x:Static p:Resources.ShowLEDs}"
-                            BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
-                                <Image Source="Assets/Icons/eye.png" />
-                            </Button>
-                            <Button Grid.Column="7" Grid.Row="8" Margin="6,11,6,11" Name="buttonShowCurrentAdvantage"
-                            Background="Transparent"  ToolTip="{x:Static p:Resources.ShowLEDs}"
-                            BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
-                                <Image Source="Assets/Icons/eye.png" />
-                            </Button>
-                            <Button Grid.Column="7" Grid.Row="9" Margin="6,11,6,11" Name="buttonShowCurrentDisAdvantage"
-                            Background="Transparent"  ToolTip="{x:Static p:Resources.ShowLEDs}"
-                            BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
-                                <Image Source="Assets/Icons/eye.png" />
-                            </Button>
 
-                            <CheckBox HorizontalAlignment="Left" VerticalAlignment="Top" Name="checkBoxInvalidMoves"
+                                    <Button Grid.Column="7" Grid.Row="3" Margin="6,13,6,14" Name="buttonShowInvalid"
+                            Background="Transparent"  ToolTip="{x:Static p:Resources.ShowLEDs}"
+                            BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
+                                        <Image Source="Assets/Icons/eye.png" />
+                                    </Button>
+                                    <Button Grid.Column="7" Grid.Row="4" Margin="6,11,6,11" Name="buttonShowTakeBack"
+                            Background="Transparent"  ToolTip="{x:Static p:Resources.ShowLEDs}"
+                            BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
+                                        <Image Source="Assets/Icons/eye.png" />
+                                    </Button>
+                                    <Button Grid.Column="7" Grid.Row="5" Margin="6,11,6,11" Name="buttonShowHint"
+                            Background="Transparent"  ToolTip="{x:Static p:Resources.ShowLEDs}"
+                            BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
+                                        <Image Source="Assets/Icons/eye.png" />
+                                    </Button>
+                                    <Button Grid.Column="7" Grid.Row="6" Margin="6,11,6,11" Name="buttonShowBookMove"
+                            Background="Transparent"  ToolTip="{x:Static p:Resources.ShowLEDs}"
+                            BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
+                                        <Image Source="Assets/Icons/eye.png" />
+                                    </Button>
+                                    <Button Grid.Column="7" Grid.Row="7" Margin="6,11,6,11" Name="buttonShowCurrentColor"
+                            Background="Transparent"  ToolTip="{x:Static p:Resources.ShowLEDs}"
+                            BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
+                                        <Image Source="Assets/Icons/eye.png" />
+                                    </Button>
+                                    <Button Grid.Column="7" Grid.Row="8" Margin="6,11,6,11" Name="buttonShowCurrentAdvantage"
+                            Background="Transparent"  ToolTip="{x:Static p:Resources.ShowLEDs}"
+                            BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
+                                        <Image Source="Assets/Icons/eye.png" />
+                                    </Button>
+                                    <Button Grid.Column="7" Grid.Row="9" Margin="6,11,6,11" Name="buttonShowCurrentDisAdvantage"
+                            Background="Transparent"  ToolTip="{x:Static p:Resources.ShowLEDs}"
+                            BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
+                                        <Image Source="Assets/Icons/eye.png" />
+                                    </Button>
+
+                                    <CheckBox HorizontalAlignment="Left" VerticalAlignment="Top" Name="checkBoxInvalidMoves"
                               Margin="5,18,0,0" ToolTip="{x:Static p:Resources.InvalidFields}" 
                               Grid.Column="0" Grid.Row="3" Content="{x:Static p:Resources.Invalid}"/>
-                            <local:NumericUpDownUserControl Margin="5,5,5,5" Grid.Column="2" Grid.Row="3"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,5" Grid.Column="2" Grid.Row="3"
                                                            x:Name="numericUpDownUserControlInvalidRed"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="3"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="3"
                                                            x:Name="numericUpDownUserControlInvalidGreen"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="3"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="3"
                                                            TextWidthProperty="30"
                                                            x:Name="numericUpDownUserControlInvalidBlue"
                                                            MinValue="0"
                                                           MaxValue="255" />
-                           
-                            
 
-                            <CheckBox HorizontalAlignment="Left" VerticalAlignment="Center" Name="checkBoxTakeBackMove"
+
+
+                                    <CheckBox HorizontalAlignment="Left" VerticalAlignment="Center" Name="checkBoxTakeBackMove"
                               Margin="5,0,0,0" ToolTip="{x:Static p:Resources.FromAndToFieldUndo}"
                               Grid.Column="0" Grid.Row="4" Content="{x:Static p:Resources.TakeBack}"/>
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="4"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="4"
                                                            x:Name="numericUpDownUserControlTakeBackRed"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="4"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="4"
                                                            x:Name="numericUpDownUserControlTakeBackGreen"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="4"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="4"
                                                            x:Name="numericUpDownUserControlTakeBackBlue"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                          
-                          
-                            <CheckBox HorizontalAlignment="Left" VerticalAlignment="Top" Name="checkBoxHintMoves"
+
+
+                                    <CheckBox HorizontalAlignment="Left" VerticalAlignment="Top" Name="checkBoxHintMoves"
                               Margin="5,16,0,0" ToolTip="{x:Static p:Resources.FromAndToFieldForHint}"
                               Grid.Column="0" Grid.Row="5" Content="{x:Static p:Resources.Hint}"/>
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="5"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="5"
                                                            x:Name="numericUpDownUserControlHintRed"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="5"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="5"
                                                            x:Name="numericUpDownUserControlHintGreen"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="5"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="5"
                                                            x:Name="numericUpDownUserControlHintBlue"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                         
-                         
 
-                            <CheckBox Name="checkBoxBookMove"  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,16,0,0"
+
+
+                                    <CheckBox Name="checkBoxBookMove"  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,16,0,0"
                               ToolTip="{x:Static p:Resources.ShowBestBookMove}"
                               Grid.Column="0" Grid.Row="6" Content="{x:Static p:Resources.BookMove}"/>
 
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="6"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="6"
                                                            x:Name="numericUpDownUserControlBookRed"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="6"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="6"
                                                            x:Name="numericUpDownUserControlBookGreen"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="6"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="6"
                                                            x:Name="numericUpDownUserControlBookBlue"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                          
-                           
 
-                            <CheckBox Name="checkBoxCurrentColor"  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,16,0,0"
+
+
+                                    <CheckBox Name="checkBoxCurrentColor"  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,16,0,0"
                               ToolTip="{x:Static p:Resources.CurrentColorTip}"
                               Grid.Column="0" Grid.Row="7" Content="{x:Static p:Resources.CurrentColor}"/>
 
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="7"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="7"
                                                            x:Name="numericUpDownUserControlCurrentColorRed"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="7"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="7"
                                                            x:Name="numericUpDownUserControlCurrentColorGreen"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="7"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="7"
                                                            x:Name="numericUpDownUserControlCurrentColorBlue"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                          
-                          
 
-                            <CheckBox Name="checkBoxShowEval" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,16,0,0"
+
+
+                                    <CheckBox Name="checkBoxShowEval" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,16,0,0"
                               ToolTip="{x:Static p:Resources.IfCurrentAdvantage}"
                               Grid.Column="0" Grid.Row="8" Content="{x:Static p:Resources.ValuationAdvantage}" Grid.ColumnSpan="2"/>
 
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="8"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="8"
                                                            x:Name="numericUpDownUserControlEvaluationRed"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="8"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="8"
                                                            x:Name="numericUpDownUserControlEvaluationGreen"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="8"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="8"
                                                            x:Name="numericUpDownUserControlEvaluationBlue"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                          
-                            
-                            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="65,16,0,0"
+
+
+                                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="65,16,0,0"
                                ToolTip="{x:Static p:Resources.IfCurrentDisadvantage}"
                                Grid.Column="0" Grid.Row="9" Text="{x:Static p:Resources.Disadvantage}"/>
 
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="9"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="9"
                                                            x:Name="numericUpDownUserControlDisEvaluationRed"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="9"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="9"
                                                            x:Name="numericUpDownUserControlDisEvaluationGreen"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="9"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="9"
                                                            x:Name="numericUpDownUserControlDisEvaluationBlue"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                           
 
-                            <CheckBox Name="checkBoxPossibleMoves" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,16,0,0"
+
+                                    <CheckBox Name="checkBoxPossibleMoves" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,16,0,0"
    ToolTip="{x:Static p:Resources.ShowPossibleMovesOfFigure}" Checked="CheckBoxPossibleMoves_OnChecked" Unchecked="CheckBoxPossibleMoves_OnUnchecked"
    Grid.Column="0" Grid.Row="10" Content="{x:Static p:Resources.PossibleMoves}"/>
 
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="10"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="10"
                                 x:Name="numericUpDownUserControlPossibleMovesRed"
                                 MinValue="0"
                                MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="10"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="10"
                                 x:Name="numericUpDownUserControlPossibleMovesGreen"
                                 MinValue="0"
                                MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="10"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="10"
                                 x:Name="numericUpDownUserControlPossibleMovesBlue"
                                 MinValue="0"
                                MaxValue="255" TextWidthProperty="30" />
-                          
-                            <Button Grid.Column="7" Grid.Row="10" Margin="6,11,6,11" Name="buttonShowCurrentPossibleMoves"
+
+                                    <Button Grid.Column="7" Grid.Row="10" Margin="6,11,6,11" Name="buttonShowCurrentPossibleMoves"
  Background="Transparent" ToolTip="{x:Static p:Resources.ShowLEDs}"
  BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick">
-                                <Image Source="Assets/Icons/eye.png" />
-                            </Button>
+                                        <Image Source="Assets/Icons/eye.png" />
+                                    </Button>
 
-                            <CheckBox Name="checkBoxPossibleMovesEval" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="25,16,0,0"
+                                    <CheckBox Name="checkBoxPossibleMovesEval" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="25,16,0,0"
                               ToolTip="{x:Static p:Resources.ThisIsAGoodMove}"
                               Grid.Column="0" Grid.Row="11" Content="{x:Static p:Resources.EvaluationGood}"/>
 
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="11"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="11"
                                                            x:Name="numericUpDownUserControlGoodMoveEvaluationRed"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="11"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="11"
                                                            x:Name="numericUpDownUserControlGoodMoveEvaluationGreen"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="11"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="11"
                                                            x:Name="numericUpDownUserControlGoodMoveEvaluationBlue"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                          
-                            
-                            <Button Grid.Column="7" Grid.Row="11" Margin="0,11,0,11" Name="buttonShowCurrentGoodMoveEvaluation"
+
+
+                                    <Button Grid.Column="7" Grid.Row="11" Margin="0,11,0,11" Name="buttonShowCurrentGoodMoveEvaluation"
                             Background="Transparent" ToolTip="{x:Static p:Resources.ShowLEDs}"
                             BorderBrush="Transparent" Width="20" Height="20" Click="ButtonShowHideLEDs_OnClick" HorizontalAlignment="Center">
-                                <Image Source="Assets/Icons/eye.png" />
-                            </Button>
+                                        <Image Source="Assets/Icons/eye.png" />
+                                    </Button>
 
-                            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,16,0,0"
+                                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,16,0,0"
                                ToolTip="{x:Static p:Resources.ThisIsABadMove}"
                                Grid.Column="0" Grid.Row="12" Text="{x:Static p:Resources.Bad}" Grid.ColumnSpan="2"/>
 
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="12"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="12"
                                                            x:Name="numericUpDownUserControlBadMoveEvaluationRed"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="12"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="12"
                                                            x:Name="numericUpDownUserControlBadMoveEvaluationGreen"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="12"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="12"
                                                            x:Name="numericUpDownUserControlBadMoveEvaluationBlue"
                                                            MinValue="0"
                                                           MaxValue="255" TextWidthProperty="30" />
-                           
-                          
-                            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,16,0,0"
+
+
+                                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,16,0,0"
                                ToolTip="{x:Static p:Resources.PlayableMove}" Text="{x:Static p:Resources.Playable}"
                         Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="2"/>
 
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="13"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="2" Grid.Row="13"
                                  x:Name="numericUpDownUserControlPlayableMoveEvaluationRed"
                                  MinValue="0"
                                 MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="13"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="3" Grid.Row="13"
                                  x:Name="numericUpDownUserControlPlayableMoveEvaluationGreen"
                                  MinValue="0"
                                 MaxValue="255" TextWidthProperty="30" />
-                            <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="13"
+                                    <local:NumericUpDownUserControl Margin="5,5,5,0" Grid.Column="4" Grid.Row="13"
                                  x:Name="numericUpDownUserControlPlayableMoveEvaluationBlue"
                                  MinValue="0"
                                 MaxValue="255" TextWidthProperty="30" />
-
+                                </Grid>
+                            </ScrollViewer>
                         </Grid>
 
 

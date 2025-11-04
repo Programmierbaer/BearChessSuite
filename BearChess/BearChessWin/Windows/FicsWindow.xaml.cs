@@ -216,9 +216,37 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         #region IEngineWindow
 
+        public void AddEngineName(string engineName, int color)
+        {
+            //
+        }
+
+        public void RemoveEngineName(string engineName)
+        {
+            //
+        }
+        public void BestMoveBy(string engineName)
+        {
+            //
+        }
+        public void AddValue(string engineName, decimal score)
+        {
+            //
+        }
+
+        public void ClearAll()
+        {
+            //
+        }
+
         public event EventHandler<EngineEventArgs> EngineEvent;
 
         public int EnginesCount => 1;
+
+        public void ShowGraphWindow(bool show)
+        {
+            //
+        }
 
         public void CloseLogWindow()
         {
@@ -384,6 +412,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         {
             //
         }
+
 
         public void ClearTimeControl()
         {

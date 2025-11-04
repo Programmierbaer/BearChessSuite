@@ -361,6 +361,12 @@
                             <Image Source="Assets/Icons/tick.png" Name="imageAnalysisBar" />
                         </MenuItem.Icon>
                     </MenuItem>
+                    <MenuItem Header="{x:Static p:Resources.ShowGraphicalPositionScore}" Name="menuItemShowGraphicScoreLine"
+                              Click="MenuItemShowGraphicScoreLine_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="Assets/Icons/tick.png" Name="imageGraphicScoreLine" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <MenuItem Header="{x:Static p:Resources.ShowCommunicationWindow}" Name="menuItemShowUciLog"
                               Click="MenuItemShowUciLog_OnClick">
                         <MenuItem.Icon>

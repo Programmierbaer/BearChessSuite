@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib"
         xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties"
-        mc:Ignorable="d" WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
-        Title="{x:Static p:Resources.ConfigureIChessOne}" Height="880" Width="610" SizeToContent="WidthAndHeight">
+        mc:Ignorable="d" WindowStartupLocation="CenterOwner"  ResizeMode="NoResize" SizeToContent="WidthAndHeight"
+        Title="{x:Static p:Resources.ConfigureIChessOne}"  Width="610" >
     <StackPanel>
         <Border Margin="5" BorderBrush="Gray" BorderThickness="1">
             <Grid>
@@ -87,11 +87,12 @@
 
             </Grid>
         </Border>
-        <Border Name="borderLEDs" Margin="5" BorderBrush="Gray" BorderThickness="1">
-            <TabControl Height="620">
+        <Grid>
+            
+                <Border Name="borderLEDs" Margin="5" BorderBrush="Gray" BorderThickness="1">
+            <TabControl >
                 <TabItem Header="{x:Static p:Resources.LEDs}">
                     <StackPanel>
-
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
@@ -151,9 +152,38 @@
                                  Width="20" HorizontalAlignment="Center" ToolTip="{x:Static p:Resources.Brightness}" />
                             <Image Grid.Column="6" Grid.Row="0" Source="Assets/Icons/lightning.png"
                                  Width="20" HorizontalAlignment="Center" ToolTip="{x:Static p:Resources.Flash}" />
-                            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"
-                                    Margin="25,0,0,0" ToolTip="{x:Static p:Resources.FromField}"
-                                    Grid.Column="0" Grid.Row="1" Text="{x:Static p:Resources.MoveFrom}"/>
+                            <ScrollViewer CanContentScroll="True" Height="390" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="7">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                   Margin="25,0,0,0" ToolTip="{x:Static p:Resources.FromField}"
+                                                   Grid.Column="0" Grid.Row="1" Text="{x:Static p:Resources.MoveFrom}"/>
                             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"
                                      Margin="25,0,0,0" ToolTip="{x:Static p:Resources.ToField}"
                                      Grid.Column="0" Grid.Row="2" Text="{x:Static p:Resources.MoveTo}"/>
@@ -521,11 +551,9 @@
           Grid.Column="6"
           Grid.Row="13" Name="checkBoxFlashPlayableMoveEvaluation"
           Checked="RadioButtonSync_OnChecked" />
-
+                                    </Grid>
+                                </ScrollViewer>
                         </Grid>
-
-
-                        <StackPanel Orientation="Horizontal" />
                     </StackPanel>
                 </TabItem>
                 <TabItem Header="{x:Static p:Resources.ActiveLEDs}">
@@ -732,7 +760,8 @@
             </TabControl>
 
         </Border>
-
+     
+        </Grid>
         <StackPanel Visibility="Collapsed">
             <TextBox Name="textBoxSnd">45 4C</TextBox>
             <Button Name="buttonSend" Click="ButtonSend_OnClick" Content="{x:Static p:Resources.Send}"/>

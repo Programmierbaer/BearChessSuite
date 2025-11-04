@@ -97,7 +97,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         public event EventHandler<EngineEventArgs> EngineReadingEvent;
 
-        
 
         public UciLoader(UciInfo uciInfo, ILogging logger, IFICSClient ficsClient, string gameNumber)
         {

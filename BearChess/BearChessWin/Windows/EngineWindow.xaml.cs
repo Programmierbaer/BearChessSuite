@@ -5,16 +5,13 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Speech.Synthesis;
 using System.Windows;
 using www.SoLaNoSoft.com.BearChess.BearChessCommunication;
-using www.SoLaNoSoft.com.BearChess.CommonUciWrapper;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChess.FicsClient;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
-using www.SoLaNoSoft.com.BearChessTools;
 using Move = www.SoLaNoSoft.com.BearChessBase.Implementations.Move;
 using TimeControl = www.SoLaNoSoft.com.BearChessBase.Implementations.TimeControl;
 
@@ -42,6 +39,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private DisplayCountryType _displayCountryType;
         private string _firstEngineName;
         private string _hideInfo;
+        private string _hideGraphInfo;
         private string _lastCommand;
         private LogWindow _logWindow;
         private bool _showForWhite;
@@ -50,17 +48,18 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private bool _showNodesPerSec;
         private TimeControl _timeControl;
         private TimeControl _timeControlBlack;
-
-
         private bool _whiteOnTop;
 
         public EngineWindow(Configuration configuration, string uciPath)
         {
             InitializeComponent();
             _configuration = configuration;
+           
             _uciPath = uciPath;
             _fileLogger = new FileLogger(Path.Combine(_uciPath, "bearchess_uci.log"), 10, 10);
             _fileLogger.Active = bool.Parse(configuration.GetConfigValue("writeLogFiles", "true"));
+            engineValueGraph.Visibility = _configuration.GetBoolValue("showGraphicScore", true) ? Visibility.Visible : Visibility.Collapsed;
+            engineValueGraph.SetConfiguration(_configuration, _fileLogger);
             _whiteOnTop = true;
             Top = _configuration.GetWinDoubleValue("EngineWindowTop", Configuration.WinScreenInfo.Top,
                                                    SystemParameters.VirtualScreenHeight,
@@ -74,7 +73,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _showNodesPerSec = bool.Parse(_configuration.GetConfigValue("shownodespersec", "true"));
             _showHash = bool.Parse(_configuration.GetConfigValue("showhash", "true"));
             _showForWhite = bool.Parse(_configuration.GetConfigValue("showForWhite", "false"));
-            _hideInfo = _configuration.GetConfigValue("EngineWindowHideInfo", "0");
+            _hideInfo = "0";
+            _hideGraphInfo = _configuration.GetConfigValue("EngineGraphWindowHideInfo", "0");
             _currentColor = Fields.COLOR_WHITE;
             _displayFigureType = (DisplayFigureType)Enum.Parse(typeof(DisplayFigureType),
                   _configuration.GetConfigValue(
@@ -88,7 +88,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                _configuration.GetConfigValue(
                    "DisplayCountryTypeEngine",
                    DisplayCountryType.GB.ToString()));
-            
+            ShowEngineGraphHideButton();
         }
 
         public void SetDisplayTypes(DisplayFigureType figureType, DisplayMoveType moveType, DisplayCountryType countryType)
@@ -105,7 +105,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         public void SetConfiguration(Configuration configuration, string uciPath)
         {
-            
+           // engineValueGraph.Visibility = configuration.GetBoolValue("showGraphicScore", true) ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public void ShowCloseButton()
@@ -116,9 +116,38 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
         }
 
+        public void AddEngineName(string engineName, int color)
+        {
+            engineValueGraph.AddEngineName(engineName, color);
+        }
+
+        public void RemoveEngineName(string engineName)
+        {
+            engineValueGraph.RemoveEngineName(engineName);
+        }
+        public void BestMoveBy(string engineName)
+        {
+            engineValueGraph.BestMoveBy(engineName);
+        }
+        public void AddValue(string engineName, decimal score)
+        {
+            engineValueGraph.AddValue(engineName, score);
+        }
+
+        public void ClearAll()
+        {
+            engineValueGraph.ClearAll();
+        }
+
         public event EventHandler<EngineEventArgs> EngineEvent;
 
         public int EnginesCount => _loadedEnginesControls.Count;
+
+        public void ShowGraphWindow(bool show)
+        {
+            engineValueGraph.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        }
+
 
         public void CloseLogWindow()
         {
@@ -420,6 +449,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 engineInfoUserControl.Value.ClearMoves();
             }
+            engineValueGraph.NewGame();
             SwitchWindowPosition();
         }
 
@@ -526,6 +556,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _lastCommand = string.Empty;
         }
 
+       
         public void ClearTimeControl()
         {
             _timeControl = null;
@@ -824,8 +855,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     return false;
                 }
-
-
+                engineValueGraph.AddEngineName(uciInfo.Name,color);
                 var fileLogger = new UciLogger(uciInfo.Name, Path.Combine(_uciPath, uciInfo.Id, uciInfo.Id + ".log"), 2, 10);
                 fileLogger.Active = bool.Parse(_configuration.GetConfigValue("writeLogFiles", "true"));
                 fileLogger.UciCommunicationEvent += FileLogger_UciCommunicationEvent;
@@ -957,7 +987,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 return;
             }
 
-            _fileLogger?.LogDebug($"Read from engine {e.Name}: {e.FromEngine}");
+            _fileLogger?.LogDebug($"Read from engine {e.Name} with color {e.Color}: {e.FromEngine}");
             if (e.FromEngine.StartsWith(Constants.Teddy, StringComparison.OrdinalIgnoreCase))
             {
                 EngineEvent?.Invoke(
@@ -973,7 +1003,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             if (e.FromEngine.StartsWith("bestmove"))
             {
-              
+                engineValueGraph.BestMoveBy(e.Name);
                 EngineEvent?.Invoke(
                     this,
                     new EngineEventArgs(e.Name, e.FromEngine, _loadedEngines[e.Name].Color,
@@ -1019,6 +1049,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         {
                             score /= 100;
                             scoreString = $"Score {score.ToString(CultureInfo.InvariantCulture)}";
+                            if ((_loadedEnginesControls[e.Name].Color == Fields.COLOR_BLACK || e.Color==Fields.COLOR_BLACK) && _configuration.GetBoolValue("showForWhite", false))
+                            {
+                                engineValueGraph.AddValue(e.Name,  -score);
+                            }
+                            else
+                            {
+                                engineValueGraph.AddValue(e.Name, score);
+                            }
                         }
 
                         continue;
@@ -1038,6 +1076,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             if (currentMultiPv == 1 && !string.IsNullOrWhiteSpace(scoreString))
             {
+                
                 EngineEvent?.Invoke(
                     this,
                     new EngineEventArgs(e.Name, scoreString, _loadedEngines[e.Name].Color,
@@ -1067,7 +1106,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
             _configuration.SetDoubleValue("EngineWindowTop", Top);
             _configuration.SetDoubleValue("EngineWindowLeft", Left);
-            _configuration.SetConfigValue("EngineWindowHideInfo", _hideInfo);
         }
 
         private void LogWindow_SendEvent(object sender, LogWindow.SendEventArgs e)
@@ -1142,6 +1180,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             loadedUciEngine.UciEngine.StopProcess();
             _loadedUciInfos.Remove(engineName);
             _loadedEngines.Remove(engineName);
+            engineValueGraph.RemoveEngineName(engineName);
             _logWindow?.RemoveFor(engineName);
             var infoUserControl = stackPanelEngines.Children.Cast<EngineInfoUserControl>()
                                                    .FirstOrDefault(f => f.EngineName.Equals(engineName));
@@ -1215,6 +1254,56 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 UciEngine.SetOptions();
             }
+        }
+
+
+        private void ShowEngineGraphHideButton() 
+        {
+            if (_hideGraphInfo == "0")
+            {
+                buttonHide.Visibility = Visibility.Visible;
+                buttonHide1.Visibility = Visibility.Collapsed;
+                buttonHide2.Visibility = Visibility.Collapsed;
+                engineValueGraph.Visibility = Visibility.Visible;
+                engineValueGraph.ShowValueText(true);
+            }
+            if (_hideGraphInfo == "1")
+            {
+                buttonHide.Visibility = Visibility.Collapsed;
+                buttonHide1.Visibility = Visibility.Visible;
+                buttonHide2.Visibility = Visibility.Collapsed;
+                engineValueGraph.Visibility = Visibility.Visible;
+                engineValueGraph.ShowValueText(false);
+            }
+            if (_hideGraphInfo == "2")
+            {
+                buttonHide.Visibility = Visibility.Collapsed;
+                buttonHide1.Visibility = Visibility.Collapsed;
+                buttonHide2.Visibility = Visibility.Visible;
+                engineValueGraph.Visibility = Visibility.Collapsed;
+                engineValueGraph.ShowValueText(false);
+            }
+
+        }
+
+        private void ButtonHide_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (_hideGraphInfo == "0")
+            {
+                _hideGraphInfo = "1";
+            }
+            else if (_hideGraphInfo == "1")
+            {
+                _hideGraphInfo = "2";
+            }
+            else
+            {
+                _hideGraphInfo = "0";
+            }
+            _configuration.SetConfigValue("EngineGraphWindowHideInfo", _hideGraphInfo);
+            ShowEngineGraphHideButton();   
+            engineValueGraph.DrawValues();
+
         }
     }
 }

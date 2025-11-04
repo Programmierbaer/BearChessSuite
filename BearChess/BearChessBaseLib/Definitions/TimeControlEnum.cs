@@ -6,7 +6,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Definitions
     public enum TimeControlEnum
     {
         TimePerGame,
-        TimePerGameIncrement,
+        TimePerGameIncrement,        
         TimePerMoves,
         AverageTimePerMove,
         Adapted,

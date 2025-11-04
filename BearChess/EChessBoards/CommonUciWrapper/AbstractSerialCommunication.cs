@@ -666,10 +666,15 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                         if (_comPort == null)
                         {
                             _logger?.LogInfo("No HID port for Chessnut Air");
-                            return false;
-                        }
 
-                        
+
+                            _comPort = HIDComPort.GetComPort(0x2D80, 0xFF00, Constants.ChessnutPro, _logger);
+                            if (_comPort == null)
+                            {
+                                _logger?.LogInfo("No HID port for Chessnut Pro");
+                                return false;
+                            }
+                        }
                     }
 
                     if (_useBluetooth && comPort.StartsWith("B"))

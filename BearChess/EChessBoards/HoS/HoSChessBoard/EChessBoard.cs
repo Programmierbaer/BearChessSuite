@@ -320,6 +320,10 @@ namespace www.SoLaNoSoft.com.BearChess.HoSChessBoard
         public override void SetAllLEDsOff(bool forceOff)
         {
             _serialCommunication.ClearToBoard();
+            if (!_boardConfiguration.SendLEDCommands)
+            {
+                return;
+            }
             if (_useBluetooth)
             {
                 SetLedArray(new byte[] { 186 }, false);
@@ -334,6 +338,10 @@ namespace www.SoLaNoSoft.com.BearChess.HoSChessBoard
 
         public override void SetLedForFields(SetLEDsParameter ledsParameter)
         {
+            if (!_boardConfiguration.SendLEDCommands)
+            {
+                return;
+            }
             if (ledsParameter.FieldNames.Length == 0 &&
                 ledsParameter.HintFieldNames.Length == 0 &&
                 ledsParameter.InvalidFieldNames.Length == 0)

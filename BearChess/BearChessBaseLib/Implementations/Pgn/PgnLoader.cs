@@ -269,8 +269,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
                                 continue;
                             }
 
-                            currentGame?.AddMove(
-                                prevLine.Substring(prevLine.LastIndexOf(".", StringComparison.Ordinal) + 1), comment);
+                            currentGame?.AddMove(prevLine.Substring(prevLine.LastIndexOf(".", StringComparison.Ordinal) + 1), comment);
                             prevLine = newLine.Substring(newLine.LastIndexOf(".", StringComparison.Ordinal) + 1);
                             newLine = string.Empty;
                             comment = string.Empty;
@@ -319,10 +318,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
             {
                 return null;
             }
-        }
-
-     
-
+        }    
       
     }
 }
