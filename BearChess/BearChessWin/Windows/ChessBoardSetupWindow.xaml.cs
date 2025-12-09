@@ -59,6 +59,13 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 BlackFileName = string.Empty,
                 Id = Constants.BearChess
             };
+            installedFields[Constants.BearChessWood] = new BoardFieldsSetup()
+            {
+                Name = "BearChess Wood",
+                WhiteFileName = string.Empty,
+                BlackFileName = string.Empty,
+                Id = Constants.BearChessWood
+            };
 
             installedFields[Constants.Certabo] = new BoardFieldsSetup()
             {
@@ -95,6 +102,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _unDeleteablePieces.Add(installedPieces[Constants.BryanWhitbyModernGold].Name);
             _unDeleteablePieces.Add(installedPieces[Constants.BryanWhitbyModernBrown].Name);
             _unDeleteableFields.Add(Constants.BearChess);
+            _unDeleteableFields.Add(Constants.BearChessWood);
             _unDeleteableFields.Add(Constants.Certabo);
             _unDeleteableFields.Add(Constants.Tabutronic);
 

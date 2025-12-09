@@ -26,6 +26,11 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             return _allFields.TryGetValue(fieldName, out var field) ? field : string.Empty;
         }
 
+        public string GetFigureOnField(int fieldNumber)
+        {
+            return _allFields.TryGetValue(Fields.GetFieldName(fieldNumber).ToLower(), out var field) ? field : string.Empty;
+        }
+
 
         public bool WhiteKingOnBasePosition()
         {

@@ -88,6 +88,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             radioButtonFlexible.IsChecked = variation == OpeningBook.VariationsEnum.Flexible;
             radioButtonWide.IsChecked = variation == OpeningBook.VariationsEnum.Wide;
             checkBoxUseOpeningBook.IsEnabled = installedBooks.Length > 0;
+            numericUpDownBookDeep.Value = uciInfo.OpeningBookDeep;
             checkBoxWaitForStart.IsChecked = uciInfo.WaitForStart;
             numericUpDownUserControlWait.Value = uciInfo.WaitSeconds;
             if (!string.IsNullOrWhiteSpace(uciInfo.OpeningBook))
@@ -202,6 +203,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 Valid = _uciInfo.Valid,
                 OpeningBook = checkBoxUseOpeningBook.IsChecked.HasValue && checkBoxUseOpeningBook.IsChecked.Value ? comboBoxOpeningBooks.SelectedItem.ToString() : string.Empty,
                 OpeningBookVariation = GetVariation(),
+                OpeningBookDeep = numericUpDownBookDeep.Value,
                 AdjustStrength = false,
                 CommandParameter = textBlockFileParameter.Text,
                 LogoFileName = textBlockLogoFileName.Text,

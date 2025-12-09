@@ -2,7 +2,7 @@
 using System.Windows;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
 
-namespace www.SoLaNoSoft.com.BearChessWin
+namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
 {
     /// <summary>
     /// Interaktionslogik für MovesConfigWindow.xaml

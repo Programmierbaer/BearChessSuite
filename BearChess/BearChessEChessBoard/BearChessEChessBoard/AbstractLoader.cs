@@ -419,6 +419,8 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         }
 
         public bool PieceRecognition => _eChessBoard.PieceRecognition;
+        public bool SelfMoving => _eChessBoard.SelfMoving;
+
         public bool MultiColorLEDs => _eChessBoard.MultiColorLEDs;
 
         public bool ValidForAnalyse => _eChessBoard.ValidForAnalyse;

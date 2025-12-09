@@ -1,23 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Resources;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using www.SoLaNoSoft.com.BearChess.ChessnutAirLoader;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
-using www.SoLaNoSoft.com.BearChessTools;
 
 namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
 {
@@ -31,7 +21,6 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         private readonly EChessBoardConfiguration _eChessBoardConfiguration;
         private int _currentIndex;
         private bool _loaded = false;
-        private string _lastButtonName = string.Empty;
         private readonly FileLogger _fileLogger;
         private readonly ResourceManager _rm;
 
@@ -325,7 +314,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
 
         private void ShowExample(string buttonName)
         {
-            _lastButtonName = buttonName;
+            
             if (buttonName.Equals("buttonShowMoveFrom"))
             {
                 string movesFrom = "E2";

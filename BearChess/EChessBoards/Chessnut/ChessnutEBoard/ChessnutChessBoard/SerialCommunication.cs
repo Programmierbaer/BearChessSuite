@@ -55,9 +55,9 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
         {
             _logger?.LogDebug("SC: Communicate");
             IsCommunicating = true;
-            bool withConnection = true;
-            string lastReadToSend = string.Empty;
-            string convertFromRead = string.Empty;
+            var withConnection = true;
+            var lastReadToSend = string.Empty;
+            var convertFromRead = string.Empty;
             _readingThread = new Thread(ReadingFromBoard) { IsBackground = true };
             _readingThread.Start();
             while (!_stopReading)
@@ -71,11 +71,11 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
 
                     if (withConnection && !_pauseReading)
                     {
-                        if (_byteDataToBoard.TryDequeue(out ByteDataWithInfo byteData))
+                        if (_byteDataToBoard.TryDequeue(out var byteData))
                         {
                           
                                 convertFromRead = ConvertFromArray(byteData.Data);
-                                bool force = false;
+                                var force = false;
                                 if (_forcedSend)
                                 {
                                     force = ConvertFromArray(_forcedSendValue).Equals(convertFromRead);
@@ -98,7 +98,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
                 catch (Exception ex)
                 {
                     withConnection = false;
-                    string port = _useBluetooth ? "BTLE" : "HID";
+                    var port = _useBluetooth ? "BTLE" : "HID";
                     _logger?.LogError($"SC: Error with {port} port: {convertFromRead} ");
                     _logger?.LogError($"SC: Error with {port} port: {ex.Message} ");
 
@@ -134,7 +134,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
 
         private string ConvertFromRead(byte[] bArray)
         {
-            string r = string.Empty;
+            var r = string.Empty;
             foreach (var b in bArray)
             {
                 r = r + b.ToString("X2") + " ";
@@ -146,9 +146,9 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
 
         private void ReadingFromBoard()
         {
-            bool withConnection = true;
-            string readLine = string.Empty;
-            string prevLine = string.Empty;
+            var withConnection = true;
+            var readLine = string.Empty;
+            var prevLine = string.Empty;
             while (!_stopReading)
             {
                 Thread.Sleep(5);
@@ -164,7 +164,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
                             try
                             {
                                 {
-                                    byte[] readByte = _comPort.ReadByteArray();
+                                    var readByte = _comPort.ReadByteArray();
                                     if (readByte.Length > 0)
                                     {
                                         var convertFromRead = ConvertFromRead(readByte);
@@ -199,7 +199,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
                 catch (Exception ex)
                 {
                     withConnection = false;
-                    string port = _useBluetooth ? "BTLE" : "HID";
+                    var port = _useBluetooth ? "BTLE" : "HID";
                     _logger?.LogError($"SC: Error with {port} port: {readLine} ");
                     _logger?.LogError($"SC: Error with {port} port: {ex.Message} ");
                     //break;

@@ -8,10 +8,10 @@
         mc:Ignorable="d" Closing="BearChessMainWindow_OnClosing"  Background="WhiteSmoke"
         LocationChanged="BearChessMainWindow_OnLocationChanged" KeyDown="BearChessMainWindow_OnKeyDown"
         xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
-        PreviewKeyDown="BearChessMainWindow_OnPreviewKeyDown"
+        PreviewKeyDown="BearChessMainWindow_OnPreviewKeyDown" SizeChanged="Window_OnResizeChanged"
         xmlns:bearChessWpfCustomControlLib="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib;assembly=BearChessWpfCustomControlLib"
-        Width="1400"
-        Title="BearChess" MinHeight="660" MinWidth="600">
+        Width="1400" StateChanged="BearChessMainWindow_OnStateChanged"
+        Title="BearChess" MinHeight="680" MinWidth="600">
     <Window.Resources>
         <ResourceDictionary>
             <RoutedUICommand x:Key="CtrN" Text="New game" />
@@ -361,10 +361,10 @@
                             <Image Source="Assets/Icons/tick.png" Name="imageAnalysisBar" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="{x:Static p:Resources.ShowGraphicalPositionScore}" Name="menuItemShowGraphicScoreLine"
+                    <MenuItem Header="{x:Static p:Resources.ConfigureGraphicalPositionScore}" Name="menuItemShowGraphicScoreLine"
                               Click="MenuItemShowGraphicScoreLine_OnClick">
                         <MenuItem.Icon>
-                            <Image Source="Assets/Icons/tick.png" Name="imageGraphicScoreLine" />
+                            <Image Source="/Assets/Icons/chart_line.png"  />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="{x:Static p:Resources.ShowCommunicationWindow}" Name="menuItemShowUciLog"
@@ -527,6 +527,20 @@
                                   Click="MenuItemFastMoveInput_OnClick">
                             <MenuItem.Icon>
                                 <Image Name="imageFastMoveInput" Source="Assets/Icons/tick.png" Visibility="Hidden" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Name="menuItemResizeChessboard" Header="{x:Static p:Resources.ResizeChessboard}"
+                                  ToolTip="{x:Static p:Resources.ResizeChessboardTip}"
+                                  Click="MenuItemResizeChessboard_OnClick">
+                            <MenuItem.Icon>
+                                <Image Name="imageResizeChessboard" Source="Assets/Icons/tick.png" Visibility="Hidden" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Name="menuItemShowSmallChessClock" Header="{x:Static p:Resources.ShowSmallClocks}"
+                                  ToolTip="{x:Static p:Resources.ShowSmallClocksTip}"
+                                  Click="MenuItemShowSmallChessClock_OnClick">
+                            <MenuItem.Icon>
+                                <Image Name="imageShowSmallChessClock" Source="Assets/Icons/tick.png" Visibility="Hidden" />
                             </MenuItem.Icon>
                         </MenuItem>
 
@@ -1091,6 +1105,23 @@
                                 </MenuItem.Icon>
                             </MenuItem>
                         </MenuItem>
+                        <MenuItem Header="Chessnut Move" Name="menuItemChessnutMoveBoard" >
+                            <MenuItem.Icon>
+                                <Image Source="Assets/Icons/chessnut.png" />
+                            </MenuItem.Icon>
+                            <MenuItem Name="menuItemConnectToChessnutMoveBoard" Header="{x:Static p:Resources.Connect}"
+                                      Click="MenuItemConnectChessnutMoveBoard_OnClick">
+                                <MenuItem.Icon>
+                                    <Image Source="Assets/Icons/connect.png" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Name="menuItemConfigureChessnutMove" Header="{x:Static p:Resources.Configure}"
+                                      Click="MenuItemConfigureChessnutMove_OnClick">
+                                <MenuItem.Icon>
+                                    <Image Source="Assets/Icons/cog.png" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </MenuItem>
                         <MenuItem Header="Chessnut Evo" Name="menuItemChessnutEvo">
                             <MenuItem.Icon>
                                 <Image Source="Assets/Icons/chessnut.png" />
@@ -1334,9 +1365,9 @@
             </StackPanel>
             <Canvas Name="canvasBoard" Grid.Row="1" Grid.Column="0" />
             <local:EngineWindowUserControl Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left"
-                                           Margin="0" x:Name="EngineWindowUserControl" />
+                                           Margin="0" x:Name="EngineWindowUserControl" Visibility="Collapsed" />
         </Grid>
-        <DockPanel Margin="5" Grid.Row="1">
+        <DockPanel Name="dockPanelBelowBoard"  Margin="5" Grid.Row="1">
             <Button VerticalAlignment="Center" Visibility="Hidden" DockPanel.Dock="Right" Name="buttonConnect"
                     Margin="5" Background="Transparent" BorderBrush="Transparent" Click="ButtonConnect_OnClick">
                 <StackPanel Orientation="Horizontal">
@@ -1390,7 +1421,7 @@
         </DockPanel>
 
 
-        <StatusBar Grid.Row="2" VerticalAlignment="Bottom">
+        <StatusBar Name="statusBarBottom" Grid.Row="2" VerticalAlignment="Bottom">
             <StatusBarItem>
                 <TextBlock Name="textBlockRunningMode" Text="{x:Static p:Resources.ModeEasyPlaying}" />
             </StatusBarItem>

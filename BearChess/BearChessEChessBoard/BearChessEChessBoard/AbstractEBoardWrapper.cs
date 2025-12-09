@@ -233,6 +233,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         }
 
         public bool PieceRecognition => _board?.PieceRecognition ?? true;
+        public bool SelfMoving => _board?.SelfMoving ?? false;
 
         public void Ignore(bool ignore)
         {
@@ -413,6 +414,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             var position = _internalChessBoard.GetPosition();
             _waitForFen.Enqueue(position);
             _board?.SetLedForFields(setLEDsParameter);
+            _board?.SetFen(position);
             _stop = false;
         }
 
@@ -548,6 +550,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             _fileLogger?.LogDebug($"AB: Wait for: {position}");
             // Set LEDs on for received move and wait until board is in same position
             _waitForFen.Enqueue(position);
+
             _board?.SetLedForFields(new SetLEDsParameter()
             {
                 FieldNames = new[] { lastMove.Substring(0, 2), lastMove.Substring(2, 2) },
@@ -805,7 +808,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                 {
                     continue;
                 }
-                var checkForAlternateMoves = Configuration.Instance.GetBoolValue("checkForAlternateMoves", false);
+                var checkForAlternateMoves = Configuration.Instance.GetBoolValue("checkForAlternateMoves", true);
                 if (checkForAlternateMoves)
                 {
                     if (piecesFen.FromBoard.StartsWith("r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R"))
@@ -871,6 +874,13 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                         continue;
                     }
                 }
+                //else
+                //{
+                //    if (piecesFen.Invalid && _board.SelfMoving)
+                //    {
+                //        _board.SetFen(_internalChessBoard.GetPosition());
+                //    }
+                //}
             }
 
         }

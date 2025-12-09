@@ -18,8 +18,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
         void AddEngineName(string engineName, int color);
         void RemoveEngineName(string engineName);
         void BestMoveBy(string engineName);
-        void AddValue(string engineName, decimal score);
+        void MoveMadeBy(int color);
+        void AddValue(string engineName, decimal moveValue, int moveColor, bool showForWhite);
         void ClearAll();
+        void RefreshColors();
     }
 
     public interface IEngineWindow : IEngineGraphWindow

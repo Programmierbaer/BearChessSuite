@@ -22,10 +22,10 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
         public static string GetChessLinkFen(string fen)
         {
             
-            string result = string.Empty;
+            var result = string.Empty;
             var strings = fen.Split(" ".ToCharArray());
             var lines = strings[0].Split("/".ToCharArray());
-            for (int i = 0; i < lines.Length; i++)
+            for (var i = 0; i < lines.Length; i++)
             {
                 var substring = lines[i];
                 result += GetChessLinkFenLine(substring);
@@ -57,7 +57,7 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                 attr |= MyEnum.BlackLongCastling;
             }
 
-            string format = Enum.Format(typeof(MyEnum), attr, "X");
+            var format = Enum.Format(typeof(MyEnum), attr, "X");
             format = format.Substring(format.Length - 2);
             if (strings[3].Equals("-"))
             {
@@ -65,7 +65,7 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             }
             else
             {
-                string row = (int.Parse(strings[3][1].ToString()) - 1)+ Array.IndexOf(ranks, strings[3][0].ToString().ToUpper()).ToString();
+                var row = (int.Parse(strings[3][1].ToString()) - 1)+ Array.IndexOf(ranks, strings[3][0].ToString().ToUpper()).ToString();
                 format += row;
             }
 

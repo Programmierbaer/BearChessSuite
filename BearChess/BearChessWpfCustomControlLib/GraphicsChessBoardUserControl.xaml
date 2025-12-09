@@ -317,6 +317,70 @@
         <BitmapImage x:Key="bitmapTabuTronicH7" UriSource="/Assets/TabuTronic/white.png" />
         <BitmapImage x:Key="bitmapTabuTronicH8" UriSource="/Assets/TabuTronic/black.png" />
 
+        <BitmapImage x:Key="bitmapBearChessWoodA1" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodA2" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodA3" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodA4" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodA5" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodA6" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodA7" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodA8" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodB1" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodB2" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodB3" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodB4" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodB5" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodB6" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodB7" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodB8" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodC1" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodC2" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodC3" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodC4" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodC5" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodC6" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodC7" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodC8" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodD1" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodD2" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodD3" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodD4" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodD5" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodD6" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodD7" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodD8" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodE1" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodE2" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodE3" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodE4" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodE5" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodE6" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodE7" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodE8" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodF1" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodF2" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodF3" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodF4" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodF5" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodF6" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodF7" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodF8" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodG1" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodG2" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodG3" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodG4" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodG5" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodG6" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodG7" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodG8" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodH1" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodH2" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodH3" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodH4" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodH5" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodH6" UriSource="/Assets/Wood/black.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodH7" UriSource="/Assets/Wood/white.png" />
+        <BitmapImage x:Key="bitmapBearChessWoodH8" UriSource="/Assets/Wood/black.png" />
 
 
     </UserControl.Resources>

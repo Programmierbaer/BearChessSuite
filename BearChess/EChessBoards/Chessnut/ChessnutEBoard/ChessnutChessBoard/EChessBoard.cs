@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChessBase;
-using www.SoLaNoSoft.com.BearChessBase.Definitions;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 
@@ -185,7 +184,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
                         }
                     }
                     switchSide = !switchSide;
-                    List<byte> inits = new List<byte>() { 0x0A, 0x08 };
+                    var inits = new List<byte>() { 0x0A, 0x08 };
                     inits.AddRange(result);
                     _serialCommunication.Send(inits.ToArray());
                     Thread.Sleep(500);

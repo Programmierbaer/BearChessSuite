@@ -11,7 +11,7 @@
 
         <WrapPanel  Grid.Column="0" Grid.Row="0"  Orientation="Horizontal" Margin="1">
             <WrapPanel  Name="stackPanelEngines" Orientation="Horizontal" Margin="1"/>
-            <Border  Background="AliceBlue"  BorderBrush="Gray" BorderThickness="1" Margin="1">
+            <Border Background="AliceBlue"  BorderBrush="Gray" BorderThickness="1" Margin="1">
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"></RowDefinition>

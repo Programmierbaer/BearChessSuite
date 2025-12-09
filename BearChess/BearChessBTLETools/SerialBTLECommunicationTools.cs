@@ -9,12 +9,12 @@ namespace www.SoLaNoSoft.com.BearChessBTLETools
 
     public class BTLEDeviceIdList
     {
-        public string ID { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; }
 
         public BTLEDeviceIdList(string id, string name)
         {
-            ID = id;
+            Id = id;
             Name = name;
         }
 
@@ -48,7 +48,7 @@ namespace www.SoLaNoSoft.com.BearChessBTLETools
                 };
 
                 // BT_Code: Example showing paired and non-paired in a single query.
-                string aqsAllBluetoothLEDevices =
+                var aqsAllBluetoothLEDevices =
                     "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")";
                 allDevices.Clear();
                 _deviceWatcher =
@@ -73,17 +73,19 @@ namespace www.SoLaNoSoft.com.BearChessBTLETools
 
         public static void StopWatching()
         {
-            if (_deviceWatcher != null)
+            if (_deviceWatcher == null)
             {
-                // Unregister the event handlers.
-                _deviceWatcher.Added -= DeviceWatcher_Added;
-                _deviceWatcher.Removed -= DeviceWatcher_Removed;
-
-                // Stop the watcher.
-                _deviceWatcher.Stop();
-                _deviceWatcher = null;
-                _logger?.LogDebug("Stop Watching");
+                return;
             }
+
+            // Unregister the event handlers.
+            _deviceWatcher.Added -= DeviceWatcher_Added;
+            _deviceWatcher.Removed -= DeviceWatcher_Removed;
+
+            // Stop the watcher.
+            _deviceWatcher.Stop();
+            _deviceWatcher = null;
+            _logger?.LogDebug("Stop Watching");
         }
 
         public static List<BTLEDeviceIdList> DeviceIdList { get;  set; }
@@ -95,7 +97,7 @@ namespace www.SoLaNoSoft.com.BearChessBTLETools
                 DeviceIdList = new List<BTLEDeviceIdList>();
             }
             DeviceIdList.Clear();
-            string portName = string.Empty;
+            var portName = string.Empty;
             foreach (var device in allDevices.Values)
             {
                 if (string.IsNullOrWhiteSpace(device.Name))
@@ -132,30 +134,29 @@ namespace www.SoLaNoSoft.com.BearChessBTLETools
 
         private static void DeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate deviceInfo)
         {
-            if (allDevices.ContainsKey(deviceInfo.Id))
-            {
-                allDevices.Remove(deviceInfo.Id);
-            }
+            allDevices.Remove(deviceInfo.Id);
         }
 
         private static void DeviceWatcher_Added(DeviceWatcher sender, DeviceInformation deviceInfo)
         {
-            if (!allDevices.ContainsKey(deviceInfo.Id))
+            if (allDevices.ContainsKey(deviceInfo.Id))
             {
-                _logger?.LogDebug($"Device added. Id: {deviceInfo.Id}  Name: {deviceInfo.Name}");
-                allDevices[deviceInfo.Id] = deviceInfo;
-                if (!string.IsNullOrWhiteSpace(deviceInfo.Name))
+                return;
+            }
+
+            _logger?.LogDebug($"Device added. Id: {deviceInfo.Id}  Name: {deviceInfo.Name}");
+            allDevices[deviceInfo.Id] = deviceInfo;
+            if (string.IsNullOrWhiteSpace(deviceInfo.Name))
+            {
+                return;
+            }
+
+            foreach (var deviceName in _deviceNames)
+            {
+                if (deviceInfo.Name.StartsWith(deviceName, StringComparison.OrdinalIgnoreCase))
                 {
-                    foreach (string deviceName in _deviceNames)
-                    {
-                        if (deviceInfo.Name.StartsWith(deviceName, StringComparison.OrdinalIgnoreCase))
-                        {
+                    DeviceIdList.Add(new BTLEDeviceIdList(deviceInfo.Id, deviceInfo.Name.Replace("\n", string.Empty)));
 
-                            DeviceIdList.Add(new BTLEDeviceIdList(deviceInfo.Id,
-                                deviceInfo.Name.Replace("\n", string.Empty)));
-
-                        }
-                    }
                 }
             }
         }

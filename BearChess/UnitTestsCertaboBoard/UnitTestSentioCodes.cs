@@ -4,6 +4,19 @@ using www.SoLaNoSoft.com.BearChessBase.Definitions;
 
 namespace UnitTestsCertaboBoard
 {
+
+
+    [TestClass]
+    public class UnitTestChessnutMove
+    {
+        [TestMethod]
+        public void TesBasePositionByteCodes()
+        {
+
+        }
+    }
+
+
     [TestClass]
     public class UnitTestSentioCodes
     {

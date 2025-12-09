@@ -96,6 +96,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         }
 
         public bool PieceRecognition { get; set; } = true;
+        public bool SelfMoving { get; set; } = false;
 
         public bool SelfControlled { get; set; }
         public bool MultiColorLEDs { get; set; } = false;
@@ -130,8 +131,6 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         public abstract void ResetClock();
         public abstract void SetCurrentColor(int currentColor);
         public abstract void SetEngineColor(int color);
-
-
     
         public void AcceptProbingMoves(bool acceptProbingMoves)
         {
@@ -232,6 +231,11 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         {
             _stopAll = true;
             _serialCommunication.DisConnect();
+        }
+
+        public virtual void AwaitingPosition(string fenPosition)
+        {
+            //
         }
     }
 }

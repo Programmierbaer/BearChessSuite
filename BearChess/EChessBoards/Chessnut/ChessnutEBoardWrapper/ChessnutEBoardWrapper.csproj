@@ -45,6 +45,7 @@
     <Compile Include="ChessnutAirImpl.cs" />
     <Compile Include="ChessnutEvoImpl.cs" />
     <Compile Include="ChessnutGoImpl.cs" />
+    <Compile Include="ChessnutMoveImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

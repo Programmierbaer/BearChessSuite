@@ -2844,4 +2844,7 @@
   <data name="SecPlus" xml:space="preserve">
     <value>Sek. plus</value>
   </data>
+  <data name="Deep" xml:space="preserve">
+    <value>Tiefe:</value>
+  </data>
 </root>

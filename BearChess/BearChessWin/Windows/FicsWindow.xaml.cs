@@ -229,8 +229,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
         {
             //
         }
-        public void AddValue(string engineName, decimal score)
+
+        public void MoveMadeBy(int color)
+        { 
+            //
+        }
+
+        public void AddValue(string engineName, decimal score, int moveColor, bool showForWhite)
         {
+         
             //
         }
 
@@ -1308,14 +1315,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 EngineEvent?.Invoke(
                     this,
-                    new EngineEventArgs(e.Name, e.FromEngine, _loadedEngine.Color,true, false, false));
+                    new EngineEventArgs(e.Name, e.FromEngine, _loadedEngine.Color,true, false, false,e.ValidForAnalysis));
             }
 
             if (e.FromEngine.Contains(" pv "))
             {
                 EngineEvent?.Invoke(
                     this,
-                    new EngineEventArgs(e.Name, e.FromEngine, _loadedEngine.Color, true, false, false));
+                    new EngineEventArgs(e.Name, e.FromEngine, _loadedEngine.Color, true, false, false,e.ValidForAnalysis));
             }
         }
 
@@ -1368,5 +1375,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
         }
 
         public void ShowCloseButton() {}
+
+        public void RefreshColors()
+        {
+            //
+        }
     }
 }

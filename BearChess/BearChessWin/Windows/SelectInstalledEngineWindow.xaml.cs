@@ -155,6 +155,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 SelectedEngine.ClearOptionValues();
                 SelectedEngine.OpeningBook = uciInfo.OpeningBook;
                 SelectedEngine.OpeningBookVariation = uciInfo.OpeningBookVariation;
+                SelectedEngine.OpeningBookDeep = uciInfo.OpeningBookDeep;
                 SelectedEngine.AdjustStrength = uciInfo.AdjustStrength;
                 SelectedEngine.CommandParameter = uciInfo.CommandParameter;
                 SelectedEngine.LogoFileName = uciInfo.LogoFileName;

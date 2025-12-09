@@ -328,22 +328,25 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                 chessBoard.SetPosition(fenPosition);
                 foreach (var bookMove in bookMoves)
                 {
+                    var chessBoard2 = new ChessBoard();
+                    chessBoard2.NewGame();
+                    chessBoard2.Init();
+                    chessBoard2.SetPosition(fenPosition);
+                    chessBoard2.MakeMove(bookMove.FromField, bookMove.ToField);
+                    var bookFenPos = chessBoard2.GetFenPosition();
                     if (!string.IsNullOrWhiteSpace(ecoCode))
                     {
-                        var chessBoard2 = new ChessBoard();
-                        chessBoard2.NewGame();
-                        chessBoard2.Init();
-                        chessBoard2.SetPosition(fenPosition);
-                        chessBoard2.MakeMove(bookMove.FromField, bookMove.ToField);
-                        var bookFenPos = chessBoard2.GetFenPosition();
+                       
                         if (!ecoCodes.ContainsKey(bookFenPos) || !ecoCodes[bookFenPos].Code.Equals(ecoCode))
                         {
                             continue;
                         }
+                        bookMove.FenPosition = bookFenPos;
                         validBookMoves.Add(bookMove);
                     }
                     else
                     {
+                        bookMove.FenPosition = bookFenPos;
                         validBookMoves.Add(bookMove);
                     }
 

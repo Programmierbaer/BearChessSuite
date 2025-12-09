@@ -71,32 +71,34 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         public bool SendBuzzerCheckMate { get; set; }
         public string RGBBookMove { get; set; }
         public bool FlashBookMove { get; set; }
+        public bool AutoMoveFigures { get; set; }
+        public bool SendLedCommands { get; set; }
 
-        public ExtendedEChessBoardConfiguration() : this(false)
+        public ExtendedEChessBoardConfiguration() : this(false, false)
         {
             
         }
 
-        public ExtendedEChessBoardConfiguration(bool isSpectrum = false)
+        public ExtendedEChessBoardConfiguration(bool isSpectrum = false, bool isChessnutMove = false)
         {
             Name = "BearChess";
             DimLevel = 4;
             ShowMoveLine = false;
             ShowCurrentColor = true;
             ShowEvaluationValue = true;
-            RGBCurrentColor =          isSpectrum ? "000009009" : "099";
-            RGBInvalid =               isSpectrum ? "015000000" : "F00";
-            RGBTakeBack =              isSpectrum ? "000015015" : "0FF";
-            RGBHelp =                  isSpectrum ? "000000015" : "00F";
-            RGBBookMove =              isSpectrum ? "000000015" : "00F";
-            RGBMoveFrom =              isSpectrum ? "000015000" : "0F0";
-            RGBMoveTo =                isSpectrum ? "000015000" : "0F0";
-            RGBEvalAdvantage =         isSpectrum ? "000015000" : "0F0";
-            RGBEvalDisAdvantage =      isSpectrum ? "015000000" : "F00";
-            RGBPossibleMoves =         isSpectrum ? "000000015" : "00F";
-            RGBPossibleMovesGood =     isSpectrum ? "000015000" : "0F0";
-            RGBPossibleMovesBad =      isSpectrum ? "015000000" : "F00";
-            RGBPossibleMovesPlayable = isSpectrum ? "000000015" : "00F";
+            RGBCurrentColor =          isSpectrum ? "000009009" : isChessnutMove ? "000" : "099";
+            RGBInvalid =               isSpectrum ? "015000000" : isChessnutMove ? "010" : "F00";
+            RGBTakeBack =              isSpectrum ? "000015015" : isChessnutMove ? "001" : "0FF";
+            RGBHelp =                  isSpectrum ? "000000015" : isChessnutMove ? "001" : "00F";
+            RGBBookMove =              isSpectrum ? "000000015" : isChessnutMove ? "001" : "00F";
+            RGBMoveFrom =              isSpectrum ? "000015000" : isChessnutMove ? "010" : "0F0";
+            RGBMoveTo =                isSpectrum ? "000015000" : isChessnutMove ? "010" : "0F0";
+            RGBEvalAdvantage =         isSpectrum ? "000015000" : isChessnutMove ? "010" : "0F0";
+            RGBEvalDisAdvantage =      isSpectrum ? "015000000" : isChessnutMove ? "100" : "F00";
+            RGBPossibleMoves =         isSpectrum ? "000000015" : isChessnutMove ? "001" : "00F";
+            RGBPossibleMovesGood =     isSpectrum ? "000015000" : isChessnutMove ? "010" : "0F0";
+            RGBPossibleMovesBad =      isSpectrum ? "015000000" : isChessnutMove ? "100" : "F00";
+            RGBPossibleMovesPlayable = isSpectrum ? "000000015" : isChessnutMove ? "001" : "00F";
             BuzzerConnected = "000000";
             BuzzerInvalid = "000000";
             BuzzerEngineMove = "000000";
@@ -135,6 +137,8 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             ShowTakeBackMoves = true;
             ShowHintMoves = true;
             ShowBookMoves = false;
+            AutoMoveFigures = true;
+            SendLedCommands = true;
         }
 
         public override string ToString()

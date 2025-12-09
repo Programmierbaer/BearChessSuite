@@ -23,14 +23,14 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
         public override string GetRawFromBoard(string param)
         {
             _logger?.LogDebug($"SC: GetRawFromBoard Param: {param}");
-            string result = string.Empty;
+            var result = string.Empty;
             if (string.IsNullOrWhiteSpace(param))
             {
                 param = "V";
             }
-            int counter = 10;
-            int readByte = int.MaxValue;
-            string readLine = string.Empty;
+            var counter = 10;
+            var readByte = int.MaxValue;
+            var readLine = string.Empty;
             try
             {
                 var convertToSend = ConvertToSend(param);
@@ -123,9 +123,9 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
 
         private void ReadingFromBoard()
         {
-            bool withConnection = true;
-            string readLine = string.Empty;
-            string lastReadToSend = string.Empty;
+            var withConnection = true;
+            var readLine = string.Empty;
+            var lastReadToSend = string.Empty;
 
             while (!_stopReading)
             {
@@ -156,11 +156,11 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                         //    _comPort.Write(convertToSend, 0, convertToSend.Length);
                         //    Thread.Sleep(15);
                         //}
-                        int readByte = int.MaxValue;
+                        var readByte = int.MaxValue;
                         readLine = string.Empty;
                         try
                         {
-                            int count = 10;
+                            var count = 10;
                             while (readByte > 0 || count > 0)
                             {
                                 readByte = _comPort.ReadByte();
@@ -199,7 +199,7 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                         {
                             lock (_locker)
                             {
-                                string tmpLine = string.Empty;
+                                var tmpLine = string.Empty;
                                 if (!string.IsNullOrWhiteSpace(lastReadToSend))
                                 {
                                     try
@@ -228,7 +228,7 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                                         break;
                                     }
 
-                                    string currentPosition = tmpLine.Substring(startIndex, 67);
+                                    var currentPosition = tmpLine.Substring(startIndex, 67);
 
                                     _currentPosition = currentPosition;
                                     _dataFromBoard.Enqueue(_currentPosition);
@@ -253,7 +253,7 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                         {
                             lock (_locker)
                             {
-                                string tmpLine =
+                                var tmpLine =
                                     readLine.Substring(readLine.IndexOf("g", StringComparison.Ordinal));
 
                                 while (true)
@@ -264,7 +264,7 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                                         break;
                                     }
 
-                                    string currentPosition = tmpLine.Substring(startIndex, 67);
+                                    var currentPosition = tmpLine.Substring(startIndex, 67);
                                     _currentPosition = currentPosition;
                                     _dataFromBoard.Enqueue(_currentPosition);
                                     if (tmpLine.Length > 67)
@@ -302,10 +302,10 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
         {
             _logger?.LogDebug("SC: Communicate");
             IsCommunicating = true;
-            bool withConnection = true;
-            string readLine = string.Empty;
-            string lastReadToSend = string.Empty;
-            int refresher = 0;
+            var withConnection = true;
+            var readLine = string.Empty;
+            var lastReadToSend = string.Empty;
+            var refresher = 0;
             _readingThread = new Thread(ReadingFromBoard) { IsBackground = true };
             _readingThread.Start();
             while (!_stopReading)
@@ -321,7 +321,7 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
 
                     if (withConnection && !_pauseReading)
                     {
-                        if (_stringDataToBoard.TryDequeue(out string data))
+                        if (_stringDataToBoard.TryDequeue(out var data))
                         {
                             refresher = 0;
                             if (!data.Equals("X") && !data.Equals("G") && lastReadToSend.Equals(data))
@@ -364,8 +364,8 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
         private byte[] ConvertToSend(string data)
         {
             var addBlockCrc = CRCConversions.AddBlockCrc(data);
-            byte[] addOddPars = new byte[addBlockCrc.Length];
-            for (int i = 0; i < addBlockCrc.Length; i++)
+            var addOddPars = new byte[addBlockCrc.Length];
+            for (var i = 0; i < addBlockCrc.Length; i++)
             {
                 addOddPars[i] = CRCConversions.AddOddPar(addBlockCrc[i].ToString());
             }

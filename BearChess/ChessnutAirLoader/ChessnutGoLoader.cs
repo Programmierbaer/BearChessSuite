@@ -40,7 +40,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutAirLoader
 
         public static EChessBoardConfiguration Load(string basePath)
         {
-            string fileName = Path.Combine(basePath, Constants.ChessnutGo,
+            var fileName = Path.Combine(basePath, Constants.ChessnutGo,
                 $"{Constants.ChessnutGo}Cfg.xml");
             return EChessBoardConfiguration.Load(fileName);
 
@@ -48,7 +48,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutAirLoader
 
         public static void Save(string basePath, bool useBluetooth, bool showMoveLine, bool showOwnMove)
         {
-            string fileName = Path.Combine(basePath, Constants.ChessnutGo,
+            var fileName = Path.Combine(basePath, Constants.ChessnutGo,
                 $"{Constants.ChessnutGo}Cfg.xml");
             var eChessBoardConfiguration = EChessBoardConfiguration.Load(fileName);
             eChessBoardConfiguration.UseBluetooth = useBluetooth;
@@ -60,7 +60,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutAirLoader
 
         public static void Save(string basePath, EChessBoardConfiguration eChessBoardConfiguration)
         {
-            string fileName = Path.Combine(basePath, Constants.ChessnutGo,
+            var fileName = Path.Combine(basePath, Constants.ChessnutGo,
                 $"{Constants.ChessnutGo}Cfg.xml");
             EChessBoardConfiguration.Save(eChessBoardConfiguration, fileName);
         }

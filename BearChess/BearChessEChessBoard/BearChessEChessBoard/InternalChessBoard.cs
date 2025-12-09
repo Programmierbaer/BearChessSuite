@@ -121,7 +121,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         /// <inheritdoc />
         public void MakeMove(string fromField, string toField, string promote)
         {
-            if (Configuration.Instance.GetBoolValue("checkForAlternateMoves", false))
+            if (Configuration.Instance.GetBoolValue("checkForAlternateMoves", true))
             {
                 _moveListWithFen = _bearChessBoard.GenerateFenPositionList();
             }

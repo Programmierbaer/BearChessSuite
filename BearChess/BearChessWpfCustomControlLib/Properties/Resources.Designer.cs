@@ -19,7 +19,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
     // -Klasse über ein Tool wie ResGen oder Visual Studio automatisch generiert.
     // Um einen Member hinzuzufügen oder zu entfernen, bearbeiten Sie die .ResX-Datei und führen dann ResGen
     // mit der /str-Option erneut aus, oder Sie erstellen Ihr VS-Projekt neu.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -457,6 +457,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Move chess pices automatically ähnelt.
+        /// </summary>
+        public static string AutoMoveFigures {
+            get {
+                return ResourceManager.GetString("AutoMoveFigures", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Automatic positioning of the MessChess window ähnelt.
         /// </summary>
         public static string AutoPositionMessChessWindow {
@@ -498,6 +507,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string AverageTimePerMove {
             get {
                 return ResourceManager.GetString("AverageTimePerMove", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Background color ähnelt.
+        /// </summary>
+        public static string BackgroundColor {
+            get {
+                return ResourceManager.GetString("BackgroundColor", resourceCulture);
             }
         }
         
@@ -1870,6 +1888,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Configure Chessnut Move ähnelt.
+        /// </summary>
+        public static string ConfigureChessnutMove {
+            get {
+                return ResourceManager.GetString("ConfigureChessnutMove", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Configure NOVAG Citrine ähnelt.
         /// </summary>
         public static string ConfigureCitrine {
@@ -1897,11 +1924,29 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die General engine configurations ähnelt.
+        /// </summary>
+        public static string ConfigureEngines {
+            get {
+                return ResourceManager.GetString("ConfigureEngines", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Configure FTP ähnelt.
         /// </summary>
         public static string ConfigureFTP {
             get {
                 return ResourceManager.GetString("ConfigureFTP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Configure graphical evaluations ähnelt.
+        /// </summary>
+        public static string ConfigureGraphicalPositionScore {
+            get {
+                return ResourceManager.GetString("ConfigureGraphicalPositionScore", resourceCulture);
             }
         }
         
@@ -2635,6 +2680,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Deep: ähnelt.
+        /// </summary>
+        public static string Deep {
+            get {
+                return ResourceManager.GetString("Deep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Default ähnelt.
         /// </summary>
         public static string DefaultBook {
@@ -3076,6 +3130,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Limitation in the display at +/- ähnelt.
+        /// </summary>
+        public static string DisplayLimitation {
+            get {
+                return ResourceManager.GetString("DisplayLimitation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Donation to support BearChess: ähnelt.
         /// </summary>
         public static string DonateMe {
@@ -3369,6 +3432,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string EngineCheck {
             get {
                 return ResourceManager.GetString("EngineCheck", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Engine for ähnelt.
+        /// </summary>
+        public static string EngineFor {
+            get {
+                return ResourceManager.GetString("EngineFor", resourceCulture);
             }
         }
         
@@ -4273,6 +4345,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die half moves ähnelt.
+        /// </summary>
+        public static string HalfMoves {
+            get {
+                return ResourceManager.GetString("HalfMoves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die half seconds ähnelt.
         /// </summary>
         public static string HalfSeconds {
@@ -4962,6 +5043,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string MaximalNumberOfGames {
             get {
                 return ResourceManager.GetString("MaximalNumberOfGames", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Maximum/minimum is limited ähnelt.
+        /// </summary>
+        public static string MaximumMinimumIsLimited {
+            get {
+                return ResourceManager.GetString("MaximumMinimumIsLimited", resourceCulture);
             }
         }
         
@@ -6262,6 +6352,24 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Adjust size ähnelt.
+        /// </summary>
+        public static string ResizeChessboard {
+            get {
+                return ResourceManager.GetString("ResizeChessboard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The size of the chessboard adapts to the window size. ähnelt.
+        /// </summary>
+        public static string ResizeChessboardTip {
+            get {
+                return ResourceManager.GetString("ResizeChessboardTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die In order for the changes to take effect, you must restart BearChess ähnelt.
         /// </summary>
         public static string RestartBearChess {
@@ -7257,6 +7365,24 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string ShowPossibleMovesTip {
             get {
                 return ResourceManager.GetString("ShowPossibleMovesTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Display chess clock symbol ähnelt.
+        /// </summary>
+        public static string ShowSmallClocks {
+            get {
+                return ResourceManager.GetString("ShowSmallClocks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die When disabled, the chess clock icons are only displayed when a game is active. ähnelt.
+        /// </summary>
+        public static string ShowSmallClocksTip {
+            get {
+                return ResourceManager.GetString("ShowSmallClocksTip", resourceCulture);
             }
         }
         

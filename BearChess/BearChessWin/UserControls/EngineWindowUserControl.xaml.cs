@@ -145,9 +145,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
         {
             engineValueGraph.BestMoveBy(engineName);
         }
-        public void AddValue(string engineName, decimal score)
+
+        public void MoveMadeBy(int color)
         {
-            engineValueGraph.AddValue(engineName,score);
+            engineValueGraph.MoveMadeBy(color);
+        }
+
+        public void AddValue(string engineName, decimal score, int moveColor, bool showForWhite)
+        {
+            engineValueGraph.AddValue(engineName,score, moveColor, showForWhite);
         }
 
         public void ClearAll()
@@ -1020,7 +1026,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 EngineEvent?.Invoke(
                     this,
                     new EngineEventArgs(e.Name, e.FromEngine, _loadedEngines[e.Name].Color,
-                                        e.Name.Equals(_firstEngineName), _loadedEngines[e.Name].UciEngine.IsBuddy, _loadedEngines[e.Name].UciEngine.IsProbing));
+                                        e.Name.Equals(_firstEngineName), _loadedEngines[e.Name].UciEngine.IsBuddy, _loadedEngines[e.Name].UciEngine.IsProbing,
+                                        _loadedEngines[e.Name].UciEngine.ValidForAnalysis));
                 return;
             }
 
@@ -1034,7 +1041,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 EngineEvent?.Invoke(
                     this,
                     new EngineEventArgs(e.Name, e.FromEngine, _loadedEngines[e.Name].Color,
-                                        e.Name.Equals(_firstEngineName), _loadedEngines[e.Name].UciEngine.IsBuddy, _loadedEngines[e.Name].UciEngine.IsProbing));
+                                        e.Name.Equals(_firstEngineName), _loadedEngines[e.Name].UciEngine.IsBuddy, _loadedEngines[e.Name].UciEngine.IsProbing,
+                                        _loadedEngines[e.Name].UciEngine.ValidForAnalysis));
             }
 
             if (e.FromEngine.Contains(" pv "))
@@ -1046,7 +1054,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 EngineEvent?.Invoke(
                     this,
                     new EngineEventArgs(e.Name, e.FromEngine, _loadedEngines[e.Name].Color,
-                                        e.Name.Equals(_firstEngineName), _loadedEngines[e.Name].UciEngine.IsBuddy, _loadedEngines[e.Name].UciEngine.IsProbing));
+                                        e.Name.Equals(_firstEngineName), _loadedEngines[e.Name].UciEngine.IsBuddy, _loadedEngines[e.Name].UciEngine.IsProbing,
+                                        _loadedEngines[e.Name].UciEngine.ValidForAnalysis));
             }
 
             var scoreString = string.Empty;
@@ -1076,13 +1085,17 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         {
                             score /= 100;
                             scoreString = $"Score {score.ToString(CultureInfo.InvariantCulture)}";
-                            if ((_loadedEnginesControls[e.Name].Color == Fields.COLOR_BLACK || e.Color==Fields.COLOR_BLACK) && _configuration.GetBoolValue("showForWhite", false))
+                            if (currentMultiPv == 1)
                             {
-                                engineValueGraph.AddValue(e.Name, -score);
-                            }
-                            else
-                            {
-                                engineValueGraph.AddValue(e.Name, score);
+                                var showForWhite = _configuration.GetBoolValue("showForWhite", false);
+                                if ((_loadedEnginesControls[e.Name].Color == Fields.COLOR_BLACK || e.Color == Fields.COLOR_BLACK) && showForWhite)
+                                {
+                                    engineValueGraph.AddValue(e.Name, -score, e.Color, showForWhite);
+                                }
+                                else
+                                {
+                                    engineValueGraph.AddValue(e.Name, score, e.Color, showForWhite);
+                                }
                             }
                         }
 
@@ -1095,6 +1108,18 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         if (!infoLinePart.Equals("0"))
                         {
                             scoreString = $"Mate {infoLinePart}";
+                            if (currentMultiPv == 1)
+                            {
+                                var showForWhite = _configuration.GetBoolValue("showForWhite", false);
+                                if ((_loadedEnginesControls[e.Name].Color == Fields.COLOR_BLACK || e.Color == Fields.COLOR_BLACK) && showForWhite)
+                                {
+                                    engineValueGraph.AddValue(e.Name, -99, e.Color, showForWhite);
+                                }
+                                else
+                                {
+                                    engineValueGraph.AddValue(e.Name, 99, e.Color, showForWhite);
+                                }
+                            }
                         }
                     }
                 }
@@ -1106,7 +1131,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 EngineEvent?.Invoke(
                     this,
                     new EngineEventArgs(e.Name, scoreString, _loadedEngines[e.Name].Color,
-                                        e.Name.Equals(_firstEngineName), _loadedEngines[e.Name].UciEngine.IsBuddy, _loadedEngines[e.Name].UciEngine.IsProbing));
+                                        e.Name.Equals(_firstEngineName), _loadedEngines[e.Name].UciEngine.IsBuddy, _loadedEngines[e.Name].UciEngine.IsProbing,
+                                        _loadedEngines[e.Name].UciEngine.ValidForAnalysis));
                 _fileLogger?.LogInfo($"Score from engine {e.Name}: {scoreString}");
             }
         }
@@ -1309,6 +1335,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
             _configuration.SetConfigValue("EngineGraphWindowHideInfo", _hideGraphInfo);
             ShowEngingeGraphHideButton();
+        }
+
+        public void RefreshColors()
+        {
+            engineValueGraph.ReadColors();
         }
     }
 }

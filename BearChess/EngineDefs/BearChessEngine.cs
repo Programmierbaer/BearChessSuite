@@ -14,14 +14,14 @@ namespace www.SoLaNoSoft.com.BearChess.Engine
         {
             try
             {
-                bool isBuddy = false;
-                bool isBearChess = false;
-                string sourcePath = Path.Combine(binPath, engineGuid);
+                var isBuddy = false;
+                var isBearChess = false;
+                var sourcePath = Path.Combine(binPath, engineGuid);
                 if (!Directory.Exists(sourcePath))
                 {
                     return;
                 }
-                string targetPath = Path.Combine(uciPath, engineGuid);
+                var targetPath = Path.Combine(uciPath, engineGuid);
                 if (!Directory.Exists(targetPath))
                 {
                     Directory.CreateDirectory(targetPath);
@@ -55,9 +55,9 @@ namespace www.SoLaNoSoft.com.BearChess.Engine
                     }
                 }
                 var dir = new DirectoryInfo(sourcePath);
-                foreach (FileInfo file in dir.GetFiles())
+                foreach (var file in dir.GetFiles())
                 {
-                    string targetFilePath = Path.Combine(targetPath, file.Name);
+                    var targetFilePath = Path.Combine(targetPath, file.Name);
                     if (file.Extension.Equals(".uci"))
                     {
                         file.CopyTo(targetFilePath, true);
@@ -135,8 +135,8 @@ namespace www.SoLaNoSoft.com.BearChess.Engine
                 logoFileName: Constants.InternalChessEngineWaspLogoFileName, 
                 bookFileName: Constants.InternalBookFileNameWaspBIN, 
                 engineGuid: Constants.InternalChessEngineWaspGUID, 
-                newName: "Wasp 7.07 BearChess", 
-                newOriginName: "Wasp 7.07");
+                newName: "Wasp 7.14 BearChess", 
+                newOriginName: "Wasp 7.14");
 
         }
 

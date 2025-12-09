@@ -52,6 +52,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
         public bool Valid { get; set; }
         public string OpeningBook { get; set; }
         public string OpeningBookVariation { get; set; }
+        public int OpeningBookDeep { get; set; }
         
         [XmlArray("OptionValues")]
         public string[] OptionValues { get; set; }
@@ -94,6 +95,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
             Options = Array.Empty<string>();
             OptionValues = Array.Empty<string>();
             OpeningBookVariation = "1";
+            OpeningBookDeep = 999;
             AdjustStrength = false;
             LogoFileName = string.Empty;
             WaitForStart = false;

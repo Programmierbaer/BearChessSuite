@@ -75,6 +75,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
         }
 
         private const string CLEARLOG_FILE = "clearlog.log";
+        private const string CLEARALL_FILE = "clearall.log";
 
         public const string STARTUP_WHITE_ENGINE_ID = "startupWhite.uci";
         public const string STARTUP_BLACK_ENGINE_ID = "startupBlack.uci";
@@ -106,7 +107,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
             get;
         }
 
-        public int StartPathNumner { get; }
+        public int StartPathNumber { get; }
 
         public PgnConfiguration GetDefaultPgnConfiguration()
         {
@@ -125,23 +126,23 @@ namespace www.SoLaNoSoft.com.BearChessBase
         {
             return new PgnConfiguration()
             {
-                PurePgn = bool.Parse(GetConfigValue("gamesPurePGNExport", "true")),
-                IncludeComment = bool.Parse(GetConfigValue("gamesPGNExportComment", "true")),
-                IncludeEvaluation = bool.Parse(GetConfigValue("gamesPGNExportEvaluation", "true")),
-                IncludeMoveTime = bool.Parse(GetConfigValue("gamesPGNExportMoveTime", "true")),
-                IncludeSymbols = bool.Parse(GetConfigValue("gamesPGNExportSymbols", "true")),
-                IncludeClock = bool.Parse(GetConfigValue("gamesPGNExportClock", "true")),
+                PurePgn = GetBoolValue("gamesPurePGNExport", true),
+                IncludeComment = GetBoolValue("gamesPGNExportComment", true),
+                IncludeEvaluation = GetBoolValue("gamesPGNExportEvaluation", true),
+                IncludeMoveTime = GetBoolValue("gamesPGNExportMoveTime", true),
+                IncludeSymbols = GetBoolValue("gamesPGNExportSymbols", true),
+                IncludeClock = GetBoolValue("gamesPGNExportClock", true),
             };
         }
 
         public void SavePgnConfiguration(PgnConfiguration pgnConfiguration)
         {
-            SetConfigValue("gamesPurePGNExport", pgnConfiguration.PurePgn.ToString());
-            SetConfigValue("gamesPGNExportComment", pgnConfiguration.IncludeComment.ToString());
-            SetConfigValue("gamesPGNExportEvaluation", pgnConfiguration.IncludeEvaluation.ToString());
-            SetConfigValue("gamesPGNExportMoveTime", pgnConfiguration.IncludeMoveTime.ToString());
-            SetConfigValue("gamesPGNExportSymbols", pgnConfiguration.IncludeSymbols.ToString());
-            SetConfigValue("gamesPGNExportClock", pgnConfiguration.IncludeClock.ToString());
+            SetBoolValue("gamesPurePGNExport", pgnConfiguration.PurePgn);
+            SetBoolValue("gamesPGNExportComment", pgnConfiguration.IncludeComment);
+            SetBoolValue("gamesPGNExportEvaluation", pgnConfiguration.IncludeEvaluation);
+            SetBoolValue("gamesPGNExportMoveTime", pgnConfiguration.IncludeMoveTime);
+            SetBoolValue("gamesPGNExportSymbols", pgnConfiguration.IncludeSymbols);
+            SetBoolValue("gamesPGNExportClock", pgnConfiguration.IncludeClock);
         }
 
         public static string BearChessProgramAssemblyName { get; set; }
@@ -208,7 +209,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
             }
             var args = Environment.GetCommandLineArgs();
             Standalone = false;
-            StartPathNumner = 0;
+            StartPathNumber = 0;
             bool clearPositions = false;
             for (var i = 1; i < args.Length; i++)
             {
@@ -234,7 +235,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
                                     if (int.TryParse(pathValue, out var value))
                                     {
                                         FolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), $"{bearChessConst}_{value}");
-                                        StartPathNumner = value;
+                                        StartPathNumber = value;
                                     }
                                     else
                                     {
@@ -281,7 +282,33 @@ namespace www.SoLaNoSoft.com.BearChessBase
                         bearChessConst);
                 }
             }
-
+            if (File.Exists(Path.Combine(FolderPath, CLEARALL_FILE)))
+            {
+                var directories = Directory.GetDirectories(FolderPath);
+                foreach (var directory in directories)
+                {
+                    try
+                    {
+                        Directory.Delete(directory, true);
+                    }
+                    catch
+                    {
+                        //
+                    }
+                }
+                var files = Directory.GetFiles(FolderPath, "*.*", SearchOption.AllDirectories);
+                foreach (var file in files)
+                {
+                    try
+                    {
+                        File.Delete(file);
+                    }
+                    catch
+                    {
+                        //
+                    }
+                }
+            }
             TimeControlFileName = Path.Combine(FolderPath, "bearchess_tc.xml");
             TimeControlBlackFileName = Path.Combine(FolderPath, "bearchess_tc2.xml");
             FicTimeControlFileName = Path.Combine(FolderPath, "bearchess_ficstc.xml");

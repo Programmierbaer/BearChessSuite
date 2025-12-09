@@ -151,18 +151,21 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             "", "", "", "", "", "", "", "", ""
         };
 
-     
 
-
-        private bool _flashSync = false;
         private string _lastSendLeds;
         private EnumFlashMode _flashMode = EnumFlashMode.FlashAsync;
         private readonly bool _showMoveLine;
         private readonly ConcurrentQueue<ProbingMove[]> _probingFields = new ConcurrentQueue<ProbingMove[]>();
         private bool _release = false;
-        private string _eprom { get; set; }
+        private bool _eOneBoard = false;
+
+        private string _eprom
+        {
+            get;
+            set;
+        }
+
         private readonly EChessBoardConfiguration _boardConfiguration;
-        private int _currentEvalColor;
         private string _currentEval = "0";
         private readonly int _currentColor;
         private LedCorner _ledCorner;
@@ -170,10 +173,13 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
         private bool _whiteKingOnBasePosition = false;
         private bool _blackKingOnBasePosition = false;
 
+        public string Version
+        {
+            get;
+            private set;
+        }
 
-        public string Version { get; private set; }
-        
-        public EChessBoard(ILogging logger, EChessBoardConfiguration configuration) 
+        public EChessBoard(ILogging logger, EChessBoardConfiguration configuration)
         {
             _useChesstimation = configuration.UseChesstimation;
             _useElfacun = configuration.UseElfacun;
@@ -196,7 +202,11 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             {
                 Information = "Millennium " + _serialCommunication.BoardInformation;
             }
-            PieceRecognition = _serialCommunication.BoardInformation != Constants.MeOne && !_useElfacun && !_useChesstimation;
+
+            _eOneBoard = _serialCommunication.BoardInformation.Equals(Constants.MeOne);
+
+            PieceRecognition = _serialCommunication.BoardInformation != Constants.MeOne && !_useElfacun &&
+                               !_useChesstimation;
             ValidForAnalyse = PieceRecognition;
             SelfControlled = false;
             MultiColorLEDs = true;
@@ -217,12 +227,10 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
 
         private void ShowProbingMoves()
         {
-            
-            List<string> showFields = new List<string>();
-            string ledForFields = string.Empty;
+            var showFields = new List<string>();
             while (!_release)
             {
-                if (_probingFields.TryPeek(out ProbingMove[] fields))
+                if (_probingFields.TryPeek(out var fields))
                 {
                     if (!_acceptProbingMoves)
                     {
@@ -230,6 +238,7 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                         // SetAllLEDsOff(true);
                         continue;
                     }
+
                     showFields.Clear();
                     var probingMove = fields.OrderByDescending(f => f.Score).First();
                     {
@@ -241,11 +250,12 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                                 showFields.Add(field.FieldName);
                             }
                         }
-                        
+
                     }
                     if (showFields.Count > 0)
                     {
-                        ledForFields = GetLedForProbingFields(showFields.ToArray(), _boardConfiguration.ShowPossibleMovesEval ? probingMove.FieldName: string.Empty,true);
+                        var ledForFields = GetLedForProbingFields(showFields.ToArray(),
+                            _boardConfiguration.ShowPossibleMovesEval ? probingMove.FieldName : string.Empty, true);
                         _serialCommunication.Send(_lastSendLeds = $"L22{ledForFields}");
                     }
 
@@ -294,6 +304,7 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                         {
                             return false;
                         }
+
                         readLine = _serialCommunication.GetRawFromBoard("R00");
 
                         if (readLine.Length > 0 && readLine.StartsWith("r"))
@@ -368,11 +379,13 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             {
                 return;
             }
+
             if (ledsParameter.FieldNames.Length == 0)
             {
                 ledsParameter.FieldNames = ledsParameter.InvalidFieldNames.ToArray();
             }
-            if (ledsParameter.FieldNames.Length==0)
+
+            if (ledsParameter.FieldNames.Length == 0)
             {
                 ledsParameter.FieldNames = ledsParameter.BookFieldNames.ToArray();
                 if (ledsParameter.FieldNames.Length == 0)
@@ -380,19 +393,22 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                     return;
                 }
             }
-            if (ledsParameter.IsProbing && (_boardConfiguration.ShowPossibleMoves || _boardConfiguration.ShowPossibleMovesEval))
+
+            if (ledsParameter.IsProbing &&
+                (_boardConfiguration.ShowPossibleMoves || _boardConfiguration.ShowPossibleMovesEval))
             {
                 _logger?.LogDebug($"B: set LEDs for probing {ledsParameter}");
                 _probingFields.TryDequeue(out _);
                 _probingFields.Enqueue(ledsParameter.ProbingMoves);
                 return;
-            }   
+            }
 
             string ledForFields;
             _probingFields.TryDequeue(out _);
             if ((ledsParameter.FieldNames.Length == 2) && _showMoveLine)
             {
-                string[] moveLine = MoveLineHelper.GetMoveLine(ledsParameter.FieldNames[0], ledsParameter.FieldNames[1]);
+                string[] moveLine =
+                    MoveLineHelper.GetMoveLine(ledsParameter.FieldNames[0], ledsParameter.FieldNames[1]);
                 _logger.LogDebug($"Extend move line: {string.Join(" ", moveLine)} ");
                 ledForFields = GetLedForFields(moveLine, ledsParameter.IsThinking, _ledCorner);
             }
@@ -405,9 +421,10 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             {
                 return;
             }
+
             _lastSendLeds = $"L22{ledForFields}";
             _logger?.LogDebug($"SendFields : {string.Join(" ", ledsParameter.FieldNames)}");
-            //   lock (_locker)
+            lock (_locker)
             {
                 _serialCommunication.Send(_lastSendLeds);
                 if (ledsParameter.FieldNames.Length == 1 && (_useChesstimation || _useElfacun))
@@ -424,11 +441,14 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             {
                 return;
             }
+
             _probingFields.TryDequeue(out _);
-            // lock (_locker)
-            {           
-                _serialCommunication.Send("X");
+            _logger?.LogDebug("SetAllLEDsOff");
+            lock (_locker)
+            {
+                _serialCommunication?.Send("X");
             }
+
             if (!forceOff && _boardConfiguration.ExtendedConfig[0].ShowEvaluationValue)
             {
                 ShowCurrentColorInfos();
@@ -441,12 +461,14 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             {
                 return;
             }
+
             _probingFields.TryDequeue(out _);
-            //  lock (_locker)
+
+            if (!_useChesstimation && !_useElfacun)
             {
-                if (!_useChesstimation && !_useElfacun)
+                var ledForFields = GetLedForAllFieldsOn();
+                lock (_locker)
                 {
-                    var ledForFields = GetLedForAllFieldsOn();
                     _serialCommunication.Send($"L22{ledForFields}");
                 }
             }
@@ -462,32 +484,33 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
 
         public override void DimLeds(int level)
         {
+            if (level > 14)
+            {
+                level = 14;
+            }
+
+            var hexValue = $"{level:x2}";
             lock (_locker)
             {
-                if (level > 14)
-                {
-                    level = 14;
-                }
-                string hexValue = $"{level:x2}";
                 _serialCommunication?.Send($"W04{hexValue.ToUpper()}");
             }
         }
 
         public override void SetScanTime(int scanTime)
         {
+            var hexValue = $"{scanTime:x2}";
             lock (_locker)
             {
-                string hexValue = $"{scanTime:x2}";
                 _serialCommunication?.Send($"W01{hexValue.ToUpper()}");
             }
         }
 
         public override void SetDebounce(int debounce)
         {
+            debounce = 3 + debounce;
             lock (_locker)
             {
-                debounce = 3 + debounce;
-               _serialCommunication?.Send($"W020{debounce}");
+                _serialCommunication?.Send($"W020{debounce}");
             }
         }
 
@@ -498,14 +521,13 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
 
         public override void FlashMode(EnumFlashMode flashMode)
         {
-             _flashSync = flashMode == EnumFlashMode.FlashSync;
-             _flashMode = flashMode;
+            _flashMode = flashMode;
         }
-
 
         public override void SetLedCorner(bool upperLeft, bool upperRight, bool lowerLeft, bool lowerRight)
         {
-            _ledCorner = new LedCorner() { UpperLeft = upperLeft, LowerLeft = lowerLeft, LowerRight = lowerRight, UpperRight = upperRight };
+            _ledCorner = new LedCorner()
+                { UpperLeft = upperLeft, LowerLeft = lowerLeft, LowerRight = lowerRight, UpperRight = upperRight };
         }
 
         public override void Calibrate()
@@ -513,11 +535,12 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             lock (_locker)
             {
                 _serialCommunication.Send("S");
-                IsCalibrated = true;
-                SetAllLEDsOn();
-                Thread.Sleep(1500);
-                SetAllLEDsOff(true);
             }
+
+            IsCalibrated = true;
+            SetAllLEDsOn();
+            Thread.Sleep(1500);
+            SetAllLEDsOff(true);
         }
 
         public override void SendInformation(string message)
@@ -531,31 +554,32 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             {
                 return;
             }
-            var strings = information.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToArray();
+
+            var strings = information.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             if (strings.Length == 0)
             {
                 return;
             }
+
             _logger?.LogDebug($"Additional information: {information}");
             if (strings[0].StartsWith("SCORE:", StringComparison.InvariantCultureIgnoreCase))
             {
-                _currentEvalColor = int.Parse(strings[1]);
                 _currentEval = strings[2];
             }
         }
 
         public override void RequestDump()
         {
-       //     lock (_locker)
+            if (!PieceRecognition)
             {
-                if (!PieceRecognition)
+                lock (_locker)
                 {
                     _serialCommunication.Send("G");
                 }
             }
         }
 
-        
+
 
         public override DataFromBoard GetPiecesFen()
         {
@@ -564,35 +588,34 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                 return new DataFromBoard(string.Empty);
             }
 
-            bool isDump = false;
             var result = string.Empty;
-
             var dataFromBoard = _serialCommunication.GetFromBoard();
             if (dataFromBoard.FromBoard.StartsWith("s") && dataFromBoard.FromBoard.Length == 67)
             {
-                if (dataFromBoard.FromBoard.StartsWith(
-                    "srnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR"))
+                if (!dataFromBoard.FromBoard.Contains("?"))
                 {
-                    _playWithWhite = false;
-                    
-                }
 
-                if (dataFromBoard.FromBoard.StartsWith(
-                    "sRNBKQBNRPPPPPPPP................................pppppppprnbkqbnr"))
-                {
-                    _playWithWhite = true;
-                }
 
-                result = FenConversions.GetPiecesFen(dataFromBoard.FromBoard, true, _playWithWhite);
-               
+                    if (dataFromBoard.FromBoard.StartsWith(
+                            "srnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR"))
+                    {
+                        _playWithWhite = false;
+
+                    }
+
+                    if (dataFromBoard.FromBoard.StartsWith(
+                            "sRNBKQBNRPPPPPPPP................................pppppppprnbkqbnr"))
+                    {
+                        _playWithWhite = true;
+                    }
+
+                    result = FenConversions.GetPiecesFen(dataFromBoard.FromBoard, true, _playWithWhite);
+                }
             }
 
             if (dataFromBoard.FromBoard.StartsWith("g") && dataFromBoard.FromBoard.Length == 67)
             {
-                isDump = true;
-               
                 result = FenConversions.GetPiecesFen(dataFromBoard.FromBoard, false, true);
-               
             }
 
 
@@ -600,10 +623,12 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             {
                 return new DataFromBoard(UnknownPieceCode, dataFromBoard.Repeated);
             }
+
             if (!result.Contains("k") || !result.Contains("K"))
             {
                 return new DataFromBoard(result, dataFromBoard.Repeated);
             }
+
             if (!string.IsNullOrWhiteSpace(_lastFenLine) && !_lastFenLine.Equals(result))
             {
 
@@ -628,15 +653,17 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                             dataFromBoard.Repeated);
                     }
                 }
+
                 _whiteKingOnBasePosition = fastChessBoard.WhiteKingOnBasePosition();
                 _blackKingOnBasePosition = fastChessBoard.BlackKingOnBasePosition();
             }
+
             if (result.Contains(UnknownPieceCode))
             {
                 return new DataFromBoard(_lastFenLine, dataFromBoard.Repeated);
             }
-            _lastFenLine = result;
 
+            _lastFenLine = result;
 
             return new DataFromBoard(_lastFenLine, dataFromBoard.Repeated);
         }
@@ -648,19 +675,20 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
 
         protected override void SetToNewGame()
         {
-            lock (_locker)
+            _whiteKingOnBasePosition = true;
+            _blackKingOnBasePosition = true;
+            _lastFenLine = string.Empty;
+            _probingFields.TryDequeue(out _);
+            _currentEval = "0";
+            if (!PieceRecognition)
             {
-                _whiteKingOnBasePosition = true;
-                _blackKingOnBasePosition = true;
-                _lastFenLine = string.Empty;
-                _probingFields.TryDequeue(out _);
-                _currentEval = "0";
-                if (!PieceRecognition)
+                lock (_locker)
                 {
                     _serialCommunication.Send("S");
                 }
             }
         }
+
 
 
 
@@ -672,15 +700,19 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
 
         public override void SetFen(string fen)
         {
-          //  lock (_locker)
+            if (PieceRecognition)
             {
-                if (!PieceRecognition)
-                {
-                    var chessLinkFen = FenConversions.GetChessLinkFen(fen);
-                    _serialCommunication.Send($"G{chessLinkFen}");
-                    _currentEval = "0";
-                }
+                return;
             }
+
+            return;
+            var chessLinkFen = FenConversions.GetChessLinkFen(fen);
+            lock (_locker)
+            {
+                _serialCommunication.Send($"G{chessLinkFen}");
+            }
+
+            _currentEval = "0";
         }
 
         public override void StopClock()
@@ -946,25 +978,37 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                 if (dimEvalAdvantage == 0)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "A1" : "A8";
+                    }
+
                     return eval > 0 ? "A8" : "A1";
                 }
                 if (dimEvalAdvantage == 1)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "H1" : "A8";
+                    }
+
                     return eval > 0 ? "A8" : "H1";
                 }
                 if (dimEvalAdvantage == 2)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "A1" : "H1";
+                    }
+
                     return eval > 0 ? "H1" : "A1";
                 }
                 if (dimEvalAdvantage == 3)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "A1" : "H8";
+                    }
+
                     return eval > 0 ? "H1" : "A1";
                 }
             }
@@ -972,26 +1016,38 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             {
                 if (dimEvalAdvantage == 0)
                 {
-                    if (_playWithWhite) 
+                    if (_playWithWhite)
+                    {
                         return eval > 0 ? "A2" : "A7";
+                    }
+
                     return eval > 0 ? "A7" : "A2";
                 }
                 if (dimEvalAdvantage == 1)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "H2" : "A7";
+                    }
+
                     return eval > 0 ? "A7" : "H2";
                 }
                 if (dimEvalAdvantage == 2)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "B1" : "G1";
+                    }
+
                     return eval > 0 ? "G1" : "B1";
                 }
                 if (dimEvalAdvantage == 3)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "B1" : "G8";
+                    }
+
                     return eval > 0 ? "G8" : "B1";
                 }
             }
@@ -1001,25 +1057,37 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                 if (dimEvalAdvantage == 0)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "A3" : "A6";
+                    }
+
                     return eval > 0 ? "A6" : "A3";
                 }
                 if (dimEvalAdvantage == 1)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "H3" : "A6";
+                    }
+
                     return eval > 0 ? "A6" : "H3";
                 }
                 if (dimEvalAdvantage == 2)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "C1" : "F1";
+                    }
+
                     return eval > 0 ? "F1" : "C1";
                 }
                 if (dimEvalAdvantage == 3)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "C1" : "F8";
+                    }
+
                     return eval > 0 ? "F8" : "C1";
                 }
             }
@@ -1029,25 +1097,37 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                 if (dimEvalAdvantage == 0)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "A4" : "A5";
+                    }
+
                     return eval > 0 ? "A5" : "A4";
                 }
                 if (dimEvalAdvantage == 1)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "H4" : "A5";
+                    }
+
                     return eval > 0 ? "A5" : "H4";
                 }
                 if (dimEvalAdvantage == 2)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "D1" : "E1";
+                    }
+
                     return eval > 0 ? "E1" : "D1";
                 }
                 if (dimEvalAdvantage == 3)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "D1" : "E8";
+                    }
+
                     return eval > 0 ? "E8" : "D1";
                 }
             }
@@ -1057,25 +1137,37 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                 if (dimEvalAdvantage == 0)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "A5" : "A4";
+                    }
+
                     return eval > 0 ? "A4" : "A5";
                 }
                 if (dimEvalAdvantage == 1)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "H5" : "A4";
+                    }
+
                     return eval > 0 ? "A4" : "H5";
                 }
                 if (dimEvalAdvantage == 2)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "E1" : "D1";
+                    }
+
                     return eval > 0 ? "D1" : "E1";
                 }
                 if (dimEvalAdvantage == 3)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "E1" : "D8";
+                    }
+
                     return eval > 0 ? "D8" : "E1";
                 }
             }
@@ -1084,25 +1176,37 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                 if (dimEvalAdvantage == 0)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "A6" : "A3";
+                    }
+
                     return eval > 0 ? "A3" : "A6";
                 }
                 if (dimEvalAdvantage == 1)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "H6" : "A3";
+                    }
+
                     return eval > 0 ? "A3" : "H6";
                 }
                 if (dimEvalAdvantage == 2)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "F1" : "C1";
+                    }
+
                     return eval > 0 ? "C1" : "F1";
                 }
                 if (dimEvalAdvantage == 3)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "F1" : "C8";
+                    }
+
                     return eval > 0 ? "C8" : "F1";
                 }
             }
@@ -1111,25 +1215,37 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                 if (dimEvalAdvantage == 0)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "A7" : "A2";
+                    }
+
                     return eval > 0 ? "A2" : "A7";
                 }
                 if (dimEvalAdvantage == 1)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "H7" : "A2";
+                    }
+
                     return eval > 0 ? "A2" : "H7";
                 }
                 if (dimEvalAdvantage == 2)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "G1" : "B1";
+                    }
+
                     return eval > 0 ? "B1" : "G1";
                 }
                 if (dimEvalAdvantage == 3)
                 {
                     if (_playWithWhite)
+                    {
                         return eval > 0 ? "G1" : "B8";
+                    }
+
                     return eval > 0 ? "B8" : "G1";
                 }
             }
@@ -1198,8 +1314,8 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             }
             if (decimal.TryParse(_currentEval.Replace(".", ","), out decimal eval))
             {
-                string toField = string.Empty;
-                string fromField = string.Empty;
+                var toField = string.Empty;
+                var fromField = string.Empty;
                 LedCorner ledCorner = null;
                 if (_currentColor == Fields.COLOR_WHITE)
                 {
@@ -1247,11 +1363,16 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                     }
                 }
 
-                if (!string.IsNullOrWhiteSpace(fromField))
+                if (string.IsNullOrWhiteSpace(fromField))
                 {
-                    string[] moveLine = MoveLineHelper.GetMoveLine(fromField, toField);
-                    _logger.LogDebug($"Extend move line: {string.Join(" ", moveLine)} ");
-                    string ledForFields = GetLedForFields(moveLine, false, ledCorner);
+                    return;
+                }
+
+                var moveLine = MoveLineHelper.GetMoveLine(fromField, toField);
+                _logger.LogDebug($"Extend move line: {string.Join(" ", moveLine)} ");
+                var ledForFields = GetLedForFields(moveLine, false, ledCorner);
+                lock (_locker)
+                {
                     _serialCommunication.Send($"L22{ledForFields}");
                 }
             }

@@ -50,20 +50,27 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
         {
             try
             {
+
                 var sourcePath = Path.Combine(_binPath, Constants.InternalBookGUIDPerfectCTG);
+                fileLogger?.LogDebug($"Check for internal book path: {sourcePath}");
                 if (!Directory.Exists(sourcePath))
                 {
+                    fileLogger?.LogDebug($"Path not found");
                     return;
                 }
 
                 var sourceFile = Path.Combine(_binPath, Constants.InternalBookGUIDPerfectCTG, $"{Constants.InternalBookGUIDPerfectCTG}.book");
+                fileLogger?.LogDebug($"Read internal book: {sourceFile}");
                 if (!File.Exists(sourceFile))
                 {
+                    fileLogger?.LogDebug($"File not found");
                     return;
                 }
 
                 var targetFile = Path.Combine(_bookPath, $"{Constants.InternalBookGUIDPerfectCTG}.book");
-                var file = new FileInfo(sourceFile);
+                fileLogger?.LogDebug($"Copy {sourceFile} {targetFile}");
+                File.Copy(sourceFile, targetFile, true);
+                var file = new FileInfo(targetFile);
                 var serializer = new XmlSerializer(typeof(BookInfo));
                 TextReader textReader = new StreamReader(file.FullName);
                 var origConfig = (BookInfo)serializer.Deserialize(textReader);
@@ -76,7 +83,8 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                 TextWriter textWriter = new StreamWriter(file.FullName, false);
                 serializer.Serialize(textWriter, origConfig);
                 textWriter.Close();
-                File.Copy(sourceFile, targetFile, true);
+
+
             }
             catch (Exception ex)
             {
@@ -89,19 +97,25 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             try
             {
                 var sourcePath = Path.Combine(_binPath, Constants.InternalBookGUIDPerfectBIN);
+                fileLogger?.LogDebug($"Check for internal book path: {sourcePath}"); ;
                 if (!Directory.Exists(sourcePath))
                 {
+                    fileLogger?.LogDebug($"Path not found");
                     return;
                 }
 
                 var sourceFile = Path.Combine(_binPath, Constants.InternalBookGUIDPerfectBIN, $"{Constants.InternalBookGUIDPerfectBIN}.book");
+                fileLogger?.LogDebug($"Read internal book: {sourceFile}");
                 if (!File.Exists(sourceFile))
                 {
+                    fileLogger?.LogDebug($"File not found");
                     return;
                 }
 
                 var targetFile = Path.Combine(_bookPath, $"{Constants.InternalBookGUIDPerfectBIN}.book");
-                var file = new FileInfo(sourceFile);
+                fileLogger?.LogDebug($"Copy {sourceFile} {targetFile}");
+                File.Copy(sourceFile, targetFile, true);
+                var file = new FileInfo(targetFile);
                 var serializer = new XmlSerializer(typeof(BookInfo));
                 TextReader textReader = new StreamReader(file.FullName);
                 var origConfig = (BookInfo)serializer.Deserialize(textReader);
@@ -114,7 +128,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                 TextWriter textWriter = new StreamWriter(file.FullName, false);
                 serializer.Serialize(textWriter, origConfig);
                 textWriter.Close();
-                File.Copy(sourceFile, targetFile, true);
+
             }
             catch (Exception ex)
             {

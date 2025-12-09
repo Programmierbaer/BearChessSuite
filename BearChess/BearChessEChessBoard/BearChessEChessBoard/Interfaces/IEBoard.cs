@@ -6,6 +6,11 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
     public interface IEBoard : IDisposable
     {
 
+        event EventHandler BasePositionEvent;
+        event EventHandler NewGamePositionEvent;
+        event EventHandler HelpRequestedEvent;
+        event EventHandler<string> DataEvent;
+        event EventHandler<string> GameEndEvent;
         void Reset();
         
         void Release();
@@ -40,6 +45,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         void Calibrate();
 
         void SendInformation(string message);
+        
         void AdditionalInformation(string information);
 
         string RequestInformation(string message);
@@ -123,7 +129,9 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         void SetFen(string fen);
 
         void AwaitingMove(int fromField, int toField, int promoteFigure);
+        void AwaitingPosition(string fenPosition);
         bool PieceRecognition { get; }
+        bool SelfMoving { get; }
         bool SelfControlled { get; }
 
         bool MultiColorLEDs { get; }
@@ -144,12 +152,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
 
         void SetCurrentColor(int currentColor);
         void SetEngineColor(int color);
-
-        event EventHandler BasePositionEvent;
-        event EventHandler NewGamePositionEvent;
-        event EventHandler HelpRequestedEvent;
-        event EventHandler<string> DataEvent;
-        event EventHandler<string> GameEndEvent;
+   
         void AcceptProbingMoves(bool acceptProbingMoves);
 
         void BuzzerOnConnected();

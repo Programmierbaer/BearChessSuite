@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWin"
         xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
         mc:Ignorable="d" WindowStartupLocation="CenterOwner" ResizeMode="CanResize"
-        Title="UCI Engine Configuration" MaxHeight="770" Width="400" SizeToContent="WidthAndHeight">
+        Title="UCI Engine Configuration" MaxHeight="790" Width="400" SizeToContent="WidthAndHeight">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -38,6 +38,10 @@
                     <RadioButton Name="radioButtonWide" Margin="5,0,5,0" GroupName="Variation"
                                  VerticalAlignment="Center" HorizontalAlignment="Center"
                                  ToolTip="{x:Static p:Resources.ChooseAnyMove}" Content="{x:Static p:Resources.Wide}" />
+                    <TextBlock Margin="5,0,0,0" Text="{x:Static p:Resources.Deep}" VerticalAlignment="Center"></TextBlock>
+                    <local:NumericUpDownUserControl Margin="5,0,5,0" x:Name="numericUpDownBookDeep"  VerticalAlignment="Center" HorizontalAlignment="Center" Width="70" Value="999" MinValue="0" MaxValue="999" />
+                    <TextBlock Margin="0,0,0,0" Text="{x:Static p:Resources.HalfMoves}" VerticalAlignment="Center"></TextBlock>
+
                 </StackPanel>
             </StackPanel>
         </Border>

@@ -205,6 +205,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         string Level { get; }
         void AllowTakeBack(bool allowTakeBack);
         bool PieceRecognition { get; }
+        bool SelfMoving { get; }
         void Ignore(bool ignore);
 
         void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments);

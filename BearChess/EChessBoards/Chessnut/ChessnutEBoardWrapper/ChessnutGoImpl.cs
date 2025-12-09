@@ -12,8 +12,6 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutEBoardWrapper
     public class ChessnutGoImpl : AbstractEBoardWrapper
     {
 
-
-
         public ChessnutGoImpl(string name, string basePath) : base(name, basePath)
         {
 

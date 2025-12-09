@@ -250,6 +250,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         string Level { get; }
         void AllowTakeBack(bool allowTakeBack);
         bool PieceRecognition { get; }
+        bool SelfMoving { get; }
         bool MultiColorLEDs { get; }
         bool ValidForAnalyse { get; }
         void Ignore(bool ignore);

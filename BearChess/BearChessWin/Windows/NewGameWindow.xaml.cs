@@ -181,7 +181,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _isInitialized = true;
             textBlockTimeControlEmu11.Text = SpeechTranslator.ResourceManager.GetString("UseEngineConfigForTC");
             textBlockTimeControlEmu22.Text = SpeechTranslator.ResourceManager.GetString("UseEngineConfigForTC");
-            checkBoxAlternateMove.IsChecked = _configuration.GetBoolValue("allowAlternateMoves", false);
+            checkBoxAlternateMove.IsChecked = _configuration.GetBoolValue("allowAlternateMoves", true);
             textBoxEvent.Text = _configuration.GetConfigValue("gameEvent", Constants.BearChess);
             checkBoxTournamentMode.IsChecked = _tournamentMode;
             stackPanelExtraTime.Visibility = _tournamentMode ? Visibility.Collapsed : Visibility.Visible;

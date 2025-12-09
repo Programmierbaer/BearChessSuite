@@ -324,7 +324,7 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                                 _logger?.LogDebug($"S: Check for id {deviceId.Name}");
                                 try
                                 {
-                                    _comPort = new BTLEComPort(deviceId.ID, deviceId.Name, _logger);
+                                    _comPort = new BTLEComPort(deviceId.Id, deviceId.Name, _logger);
                                     if (!_comPort.IsOpen)
                                     {
                                         _comPort.Open();
@@ -364,7 +364,7 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                         }
 
                         var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
-                        _comPort = new BTLEComPort(firstOrDefault.ID, firstOrDefault.Name, _logger);
+                        _comPort = new BTLEComPort(firstOrDefault.Id, firstOrDefault.Name, _logger);
                         SerialBTLECommunicationTools.StopWatching();
                     }
                     else if (comPort.Equals("BT"))
@@ -405,7 +405,7 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                         }
 
                         var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
-                        _comPort = new BTLEComPort(firstOrDefault.ID, firstOrDefault.Name, _logger);
+                        _comPort = new BTLEComPort(firstOrDefault.Id, firstOrDefault.Name, _logger);
                         SerialBTLECommunicationTools.StopWatching();
                     }
                     else if (comPort.Equals("BT"))
@@ -446,7 +446,7 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                         }
 
                         var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
-                        _comPort = new BTLEComPort(firstOrDefault.ID, firstOrDefault.Name, _logger);
+                        _comPort = new BTLEComPort(firstOrDefault.Id, firstOrDefault.Name, _logger);
                         SerialBTLECommunicationTools.StopWatching();
                     }
                     else if (comPort.Equals("BT"))
@@ -490,7 +490,7 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                         }
 
                         var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
-                        _comPort = new BTLEComPort(firstOrDefault.ID, firstOrDefault.Name, _logger);
+                        _comPort = new BTLEComPort(firstOrDefault.Id, firstOrDefault.Name, _logger);
                         SerialBTLECommunicationTools.StopWatching();
                     }
                     else  if (comPort.Equals("BT"))
@@ -531,7 +531,7 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                         }
 
                         var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
-                        _comPort = new BTLEComPort(firstOrDefault.ID, firstOrDefault.Name, _logger);
+                        _comPort = new BTLEComPort(firstOrDefault.Id, firstOrDefault.Name, _logger);
                         SerialBTLECommunicationTools.StopWatching();
                     }
                     else if (comPort.Equals("BT"))
@@ -575,7 +575,7 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                         }
 
                         var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
-                        _comPort = new BTLEComPort(firstOrDefault.ID, firstOrDefault.Name, _logger);
+                        _comPort = new BTLEComPort(firstOrDefault.Id, firstOrDefault.Name, _logger);
                         SerialBTLECommunicationTools.StopWatching();
                     }
                     else if (comPort.StartsWith("C"))
@@ -586,7 +586,6 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                 }
                 if (_boardName.Equals(Constants.UCB, StringComparison.OrdinalIgnoreCase))
                 {
-                   
                     if (comPort.StartsWith("C"))
                     {
                         _comPort = new SerialComPortEventBased(comPort, 9600, Parity.None,8,StopBits.One ,_logger)
@@ -595,7 +594,6 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                 }
                 if (_boardName.Equals(Constants.Citrine, StringComparison.OrdinalIgnoreCase))
                 {
-
                     if (comPort.StartsWith("C"))
                     {
                         _comPort = new SerialComPortEventBased(comPort, 57600, Parity.None, 8, StopBits.One, _logger)
@@ -604,7 +602,6 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                 }
                 if (_boardName.Equals(Constants.OSA, StringComparison.OrdinalIgnoreCase))
                 {
-
                     if (comPort.StartsWith("C"))
                     {
                         _comPort = new SerialComPortEventBased(comPort, _baud, Parity.None, 8, StopBits.One, _logger)
@@ -652,7 +649,7 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                         }
 
                         var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
-                        _comPort = new BTLEComPort(firstOrDefault.ID,firstOrDefault.Name, _logger);
+                        _comPort = new BTLEComPort(firstOrDefault.Id,firstOrDefault.Name, _logger);
                         SerialBTLECommunicationTools.StopWatching();
                     }
 
@@ -696,7 +693,7 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                         }
 
                         var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
-                        _comPort = new BTLEComPort(firstOrDefault.ID, firstOrDefault.Name, _logger);
+                        _comPort = new BTLEComPort(firstOrDefault.Id, firstOrDefault.Name, _logger);
                         SerialBTLECommunicationTools.StopWatching();
                     }
                 }
@@ -734,10 +731,48 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                         }
 
                         var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
-                        _comPort = new BTLEComPort(firstOrDefault.ID, firstOrDefault.Name, _logger);
+                        _comPort = new BTLEComPort(firstOrDefault.Id, firstOrDefault.Name, _logger);
                         SerialBTLECommunicationTools.StopWatching();
                     }
                 }
+
+                if (_boardName.Equals(Constants.ChessnutMove, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (_useHID && comPort.StartsWith("H"))
+                    {
+
+                        _comPort = HIDComPort.GetComPort(0x2D80, 0xFF00, Constants.ChessnutMove, _logger);
+                        if (_comPort == null)
+                        {
+                            _logger?.LogInfo("No HID port for Chessnut Move");
+                            return false;
+                        }
+                    }
+
+                    if (_useBluetooth && comPort.StartsWith("B"))
+                    {
+                        int counter = 0;
+                        if (SerialBTLECommunicationTools.StartWatching(_logger, new string[] { Constants.ChessnutMove }))
+                        {
+                            while (SerialBTLECommunicationTools.DeviceIdList.Count == 0)
+                            {
+                                Thread.Sleep(100);
+                                counter++;
+                                if (counter > 100)
+                                {
+                                    _logger?.LogInfo("No BTLE port for Chessnut Move");
+                                    SerialBTLECommunicationTools.StopWatching();
+                                    return false;
+                                }
+                            }
+                        }
+
+                        var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
+                        _comPort = new BTLEComPort(firstOrDefault.Id, firstOrDefault.Name, _logger);
+                        SerialBTLECommunicationTools.StopWatching();
+                    }
+                }
+
                 if (_boardName.Equals(Constants.ChessnutEvo, StringComparison.OrdinalIgnoreCase))
                 {
 
@@ -772,7 +807,7 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                         }
 
                         var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
-                        _comPort = new BTLEComPort(firstOrDefault.ID, firstOrDefault.Name, _logger);
+                        _comPort = new BTLEComPort(firstOrDefault.Id, firstOrDefault.Name, _logger);
                         SerialBTLECommunicationTools.StopWatching();
                     }
                 }
@@ -807,7 +842,7 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                             }
                         }
                         var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
-                        _comPort = new BTLEComPort(firstOrDefault.ID, firstOrDefault.Name, _logger);
+                        _comPort = new BTLEComPort(firstOrDefault.Id, firstOrDefault.Name, _logger);
                         SerialBTLECommunicationTools.StopWatching();
                     }
                 }
@@ -843,7 +878,7 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                         }
 
                         var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
-                        _comPort = new BTLEComPort(firstOrDefault.ID, firstOrDefault.Name, _logger);
+                        _comPort = new BTLEComPort(firstOrDefault.Id, firstOrDefault.Name, _logger);
                         SerialBTLECommunicationTools.StopWatching();
                     }
                     else
@@ -873,7 +908,7 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                         }
 
                         var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
-                        _comPort = new BTLEComPort(firstOrDefault.ID, firstOrDefault.Name, _logger);
+                        _comPort = new BTLEComPort(firstOrDefault.Id, firstOrDefault.Name, _logger);
                         SerialBTLECommunicationTools.StopWatching();
                     }
 
@@ -899,7 +934,7 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                         }
 
                         var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
-                        _comPort = new BTLEComPort(firstOrDefault.ID, firstOrDefault.Name, _logger);
+                        _comPort = new BTLEComPort(firstOrDefault.Id, firstOrDefault.Name, _logger);
                         SerialBTLECommunicationTools.StopWatching();
                     }
 
@@ -1045,6 +1080,16 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                                 _logger?.LogInfo($"S: Open COM-Port {portName}");
                                 CurrentComPort = portName.StartsWith("B") ? "BTLE" : portName;
                                 BoardInformation = Constants.ChessnutGo;
+                                return true;
+                            }
+                        }
+                        if (_boardName.Equals(Constants.ChessnutMove, StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (_comPort.IsOpen)
+                            {
+                                _logger?.LogInfo($"S: Open COM-Port {portName}");
+                                CurrentComPort = portName.StartsWith("B") ? "BTLE" : portName;
+                                BoardInformation = Constants.ChessnutMove;
                                 return true;
                             }
                         }

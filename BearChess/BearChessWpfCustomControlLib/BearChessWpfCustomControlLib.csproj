@@ -35,6 +35,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -82,11 +83,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ConfigureChessnutMoveWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ConfigureChessnutWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ConfigureDGTWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ConfigureGraphicalPositionsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -161,6 +170,10 @@
     <Page Include="MovePlainUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MovesConfigWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="NumericUpDownUserControl.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -257,11 +270,17 @@
     <Compile Include="ConfigureChessnutEvoWindow.xaml.cs">
       <DependentUpon>ConfigureChessnutEvoWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ConfigureChessnutMoveWindow.xaml.cs">
+      <DependentUpon>ConfigureChessnutMoveWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ConfigureChessnutWindow.xaml.cs">
       <DependentUpon>ConfigureChessnutWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ConfigureDGTWindow.xaml.cs">
       <DependentUpon>ConfigureDGTWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ConfigureGraphicalPositionsWindow.xaml.cs">
+      <DependentUpon>ConfigureGraphicalPositionsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ConfigureHoSWindow.xaml.cs">
       <DependentUpon>ConfigureHoSWindow.xaml</DependentUpon>
@@ -323,6 +342,9 @@
     </Compile>
     <Compile Include="MovePlainUserControl.xaml.cs">
       <DependentUpon>MovePlainUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MovesConfigWindow.xaml.cs">
+      <DependentUpon>MovesConfigWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="NumericUpDownUserControl.xaml.cs">
       <DependentUpon>NumericUpDownUserControl.xaml</DependentUpon>
@@ -900,6 +922,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Icons\world_go.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Wood\black.png" />
+    <Resource Include="Assets\Wood\white.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

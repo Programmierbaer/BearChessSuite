@@ -76,7 +76,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
                 if (btComPort.Length > 0)
                 {
                     var firstOrDefault = SerialBTLECommunicationTools.DeviceIdList.FirstOrDefault();
-                    var btleComPort = new BTLEComPort(firstOrDefault.ID, firstOrDefault.Name, _fileLogger);
+                    var btleComPort = new BTLEComPort(firstOrDefault.Id, firstOrDefault.Name, _fileLogger);
                     btleComPort.Open();
                 }
 

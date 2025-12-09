@@ -229,9 +229,11 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
             try
             {
                 var targetPath = Path.Combine(Configuration.Instance.FolderPath, "Website");
+                _logging?.LogDebug($"BCC: Copy files to {targetPath}");
                 var websitePath = Assembly.GetExecutingAssembly().Location;
                 var fileInfo = new FileInfo(websitePath);
                 var sourcePath = Path.Combine(fileInfo.DirectoryName, "Website");
+                _logging?.LogDebug($"BCC: Copy files from {sourcePath}");
                 if (!Directory.Exists(targetPath))
                 {
                     Directory.CreateDirectory(targetPath);
@@ -239,7 +241,6 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
 
                 Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories).ToList().ForEach(f =>
                 {
-                    var fi = new FileInfo(f);
                     var relativePath = f.Substring(sourcePath.Length + 1);
                     var targetFile = Path.Combine(targetPath, relativePath);
                     var targetDir = new FileInfo(targetFile).DirectoryName;

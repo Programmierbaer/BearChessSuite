@@ -2919,4 +2919,46 @@
   <data name="ShowGraphicalPositionScore" xml:space="preserve">
     <value>Zeige Bewertungsgrafik</value>
   </data>
+  <data name="ConfigureChessnutMove" xml:space="preserve">
+    <value>Chessnut Move Konfigurieren</value>
+  </data>
+  <data name="AutoMoveFigures" xml:space="preserve">
+    <value>Schachfiguren automatisch bewegen</value>
+  </data>
+  <data name="ConfigureEngines" xml:space="preserve">
+    <value>Allgemeine Engine-Konfigurationen</value>
+  </data>
+  <data name="ConfigureGraphicalPositionScore" xml:space="preserve">
+    <value>Bewertungsgrafik konfigurieren</value>
+  </data>
+  <data name="MaximumMinimumIsLimited" xml:space="preserve">
+    <value>Maximum/Minimum ist begrenzt</value>
+  </data>
+  <data name="DisplayLimitation" xml:space="preserve">
+    <value>Begrenzung in der Anzeige bei +/-</value>
+  </data>
+  <data name="EngineFor" xml:space="preserve">
+    <value>Engine für</value>
+  </data>
+  <data name="BackgroundColor" xml:space="preserve">
+    <value>Hintergrundfarbe</value>
+  </data>
+  <data name="Deep" xml:space="preserve">
+    <value>Tiefe:</value>
+  </data>
+  <data name="HalfMoves" xml:space="preserve">
+    <value>Halbzüge</value>
+  </data>
+  <data name="ResizeChessboard" xml:space="preserve">
+    <value>Größe anpassen</value>
+  </data>
+  <data name="ShowSmallClocks" xml:space="preserve">
+    <value>Schachuhrsymbol anzeigen</value>
+  </data>
+  <data name="ShowSmallClocksTip" xml:space="preserve">
+    <value>Wenn deaktiviert, werden die Schachuhrsymbole nur bei aktiver Partie angezeigt.</value>
+  </data>
+  <data name="ResizeChessboardTip" xml:space="preserve">
+    <value>Die Größe des Schachbretts passt sich der Fenstergröße an</value>
+  </data>
 </root>

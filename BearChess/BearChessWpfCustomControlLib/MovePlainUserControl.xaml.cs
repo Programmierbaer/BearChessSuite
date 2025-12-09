@@ -154,6 +154,10 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
 
                 if (_showBuddy && !string.IsNullOrWhiteSpace(move.BestLineBuddy))
                 {
+                    //if (string.IsNullOrWhiteSpace(move.BestLine))
+                    //{
+                    //    WrapPanelBestLine.Visibility = Visibility.Collapsed;
+                    //}
                     var score = move.ScoreBuddy;
                     textBlockBestLineBuddy.Visibility = Visibility.Visible;
                     textBlockMoveValueBuddy.Visibility = Visibility.Visible;

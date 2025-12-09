@@ -2919,4 +2919,46 @@
   <data name="ShowGraphicalPositionScore" xml:space="preserve">
     <value>Show graphical evaluations</value>
   </data>
+  <data name="ConfigureChessnutMove" xml:space="preserve">
+    <value>Configure Chessnut Move</value>
+  </data>
+  <data name="AutoMoveFigures" xml:space="preserve">
+    <value>Move chess pices automatically</value>
+  </data>
+  <data name="ConfigureEngines" xml:space="preserve">
+    <value>General engine configurations</value>
+  </data>
+  <data name="ConfigureGraphicalPositionScore" xml:space="preserve">
+    <value>Configure graphical evaluations</value>
+  </data>
+  <data name="MaximumMinimumIsLimited" xml:space="preserve">
+    <value>Maximum/minimum is limited</value>
+  </data>
+  <data name="DisplayLimitation" xml:space="preserve">
+    <value>Limitation in the display at +/-</value>
+  </data>
+  <data name="EngineFor" xml:space="preserve">
+    <value>Engine for</value>
+  </data>
+  <data name="BackgroundColor" xml:space="preserve">
+    <value>Background color</value>
+  </data>
+  <data name="Deep" xml:space="preserve">
+    <value>Deep:</value>
+  </data>
+  <data name="HalfMoves" xml:space="preserve">
+    <value>half moves</value>
+  </data>
+  <data name="ResizeChessboard" xml:space="preserve">
+    <value>Adjust size</value>
+  </data>
+  <data name="ShowSmallClocks" xml:space="preserve">
+    <value>Display chess clock symbol</value>
+  </data>
+  <data name="ShowSmallClocksTip" xml:space="preserve">
+    <value>When disabled, the chess clock icons are only displayed when a game is active.</value>
+  </data>
+  <data name="ResizeChessboardTip" xml:space="preserve">
+    <value>The size of the chessboard adapts to the window size.</value>
+  </data>
 </root>
