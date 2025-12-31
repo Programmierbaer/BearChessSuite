@@ -138,12 +138,12 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             {
                 var cernoLoader = new TabutronicCernoLoader();
                 cernoLoader.Calibrate();
-                cernoLoader.SetAllLedsOn();
-                cernoLoader.SetAllLedsOff(false);
-                cernoLoader.SetAllLedsOff(false);
+                cernoLoader.SetAllLEDsOn();
+                cernoLoader.SetAllLEDsOff(false);
+                cernoLoader.SetAllLEDsOff(false);
                 infoWindow.Close();
                 cernoLoader.Stop();
-                cernoLoader.SetAllLedsOff(false);
+                cernoLoader.SetAllLEDsOff(false);
                 MessageBox.Show(this, $"{_rm.GetString("CalibrationMsg")} {_rm.GetString("Finished")}", _rm.GetString("CalibrationMsg"), MessageBoxButton.OK,
                                 MessageBoxImage.Information);
                 cernoLoader.Close();

@@ -97,6 +97,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
             PgnGame currentGame = null;
             try
             {
+                pgnGame = pgnGame.Replace("\r\n", Environment.NewLine).Replace("\n", Environment.NewLine);
                 var allLines = pgnGame.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
                 int ji = 0;
                 string line;
@@ -225,7 +226,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
 
                     }
 
-                    if (line[i].Equals(' '))
+                    if (line[i].Equals(' ') || line[i].Equals('*'))
                     {
                         bool nextIsComment = false;
                         if (!string.IsNullOrWhiteSpace(comment) || !string.IsNullOrWhiteSpace(currentSign))
@@ -309,9 +310,12 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
                     }
 
                     newLine += line[i];
-
                 }
 
+                if (!string.IsNullOrWhiteSpace(prevLine))
+                {
+                    currentGame?.AddMove(prevLine, comment, emt, clock);
+                }
                 return currentGame;
             }
             catch 

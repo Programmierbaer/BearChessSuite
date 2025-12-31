@@ -26,6 +26,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
         private string _initialFenPosition;
         private bool _analyzeMode;
         private int _drawBy50MoveCounter = 0;
+        private int _drawByRepeitionValue = 0;
         public bool DrawByRepetition { get; private set; }
         public bool DrawBy50Moves => _drawBy50MoveCounter > 49;
 
@@ -60,6 +61,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             _allPlayedMoves = new Dictionary<int, AllMoveClass>();
             _repetition = new Dictionary<string, int>();
             _initialFenPosition = string.Empty;
+            _drawByRepeitionValue = Configuration.Instance.GetIntValue("drawByRepetition", 3);
         }
 
 
@@ -481,7 +483,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                 _repetition[substring] = 1;
             }
 
-            DrawByRepetition = _repetition[substring] > 2;
+            DrawByRepetition = _repetition[substring] >= _drawByRepeitionValue;
             if (EnemyColor == Fields.COLOR_WHITE)
             {
                 var allPlayedMove = new AllMoveClass(keysCount);
@@ -650,13 +652,16 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                 _allPlayedMoves.Last().Value.GetMove(EnemyColor).MoveSymbol = firstMoveSign;
                 return;
             }
+            string checkSign = string.Empty;
             if (pgnMove.EndsWith("+"))
             {
                 pgnMove = pgnMove.Replace("+", string.Empty);
+                checkSign = "+";
             }
             if (pgnMove.EndsWith("#"))
             {
                 pgnMove = pgnMove.Replace("#", string.Empty);
+                checkSign = "#";
             }
             string figurCharacter = "P";
             string fromField = string.Empty;
@@ -730,6 +735,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                 lastMove.ClockTime = clock;
                 lastMove.EvaluationSymbol = firstPositionSign;
                 lastMove.MoveSymbol = firstMoveSign;
+                lastMove.CheckOrMateSign = checkSign;
             }
             else
             {
@@ -751,6 +757,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                                 lastMove.ClockTime = clock;
                                 lastMove.EvaluationSymbol = firstPositionSign;
                                 lastMove.MoveSymbol = firstMoveSign;
+                                lastMove.CheckOrMateSign = checkSign;
                                 return;
                             }
                         }
@@ -763,6 +770,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                             lastMove.ClockTime = clock;
                             lastMove.EvaluationSymbol = firstPositionSign;
                             lastMove.MoveSymbol = firstMoveSign;
+                            lastMove.CheckOrMateSign = checkSign;
                             return;
                         }
                     }
@@ -813,7 +821,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
         public void MakeMove(int fromField, int toField, int promotionFigureId)
         {
             string multipleAttackSign = string.Empty;
-            IChessFigure chessFigure = _figures[fromField];
+            var chessFigure = _figures[fromField];
 
             if (chessFigure.Color != CurrentColor)
             {
@@ -916,7 +924,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                 _repetition[substring] = 1;
             }
 
-            DrawByRepetition = _repetition[substring] > 2;
+            DrawByRepetition = _repetition[substring] >= _drawByRepeitionValue;
             if (EnemyColor == Fields.COLOR_WHITE)
             {
                 var allPlayedMove = new AllMoveClass(keysCount);

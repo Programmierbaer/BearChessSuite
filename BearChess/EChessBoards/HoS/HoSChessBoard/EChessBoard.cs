@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using www.SoLaNoSoft.com.BearChess.BearChessCommunication;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
@@ -163,7 +164,6 @@ namespace www.SoLaNoSoft.com.BearChess.HoSChessBoard
             {
                 return;
             }
-            
         }
 
         public override bool CheckComPort(string portName)
@@ -240,10 +240,6 @@ namespace www.SoLaNoSoft.com.BearChess.HoSChessBoard
 
             var dataFromBoard = _serialCommunication.GetFromBoard();
 
-            //if (dataFromBoard.FromBoard.Equals(_lastData) || dataFromBoard.FromBoard.Length < 66)
-            //{
-            //    return new DataFromBoard(_lastResult, dataFromBoard.Repeated);
-            //}
             if (dataFromBoard.FromBoard.StartsWith("00FFCA"))
             {
                 if (!_boardConfiguration.UseClock || _boardConfiguration.ClockUseIntern)
@@ -291,7 +287,6 @@ namespace www.SoLaNoSoft.com.BearChess.HoSChessBoard
                     {
                        
                         return new DataFromBoard(_prevFenLine.Contains(UnknownPieceCode) ? string.Empty : _prevFenLine, 3);
-                        
                     }
                 }
 

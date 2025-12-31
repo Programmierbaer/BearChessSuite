@@ -130,7 +130,15 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                 }
 
                 Thread.Sleep(5);
-                _repeated++;
+                try
+                {
+                    _repeated++;
+                }
+                catch
+                {
+                    _repeated = ulong.MaxValue-1;
+                }
+
                 return new DataFromBoard(_lastLine, _repeated);
             }
         }

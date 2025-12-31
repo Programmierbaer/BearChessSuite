@@ -7,10 +7,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Xml.Serialization;
-using www.SoLaNoSoft.com.BearChess.BearChessCommunication;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
-using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBaseLib.Definitions;
 using www.SoLaNoSoft.com.BearChessWpfCustomControlLib;
 using TimeControl = www.SoLaNoSoft.com.BearChessBase.Implementations.TimeControl;
@@ -23,7 +21,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
     public partial class NewGameWindow : Window, INewGameWindow
     {
         private readonly Configuration _configuration;
-        private readonly bool _pieceRecognition;
         private readonly Dictionary<string, UciInfo> _allUciInfos = new Dictionary<string, UciInfo>();
         private readonly bool _isInitialized;
 
@@ -39,7 +36,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
             set;
         }
 
-        private bool? _isCheckedAllowTakeBack;
         private Brush _foreground;
         private readonly ResourceManager _rm;
         private string _bcsPlayerWhite;
@@ -54,9 +50,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         public bool RelaxedMode => checkBoxRelaxed.Visibility == Visibility.Visible &&
                                    checkBoxRelaxed.IsChecked.HasValue && checkBoxRelaxed.IsChecked.Value;
-
-        private bool AllowTakeMoveBack =>
-            checkBoxAllowTakeMoveBack.IsChecked.HasValue && checkBoxAllowTakeMoveBack.IsChecked.Value;
 
         private bool StartAfterMoveOnBoard => checkBoxStartAfterMoveOnBoard.IsChecked.HasValue &&
                                               checkBoxStartAfterMoveOnBoard.IsChecked.Value;
@@ -78,10 +71,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         public string GameEvent => textBoxEvent.Text;
 
-        public NewGameWindow(Configuration configuration, bool bcServerConnected, bool eBoardConnected, bool pieceRecognition)
+        public NewGameWindow(Configuration configuration, bool bcServerConnected, bool eBoardConnected)
         {
             _configuration = configuration;
-            _pieceRecognition = pieceRecognition;
             _bcServerConnected = bcServerConnected;
             _tournamentMode = _configuration.GetBoolValue("tournamentMode", false);
             InitializeComponent();
@@ -181,7 +173,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _isInitialized = true;
             textBlockTimeControlEmu11.Text = SpeechTranslator.ResourceManager.GetString("UseEngineConfigForTC");
             textBlockTimeControlEmu22.Text = SpeechTranslator.ResourceManager.GetString("UseEngineConfigForTC");
-            checkBoxAlternateMove.IsChecked = _configuration.GetBoolValue("allowAlternateMoves", true);
             textBoxEvent.Text = _configuration.GetConfigValue("gameEvent", Constants.BearChess);
             checkBoxTournamentMode.IsChecked = _tournamentMode;
             stackPanelExtraTime.Visibility = _tournamentMode ? Visibility.Collapsed : Visibility.Visible;
@@ -189,8 +180,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
             checkBoxPublishContinue.IsChecked = _bcServerConnected;
             if (_tournamentMode)
             {
-                checkBoxAllowTakeMoveBack.IsChecked = false;
-                checkBoxAllowTakeMoveBack.IsEnabled = false;
                 checkBoxTournamentMode.IsEnabled = false;
             }
         }
@@ -299,7 +288,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
 
             timeControl.HumanValue = numericUpDownUserExtraTime.Value;
-            timeControl.AllowTakeBack = AllowTakeMoveBack;
+            timeControl.AllowTakeBack = true;
             if (timeControl.TimeControlType == TimeControlEnum.Adapted)
             {
                 timeControl.AverageTimInSec = true;
@@ -387,7 +376,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 }
 
                 timeControl.HumanValue = numericUpDownUserExtraTime.Value;
-                timeControl.AllowTakeBack = AllowTakeMoveBack;
+                timeControl.AllowTakeBack = true;
                 if (timeControl.TimeControlType == TimeControlEnum.Adapted)
                 {
                     timeControl.AverageTimInSec = true;
@@ -572,13 +561,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
             numericUpDownUserExtraTime.Value = timeControl.HumanValue;
             radioButtonSecond.IsChecked = timeControl.AverageTimInSec;
             radioButtonMinute.IsChecked = !timeControl.AverageTimInSec;
-            checkBoxAllowTakeMoveBack.IsChecked = timeControl.AllowTakeBack;
             checkBoxStartAfterMoveOnBoard.IsChecked = timeControl.WaitForMoveOnBoard;
             checkBoxTournamentMode.IsChecked = timeControl.TournamentMode || _tournamentMode;
             if (_tournamentMode)
             {
-                checkBoxAllowTakeMoveBack.IsChecked = false;
-                checkBoxAllowTakeMoveBack.IsEnabled = false;
                 checkBoxTournamentMode.IsEnabled = false;
             }
 
@@ -667,9 +653,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void ButtonOk_OnClick(object sender, RoutedEventArgs e)
         {
-            _configuration.SetBoolValue("allowAlternateMoves",    checkBoxAlternateMove.IsChecked.HasValue && checkBoxAlternateMove.IsChecked.Value);
-            _configuration.SetBoolValue("checkForAlternateMoves", checkBoxAlternateMove.IsChecked.HasValue && checkBoxAlternateMove.IsChecked.Value &&
-                checkBoxAlternateMove.Visibility == Visibility.Visible);
             _configuration.SetConfigValue("gameEvent", textBoxEvent.Text);
             DialogResult = true;
         }
@@ -689,7 +672,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
             borderDepth.Visibility = Visibility.Collapsed;
             borderNodes.Visibility = Visibility.Collapsed;
             borderExactTime.Visibility = Visibility.Collapsed;
-
 
             switch (timeControlValue?.TimeControl)
             {
@@ -867,7 +849,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void SetRelaxedVisibility()
         {
-            checkBoxAlternateMove.Visibility = _pieceRecognition && buttonConfigureWhite.Visibility == Visibility.Hidden && buttonConfigureBlack.Visibility == Visibility.Hidden ? Visibility.Visible : Visibility.Hidden;
             if ((buttonConfigureBlack.Visibility == Visibility.Visible &&
                  buttonConfigureWhite.Visibility == Visibility.Hidden)
                 || (buttonConfigureBlack.Visibility == Visibility.Hidden &&
@@ -1052,36 +1033,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        private void CheckBoxAllowTournament_OnChecked(object sender, RoutedEventArgs e)
-        {
-            if (_tournamentMode)
-            {
-                return;
-            }
-            _isCheckedAllowTakeBack = checkBoxAllowTakeMoveBack.IsChecked;
-            _foreground = checkBoxAllowTakeMoveBack.Foreground;
-            checkBoxAllowTakeMoveBack.IsChecked = false;
-            checkBoxAllowTakeMoveBack.IsEnabled = false;
-            checkBoxAllowTakeMoveBack.Foreground = new SolidColorBrush(Colors.DarkGray);          
-        }
 
-        private void CheckBoxAllowTournament_OnUnchecked(object sender, RoutedEventArgs e)
-        {
-            if (_tournamentMode)
-            {
-                return;
-            }
-            checkBoxAllowTakeMoveBack.IsEnabled = ValidForAnalysis();
-            if (!ValidForAnalysis())
-            {
-                checkBoxAllowTakeMoveBack.IsChecked = false;
-            }
-
-            checkBoxAllowTakeMoveBack.FontWeight = FontWeights.Normal;
-            checkBoxAllowTakeMoveBack.IsChecked = _isCheckedAllowTakeBack;
-            checkBoxAllowTakeMoveBack.Foreground = _foreground;
-
-        }
 
         private void CheckBoxRelaxed_OnChecked(object sender, RoutedEventArgs e)
         {
@@ -1093,14 +1045,12 @@ namespace www.SoLaNoSoft.com.BearChessWin
             numericUpDownUserControlAverageTime.Value = 10;
             radioButtonSecond.IsChecked = true;
             checkBoxTournamentMode.IsChecked = false;
-            checkBoxAllowTakeMoveBack.IsChecked = true;
             checkBoxStartAfterMoveOnBoard.IsChecked = true;
             comboBoxTimeControl.IsEnabled = false;
             numericUpDownUserControlAverageTime.IsEnabled = false;
             radioButtonSecond.IsEnabled = false;
             radioButtonMinute.IsEnabled = false;
             checkBoxTournamentMode.IsEnabled = false;
-            checkBoxAllowTakeMoveBack.IsEnabled = false;
             checkBoxStartAfterMoveOnBoard.IsEnabled = false;
             checkBox2TimeControls.IsChecked = false;
             checkBox2TimeControls.IsEnabled = false;
@@ -1118,12 +1068,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
             radioButtonSecond.IsEnabled = true;
             radioButtonMinute.IsEnabled = true;
             checkBoxTournamentMode.IsEnabled = !_tournamentMode;
-            checkBoxAllowTakeMoveBack.IsEnabled = ValidForAnalysis();
-            if (!ValidForAnalysis())
-            {
-                checkBoxAllowTakeMoveBack.IsChecked = false;
-            }
-
             checkBoxStartAfterMoveOnBoard.IsEnabled = true;
             checkBox2TimeControls.IsEnabled = true;
          

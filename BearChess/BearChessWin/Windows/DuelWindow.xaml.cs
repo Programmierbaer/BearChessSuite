@@ -25,7 +25,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
     {
         private readonly Configuration _configuration;
         private readonly Database _database;
-        private readonly PgnConfiguration _pgnConfiguration;
         private bool _duelFinished;
         private DuelInfoWindow _duelInfoWindow;
         private DuelManager _duelManager;
@@ -39,7 +38,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         public event EventHandler<int> CloneDuelSelected;
         public event EventHandler<int> RepeatGameSelected;
 
-        public DuelWindow(Configuration configuration, Database database, PgnConfiguration pgnConfiguration)
+        public DuelWindow(Configuration configuration, Database database)
         {
             InitializeComponent();
             _configuration = configuration;
@@ -47,7 +46,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
             ShowGamesDuplicates = bool.Parse(_configuration.GetConfigValue("showGamesDuplicates", "true"));
             dataGridGames.Columns[0].Visibility = ShowGamesDuplicates ? Visibility.Visible : Visibility.Collapsed;
             _database = database;
-            _pgnConfiguration = pgnConfiguration;
             Top = _configuration.GetWinDoubleValue("DuelWindowTop", Configuration.WinScreenInfo.Top,
                                                    SystemParameters.VirtualScreenHeight,
                                                    SystemParameters.VirtualScreenWidth);
@@ -227,7 +225,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         {
             if (dataGridGames.SelectedItem is DatabaseGameSimple pgnGame)
             {
-                OnSelectedGamedChanged(_database.LoadGame(pgnGame.Id, _pgnConfiguration));
+                OnSelectedGamedChanged(_database.LoadGame(pgnGame.Id, _configuration.GetPgnConfiguration()));
             }
         }
 
@@ -235,7 +233,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         {
             if (dataGridGames.SelectedItem is DatabaseGameSimple pgnGame)
             {
-                ClipboardHelper.SetText(_database.LoadGame(pgnGame.Id, _pgnConfiguration).PgnGame.GetGame());
+                ClipboardHelper.SetText(_database.LoadGame(pgnGame.Id, _configuration.GetPgnConfiguration()).PgnGame.GetGame());
             }
         }
 
@@ -306,7 +304,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 selectedItems = dataGridGames.Items;
             }
 
-            ExportGames.Export(selectedItems, _database, _pgnConfiguration,this);
+            ExportGames.Export(selectedItems, _database, _configuration.GetPgnConfiguration(),this);
         }
 
         private void ButtonInfo_OnClick(object sender, RoutedEventArgs e)

@@ -19,7 +19,7 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Properties {
     // -Klasse über ein Tool wie ResGen oder Visual Studio automatisch generiert.
     // Um einen Member hinzuzufügen oder zu entfernen, bearbeiten Sie die .ResX-Datei und führen dann ResGen
     // mit der /str-Option erneut aus, oder Sie erstellen Ihr VS-Projekt neu.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -385,6 +385,15 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die New tournament ähnelt.
+        /// </summary>
+        public static string NewTournament {
+            get {
+                return ResourceManager.GetString("NewTournament", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die You have not filled in all the input fields. ähnelt.
         /// </summary>
         public static string NotFilledAllFields {
@@ -651,6 +660,15 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Properties {
         public static string TournamentName {
             get {
                 return ResourceManager.GetString("TournamentName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The Tournament Name field must not be left blank ähnelt.
+        /// </summary>
+        public static string TournamentNameMissing {
+            get {
+                return ResourceManager.GetString("TournamentNameMissing", resourceCulture);
             }
         }
         

@@ -2961,4 +2961,67 @@
   <data name="ResizeChessboardTip" xml:space="preserve">
     <value>Die Größe des Schachbretts passt sich der Fenstergröße an</value>
   </data>
+  <data name="chesscom" xml:space="preserve">
+    <value>Chess.com</value>
+  </data>
+  <data name="chesscomTip" xml:space="preserve">
+    <value>Konfigurieren Sie ihren Chess.com Zugang</value>
+  </data>
+  <data name="Puzzle" xml:space="preserve">
+    <value>Puzzles</value>
+  </data>
+  <data name="PuzzleTitle" xml:space="preserve">
+    <value>Titel:</value>
+  </data>
+  <data name="PuzzleComments" xml:space="preserve">
+    <value>Kommentar:</value>
+  </data>
+  <data name="PuzzlePublishTime" xml:space="preserve">
+    <value>Veröffentlicht:</value>
+  </data>
+  <data name="ErrorTrials" xml:space="preserve">
+    <value>Fehlversuche:</value>
+  </data>
+  <data name="ModePuzzle" xml:space="preserve">
+    <value>Modus: Puzzle</value>
+  </data>
+  <data name="Fen" xml:space="preserve">
+    <value>FEN:</value>
+  </data>
+  <data name="SolutionMoves" xml:space="preserve">
+    <value>Lösungszüge:</value>
+  </data>
+  <data name="PuzzleUrl" xml:space="preserve">
+    <value>URL:</value>
+  </data>
+  <data name="PuzzleRequestNew" xml:space="preserve">
+    <value>Neues Puzzle abfragen</value>
+  </data>
+  <data name="PuzzleRequestToday" xml:space="preserve">
+    <value>Puzzle des Tages abfragen</value>
+  </data>
+  <data name="PuzzleHint" xml:space="preserve">
+    <value>Einen Hinweis geben</value>
+  </data>
+  <data name="PuzzleSolution" xml:space="preserve">
+    <value>Die Lösung anzeigen</value>
+  </data>
+  <data name="DatabaseMenu" xml:space="preserve">
+    <value>Datenbank</value>
+  </data>
+  <data name="ManageChessCom" xml:space="preserve">
+    <value>Verwalte "Chess.com"</value>
+  </data>
+  <data name="Year" xml:space="preserve">
+    <value>Jahr:</value>
+  </data>
+  <data name="Month" xml:space="preserve">
+    <value>Monat:</value>
+  </data>
+  <data name="Write" xml:space="preserve">
+    <value>Schreibe</value>
+  </data>
+  <data name="DownloadChessCom" xml:space="preserve">
+    <value>Herunterladen von Chess.com</value>
+  </data>
 </root>

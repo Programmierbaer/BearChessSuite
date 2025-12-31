@@ -215,41 +215,57 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
 
                         //message has successfully been received
                         var msg = completeMessage.ToString();
-                       // _logging?.LogDebug($"ComServer {addr}: Received: {msg}");
+                        _logging?.LogDebug($"ComServer {ipAddr}: Read completed");                        
+                        //_logging?.LogDebug($"ComServer {ipAddr}: Complete message: {msg}");                        
                         var msgArray = msg.Split("|".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                         for (int i = 0; i < msgArray.Length; i++)
                         {
-                            var clientMessage = JsonSerializer.Deserialize<BearChessServerMessage>(msgArray[i]);
-                            if (clientMessage.ActionCode.Equals("CONNECT"))
+                            _logging?.LogDebug($"ComServer {ipAddr}: Deserialize as BearChessServerMessage {i}/{msgArray.Length}: {msgArray[i]}");
+                            try
                             {
-                                tokenAddr = Guid.NewGuid().ToString("N");
-                                var connectMessage = new BearChessServerMessage()
+                                var clientMessage = JsonSerializer.Deserialize<BearChessServerMessage>(msgArray[i]);
+                                _logging?.LogDebug($"ComServer {ipAddr}: Actioncode: {clientMessage.ActionCode}");
+                                if (clientMessage.ActionCode.Equals("CONNECT"))
                                 {
-                                    Ack = "ACK", Address = tokenAddr, ActionCode = clientMessage.ActionCode,
+                                    tokenAddr = Guid.NewGuid().ToString("N");
+                                    var connectMessage = new BearChessServerMessage()
+                                    {
+                                        Ack = "ACK",
+                                        Address = tokenAddr,
+                                        ActionCode = clientMessage.ActionCode,
+                                        Message = clientMessage.Message
+                                    };
+                                    var jsonString = JsonSerializer.Serialize(connectMessage);
+                                    var bufferConnect = Encoding.Default.GetBytes(jsonString);
+                                    clientStream.Write(bufferConnect, 0, bufferConnect.Length);
+                                    clientStream.Flush();
+                                    _logging?.LogDebug($"ComServer {ipAddr}/{tokenAddr}: Send: {jsonString}");
+                                    ClientMessage?.Invoke(this, connectMessage);
+                                    clientThread.Start(new ClientAddrStream(tokenAddr, clientStream));
+                                    continue;
+                                }
+
+                                ClientMessage?.Invoke(this, clientMessage);
+                                if (clientMessage.ActionCode.Equals("PUBLISH"))
+                                {
+                                    continue;
+                                }
+                                var serverMessage = new BearChessServerMessage()
+                                { 
+                                    Ack = "ACK", 
+                                    ActionCode = clientMessage.ActionCode, 
                                     Message = clientMessage.Message
                                 };
-                                var jsonString = JsonSerializer.Serialize(connectMessage);
-                                var bufferConnect = Encoding.Default.GetBytes(jsonString);
-                                clientStream.Write(bufferConnect, 0, bufferConnect.Length);
+                                var serverString = JsonSerializer.Serialize(serverMessage);
+                                var buffer = Encoding.Default.GetBytes(serverString);
+                                clientStream.Write(buffer, 0, buffer.Length);
                                 clientStream.Flush();
-                                _logging?.LogDebug($"ComServer {ipAddr}/{tokenAddr}: Send: {jsonString}");
-                                ClientMessage?.Invoke(this, connectMessage);
-                                clientThread.Start(new ClientAddrStream(tokenAddr, clientStream));
-                                continue;
+                                _logging?.LogDebug($"ComServer {ipAddr}/{tokenAddr}: Send ACK: {serverString}");
                             }
-
-                            ClientMessage?.Invoke(this, clientMessage);
-                            if (clientMessage.ActionCode.Equals("PUBLISH"))
+                            catch (Exception ex)
                             {
-                                continue;
+                                _logging?.LogWarning($"ComServer {ipAddr}: Error deserializing message: {ex.Message}");
                             }
-                            var serverMessage = new BearChessServerMessage()
-                                { Ack = "ACK", ActionCode = clientMessage.ActionCode, Message = clientMessage.Message };
-                            var serverString = JsonSerializer.Serialize(serverMessage);
-                            var buffer = Encoding.Default.GetBytes(serverString);
-                            clientStream.Write(buffer, 0, buffer.Length);
-                            clientStream.Flush();
-                            _logging?.LogDebug($"ComServer {ipAddr}/{tokenAddr}: Send: {serverString}");
                         }
                     }
                 }

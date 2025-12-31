@@ -637,7 +637,7 @@
     <value>FICS</value>
   </data>
   <data name="FICSTip" xml:space="preserve">
-    <value>Configure you Free Internet Chess Server connection</value>
+    <value>Configure your Free Internet Chess Server connection</value>
   </data>
   <data name="Filter" xml:space="preserve">
     <value>Filter:</value>
@@ -2960,5 +2960,68 @@
   </data>
   <data name="ResizeChessboardTip" xml:space="preserve">
     <value>The size of the chessboard adapts to the window size.</value>
+  </data>
+  <data name="chesscom" xml:space="preserve">
+    <value>Chess.com</value>
+  </data>
+  <data name="chesscomTip" xml:space="preserve">
+    <value>Configure your Chess.com account</value>
+  </data>
+  <data name="Puzzle" xml:space="preserve">
+    <value>Puzzle</value>
+  </data>
+  <data name="PuzzleTitle" xml:space="preserve">
+    <value>Title:</value>
+  </data>
+  <data name="PuzzleComments" xml:space="preserve">
+    <value>Comments:</value>
+  </data>
+  <data name="PuzzlePublishTime" xml:space="preserve">
+    <value>Published:</value>
+  </data>
+  <data name="ErrorTrials" xml:space="preserve">
+    <value>Error trials:</value>
+  </data>
+  <data name="ModePuzzle" xml:space="preserve">
+    <value>Mode: Puzzle</value>
+  </data>
+  <data name="Fen" xml:space="preserve">
+    <value>FEN:</value>
+  </data>
+  <data name="SolutionMoves" xml:space="preserve">
+    <value>Solution moves:</value>
+  </data>
+  <data name="PuzzleUrl" xml:space="preserve">
+    <value>URL:</value>
+  </data>
+  <data name="PuzzleRequestNew" xml:space="preserve">
+    <value>Request new puzzle</value>
+  </data>
+  <data name="PuzzleRequestToday" xml:space="preserve">
+    <value>Request puzzle of the day</value>
+  </data>
+  <data name="PuzzleHint" xml:space="preserve">
+    <value>Give a hint</value>
+  </data>
+  <data name="PuzzleSolution" xml:space="preserve">
+    <value>Show the solution</value>
+  </data>
+  <data name="DatabaseMenu" xml:space="preserve">
+    <value>Database</value>
+  </data>
+  <data name="ManageChessCom" xml:space="preserve">
+    <value>Manage "Chess.com"</value>
+  </data>
+  <data name="Year" xml:space="preserve">
+    <value>Year:</value>
+  </data>
+  <data name="Month" xml:space="preserve">
+    <value>Month:</value>
+  </data>
+  <data name="Write" xml:space="preserve">
+    <value>Write</value>
+  </data>
+  <data name="DownloadChessCom" xml:space="preserve">
+    <value>Download from Chess.com</value>
   </data>
 </root>

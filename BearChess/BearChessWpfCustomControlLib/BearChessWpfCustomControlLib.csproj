@@ -63,6 +63,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ChessComDownloadWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="COMPortSearchWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -254,6 +258,9 @@
     </Compile>
     <Compile Include="ChessClockUserControl.xaml.cs">
       <DependentUpon>ChessClockUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ChessComDownloadWindow.xaml.cs">
+      <DependentUpon>ChessComDownloadWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="COMPortSearchWindow.xaml.cs">
       <DependentUpon>COMPortSearchWindow.xaml</DependentUpon>
@@ -926,6 +933,12 @@
   <ItemGroup>
     <Resource Include="Assets\Wood\black.png" />
     <Resource Include="Assets\Wood\white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\chesscom.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\calendar_view_day.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

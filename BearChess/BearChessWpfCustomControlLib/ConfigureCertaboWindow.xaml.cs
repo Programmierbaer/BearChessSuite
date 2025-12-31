@@ -145,12 +145,12 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             {
                 var certaboLoader = new CertaboLoader();
                 certaboLoader.Calibrate();
-                certaboLoader.SetAllLedsOn();
-                certaboLoader.SetAllLedsOff(false);
-                certaboLoader.SetAllLedsOff(false);
+                certaboLoader.SetAllLEDsOn();
+                certaboLoader.SetAllLEDsOff(false);
+                certaboLoader.SetAllLEDsOff(false);
                 infoWindow.Close();
                 certaboLoader.Stop();
-                certaboLoader.SetAllLedsOff(false);
+                certaboLoader.SetAllLEDsOff(false);
                 MessageBox.Show(this, $"{_rm.GetString("CalibrationMsg")} {_rm.GetString("Finished")}", _rm.GetString("CalibrationMsg"), MessageBoxButton.OK,
                     MessageBoxImage.Information);
                 certaboLoader.Close();

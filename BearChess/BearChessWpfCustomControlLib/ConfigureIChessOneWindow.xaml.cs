@@ -322,7 +322,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
                 buttonShowDim2.Visibility = Visibility.Collapsed;
                 buttonShowBuzzer.Visibility = Visibility.Visible;
                 buttonShowBuzzer2.Visibility = Visibility.Collapsed;
-                _loader.SetAllLedsOff(true);
+                _loader.SetAllLEDsOff(true);
                 Thread.Sleep(500);
                 _loader.Close();
                 _loader = null;
@@ -428,7 +428,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         {
             if (_loader != null)
             {
-                _loader?.SetAllLedsOff(true);
+                _loader?.SetAllLEDsOff(true);
                 Thread.Sleep(500);
                 _loader?.Close();
             }
@@ -449,7 +449,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         {
             if (_loader != null)
             {
-                _loader?.SetAllLedsOff(true);
+                _loader?.SetAllLEDsOff(true);
                 Thread.Sleep(1000);
                 _loader?.Close();
             }

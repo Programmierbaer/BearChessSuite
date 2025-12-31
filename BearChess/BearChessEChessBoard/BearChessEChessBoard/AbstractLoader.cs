@@ -18,6 +18,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         public event EventHandler<string> MoveEvent;
         public event EventHandler<string> DataEvent;
         public event EventHandler<string> FenEvent;
+        public event EventHandler<string> AlternateFenEvent;
         public event EventHandler<string[]> ProbeMoveEvent;
         public event EventHandler AwaitedPosition;
         public event EventHandler BasePositionEvent;
@@ -92,6 +93,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             _eChessBoard = GetEBoardImpl(basePath, configuration);
             _eChessBoard.FenEvent += EChessBoard_FenEvent;
             _eChessBoard.MoveEvent += EChessBoard_MoveEvent;
+            _eChessBoard.AlternateFenEvent += EChessBoard_AlternateFenEvent;
             _eChessBoard.AwaitedPosition += EChessBoard_AwaitedPosition;
             _eChessBoard.BasePositionEvent += EChessBoard_BasePositionEvent;
             _eChessBoard.NewGamePositionEvent += EChessBoard_NewGamePositionEvent;
@@ -162,9 +164,13 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             _eChessBoard.ShowMove(allMoves,fenStartPosition, setLeDsParameter, waitFor);
         }
 
-        public void ShowMove(SetLEDsParameter setLeDsParameter)
+        public void ShowMove(SetLEDsParameter setLEDsParameter)
         {
-            _eChessBoard.ShowMove(setLeDsParameter);
+            _eChessBoard.ShowMove(setLEDsParameter);
+        }
+        public void ShowMove(SetLEDsParameter setLEDsParameter, string[] alternateMoves )
+        {
+            _eChessBoard.ShowMove(setLEDsParameter, alternateMoves);
         }
 
         /// <inheritdoc />
@@ -177,12 +183,12 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                                     } );
         }
 
-        public void SetLedsFor(SetLEDsParameter setLeDsParameter)
+        public void SetLEDsFor(SetLEDsParameter setLEDsParameter)
         {
-            _eChessBoard.SetLedsFor(setLeDsParameter);
+            _eChessBoard.SetLedsFor(setLEDsParameter);
         }
 
-        public void SetAllLedsOff(bool forceOff)
+        public void SetAllLEDsOff(bool forceOff)
         {
             _eChessBoard.SetAllLedsOff(forceOff);
         }
@@ -190,7 +196,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
 
 
         /// <inheritdoc />
-        public void SetAllLedsOn()
+        public void SetAllLEDsOn()
         {
             _eChessBoard.SetAllLedsOn();
         }
@@ -498,6 +504,11 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         private void EChessBoard_MoveEvent(object sender, string move)
         {
             MoveEvent?.Invoke(this, move);
+        }
+
+        private void EChessBoard_AlternateFenEvent(object sender, string move)
+        {
+            AlternateFenEvent?.Invoke(this, move);
         }
 
         private EChessBoardConfiguration ReadConfiguration()

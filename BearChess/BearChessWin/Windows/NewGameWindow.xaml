@@ -169,11 +169,6 @@
                             <TextBlock Margin="-30,5,5,5" Text="{x:Static p:Resources.EventDialog}"/>
                             <TextBox Height="25" TextAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="50,5,5,5" Name="textBoxEvent" Width="250"></TextBox>
                         </StackPanel>
-                        <CheckBox Name="checkBoxAlternateMove" VerticalAlignment="Top"
-                                  VerticalContentAlignment="Center"  HorizontalAlignment="Left"
-                                  AutomationProperties.HelpText="{x:Static p:Resources.AlternateMove}"
-                                  Margin="55,5,5,5" Content="{x:Static p:Resources.AlternateMove}">
-                        </CheckBox>
                         <CheckBox Name="checkBoxRelaxed" VerticalAlignment="Center" VerticalContentAlignment="Center"
                                   Margin="55,5,5,5" 
                                   AutomationProperties.HelpText="{x:Static p:Resources.Relaxed}"
@@ -434,15 +429,7 @@
                 <StackPanel Grid.Row="4" Grid.Column="1">
                     <CheckBox Name="checkBoxTournamentMode" Margin="5,5,5,5" VerticalAlignment="Center"                              
                               AutomationProperties.HelpText="{x:Static p:Resources.TournamentMode}"
-                              Unchecked="CheckBoxAllowTournament_OnUnchecked"
-                              Content="{x:Static p:Resources.TournamentMode}"
-                              Checked="CheckBoxAllowTournament_OnChecked">
-
-                    </CheckBox>
-                    <CheckBox Name="checkBoxAllowTakeMoveBack" Margin="5,5,5,5" VerticalAlignment="Center"
-                              Content="{x:Static p:Resources.AllowToTakeBack}"
-                              AutomationProperties.HelpText="{x:Static p:Resources.AllowToTakeBack}">
-                    </CheckBox>
+                              Content="{x:Static p:Resources.TournamentMode}"/>
                 </StackPanel>
                 <StackPanel Name="stackPanelExtraTime" Orientation="Horizontal" Grid.Column="0" Grid.Row="4"
                             Margin="10,5,5,5" VerticalAlignment="Top">

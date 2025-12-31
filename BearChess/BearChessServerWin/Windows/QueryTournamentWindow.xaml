@@ -8,7 +8,7 @@
         xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessServerWin.Properties" 
         Loaded="Window_Loaded"
         mc:Ignorable="d" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" 
-        Title="{x:Static p:Resources.Tournament}" Height="200" Width="350" ResizeMode="NoResize">
+        Title="{x:Static p:Resources.NewTournament}" Height="200" Width="350" ResizeMode="NoResize">
     <Grid Margin="5" FocusManager.FocusedElement="{Binding ElementName=textBoxName}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -21,19 +21,19 @@
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <TextBlock Margin="5"  Grid.Column="0" Grid.Row="0" Text="{x:Static p:Resources.TournamentName}" VerticalAlignment="Center"/>
-        <TextBox TabIndex="0" Name="textBoxName"  HorizontalAlignment="Left"  Margin="5"  Width="200"  Grid.Column="1" Grid.Row="0"></TextBox>
+        <TextBox TabIndex="0" Name="textBoxName" HorizontalAlignment="Left"  Margin="5"  Width="200"  Grid.Column="1" Grid.Row="0"></TextBox>
         <TextBlock Margin="5"  Grid.Column="0" Grid.Row="1" Text="{x:Static p:Resources.NumberOfBoards}" VerticalAlignment="Center"/>
         <control:NumericUpDownUserControl TabIndex="1" Margin="5" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left"
                                                                  x:Name="numericUpDownUserControBoards"
                                                                  MinValue="1" Value="1"
-                                                                 MaxValue="15" TextWidthProperty="30" />
+                                                                 MaxValue="16" TextWidthProperty="30" />
         <TextBlock Margin="5"  Grid.Column="0" Grid.Row="2" Text="{x:Static p:Resources.PublishTournament}" VerticalAlignment="Center"/>
         <CheckBox Name="checkBoxPublish" Grid.Column="1" Grid.Row="2" VerticalAlignment="Center" Margin="5"/>
         <DockPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Margin="5,10,5,5" DockPanel.Dock="Bottom" LastChildFill="False">
             <Button Name="buttonOk"  Margin="5" DockPanel.Dock="Left"  Width="28" Height="28" Background="Transparent" BorderBrush="Transparent" IsDefault="True" Click="buttonOk_Click"            >
                 <Image Source="../Assets/Icons/accept_button.png" ></Image>
             </Button>
-            <Button Name="buttonCancel"  Margin="5" DockPanel.Dock="Right"  Width="28" Height="28"  Background="Transparent" BorderBrush="Transparent" IsCancel="True">
+            <Button Name="buttonCancel" Margin="5" DockPanel.Dock="Right"  Width="28" Height="28"  Background="Transparent" BorderBrush="Transparent" IsCancel="True">
                 <Image Source="../Assets/Icons/cancel.png"  ></Image>
             </Button>
         </DockPanel>

@@ -1348,6 +1348,24 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Chess.com ähnelt.
+        /// </summary>
+        public static string chesscom {
+            get {
+                return ResourceManager.GetString("chesscom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Configure your Chess.com account ähnelt.
+        /// </summary>
+        public static string chesscomTip {
+            get {
+                return ResourceManager.GetString("chesscomTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Start opening training ähnelt.
         /// </summary>
         public static string ChessOpening {
@@ -3022,6 +3040,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Download from Chess.com ähnelt.
+        /// </summary>
+        public static string DownloadChessCom {
+            get {
+                return ResourceManager.GetString("DownloadChessCom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Download TWIC from number: ähnelt.
         /// </summary>
         public static string DownloadFromNumber {
@@ -3693,6 +3720,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         public static string FastMoveInputTip {
             get {
                 return ResourceManager.GetString("FastMoveInputTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die FEN: ähnelt.
+        /// </summary>
+        public static string Fen {
+            get {
+                return ResourceManager.GetString("Fen", resourceCulture);
             }
         }
         
@@ -5007,6 +5043,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         public static string ModePlayingAGame {
             get {
                 return ResourceManager.GetString("ModePlayingAGame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Mode: Puzzle ähnelt.
+        /// </summary>
+        public static string ModePuzzle {
+            get {
+                return ResourceManager.GetString("ModePuzzle", resourceCulture);
             }
         }
         
@@ -8220,6 +8265,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         public static string WithoutComments {
             get {
                 return ResourceManager.GetString("WithoutComments", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Write ähnelt.
+        /// </summary>
+        public static string Write {
+            get {
+                return ResourceManager.GetString("Write", resourceCulture);
             }
         }
         

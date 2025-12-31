@@ -23,7 +23,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
     {
         private readonly Configuration _configuration;
         private readonly Database _database;
-        private readonly PgnConfiguration _pgnConfiguration;
         private readonly ObservableCollection<UciInfo> _uciInfos;
         private readonly ObservableCollection<UciInfo> _uciInfosPlayer;
         private bool _isInitialized = false;
@@ -51,11 +50,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _rm = SpeechTranslator.ResourceManager;
         }
 
-        public NewTournamentWindow(IEnumerable<UciInfo> uciInfos, Configuration configuration, Database database, PgnConfiguration pgnConfiguration) : this()
+        public NewTournamentWindow(IEnumerable<UciInfo> uciInfos, Configuration configuration, Database database) : this()
         {
             _configuration = configuration;
             _database = database;
-            _pgnConfiguration = pgnConfiguration;
+        
             _uciInfos = new ObservableCollection<UciInfo>(uciInfos.Where(u => !u.IsPlayer).OrderBy(e => e.Name).ToList());
             _uciInfosPlayer = new ObservableCollection<UciInfo>();
             dataGridEngine.ItemsSource = _uciInfos;
@@ -415,7 +414,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void ButtonDatabase_OnClick(object sender, RoutedEventArgs e)
         {
-            var databaseWindow = new DatabaseWindow(_configuration, _database, string.Empty, false, null, _pgnConfiguration);
+            var databaseWindow = new DatabaseWindow(_configuration, _database, string.Empty, false, null);
             databaseWindow.ShowDialog();
             labelDatabaseName.Content = _database.FileName;
             labelDatabaseName.ToolTip = _database.FileName;

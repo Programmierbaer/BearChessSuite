@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using www.SoLaNoSoft.com.BearChessBase.Implementations;
 
 
 namespace www.SoLaNoSoft.com.BearChess.EChessBoard
@@ -41,29 +43,33 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         /// <summary>
         /// Shows the LED for the last move in <paramref name="allMoves"/>, limited by spaces.
         /// </summary>
-        void ShowMove(string allMoves, string fenStartPosition, SetLEDsParameter setLeDsParameter, bool waitFor);
+        void ShowMove(string allMoves, string fenStartPosition, SetLEDsParameter setLEDsParameter, bool waitFor);
 
         /// <summary>
-        /// Show fields <paramref name="fromField"/> and <paramref name="toField"/> on board.
+        /// Show fields <paramref name="setLEDsParameter"/>
         /// </summary>
-        void ShowMove( SetLEDsParameter setLeDsParameter);
+        void ShowMove( SetLEDsParameter setLEDsParameter);
 
         /// <summary>
-        /// Show all fields <paramref name="fields"/> on board.
+        /// Show fields <paramref name="setLEDsParameter"/>
         /// </summary>
-   
-        void SetLedsFor(SetLEDsParameter setLeDsParameter);
+        void ShowMove(SetLEDsParameter setLEDsParameter, string[] alternateMoves);
+
+        /// <summary>
+        /// Show all fields <paramref name="setLEDsParameter"/> on board.
+        /// </summary>
+        void SetLEDsFor(SetLEDsParameter setLEDsParameter);
 
         /// <summary>
         /// All led off
         /// </summary>
-        void SetAllLedsOff(bool forceOff);
+        void SetAllLEDsOff(bool forceOff);
 
 
         /// <summary>
         /// All led on
         /// </summary>
-        void SetAllLedsOn();
+        void SetAllLEDsOn();
 
         /// <summary>
         /// Returns the current position as fen (only pieces)
@@ -165,6 +171,8 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         /// New FEN position on board by user
         /// </summary>
         event EventHandler<string> FenEvent;
+
+        event EventHandler<string> AlternateFenEvent;
 
         event EventHandler<string[]> ProbeMoveEvent;
 

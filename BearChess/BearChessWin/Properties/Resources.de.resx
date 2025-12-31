@@ -2847,4 +2847,22 @@
   <data name="Deep" xml:space="preserve">
     <value>Tiefe:</value>
   </data>
+  <data name="chesscom" xml:space="preserve">
+    <value>Chess.com</value>
+  </data>
+  <data name="chesscomTip" xml:space="preserve">
+    <value>Konfigurieren Sie ihren Chess.com Zugang</value>
+  </data>
+  <data name="ModePuzzle" xml:space="preserve">
+    <value>Modus: Puzzle</value>
+  </data>
+  <data name="Fen" xml:space="preserve">
+    <value>FEN:</value>
+  </data>
+  <data name="Write" xml:space="preserve">
+    <value>Schreibe</value>
+  </data>
+  <data name="DownloadChessCom" xml:space="preserve">
+    <value>Herunterladen von Chess.com</value>
+  </data>
 </root>

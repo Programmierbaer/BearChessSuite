@@ -184,8 +184,10 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         {
             _valuesPerEngine.Remove($"{engineName}");
             _valuesPerEngine.Remove($"_{engineName}");
-
             _engineToFieldColor.Remove(engineName);
+            _engineToFieldColor.Remove($"_{engineName}");
+            _engineToDrawColor.Remove(engineName);
+            _engineToDrawColor.Remove($"_{engineName}");
             _minMoveValue = 0;
             _maxMoveValue = 0;
             _valuesCount = 0;
@@ -233,15 +235,22 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             if (!_valuesPerEngine.ContainsKey(engineName))
             {
                 _valuesPerEngine.Add(engineName, new Dictionary<int, decimal>());
-                _engineToFieldColor.Add(engineName, color);
-                if (color == Fields.COLOR_WHITE || color == Fields.COLOR_BLACK)
+                if (!_engineToFieldColor.ContainsKey(engineName))
                 {
-                    _engineToDrawColor.Add(engineName, color);
+                    _engineToFieldColor.Add(engineName, color);
                 }
-                else
+
+                if (!_engineToDrawColor.ContainsKey(engineName))
                 {
-                    _colorIndex++;
-                    _engineToDrawColor.Add($"{engineName}", _colorIndex);
+                    if (color == Fields.COLOR_WHITE || color == Fields.COLOR_BLACK)
+                    {
+                        _engineToDrawColor.Add(engineName, color);
+                    }
+                    else
+                    {
+                        _colorIndex++;
+                        _engineToDrawColor.Add(engineName, _colorIndex);
+                    }
                 }
 
                 if (_colorIndex >= _colors.Length)

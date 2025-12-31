@@ -327,4 +327,10 @@
   <data name="StopPublishing" xml:space="preserve">
     <value>Do you want to stop the publishing?</value>
   </data>
+  <data name="TournamentNameMissing" xml:space="preserve">
+    <value>The Tournament Name field must not be left blank</value>
+  </data>
+  <data name="NewTournament" xml:space="preserve">
+    <value>New tournament</value>
+  </data>
 </root>

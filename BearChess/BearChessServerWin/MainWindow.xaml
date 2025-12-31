@@ -36,7 +36,7 @@
             </MenuItem>
             <MenuItem Name="MenuItemTournaments"  Header="{x:Static p:Resources.Tournaments}" >
                 <MenuItem Header="{x:Static p:Resources.NewTournament}" Click="MenuItemNewTournament_Click"></MenuItem>
-                <MenuItem Header="{x:Static p:Resources.SaveTournament}"></MenuItem>
+                <!-- <MenuItem Header="{x:Static p:Resources.SaveTournament}"></MenuItem> -->
             </MenuItem>
             <MenuItem Header="{x:Static p:Resources.Configure}">
                 <MenuItem Header="{x:Static p:Resources.ConfigureBCServer}" Click="MenuItemConfigure_Click"></MenuItem>

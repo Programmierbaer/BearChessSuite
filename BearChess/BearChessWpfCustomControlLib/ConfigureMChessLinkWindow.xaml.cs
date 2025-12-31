@@ -3,16 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Resources;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChess.MChessLinkLoader;
 using www.SoLaNoSoft.com.BearChessBase;
@@ -177,8 +169,8 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         {
             if (_loader != null)
             {
-                _loader?.SetAllLedsOn();
-                _loader?.SetAllLedsOff(false);
+                _loader?.SetAllLEDsOn();
+                _loader?.SetAllLEDsOff(false);
                 Thread.Sleep(1000);
                 _loader?.Close();
             }
@@ -224,8 +216,8 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         {
             if (_loader != null)
             {
-                _loader?.SetAllLedsOn();
-                _loader?.SetAllLedsOff(false);
+                _loader?.SetAllLEDsOn();
+                _loader?.SetAllLEDsOff(false);
                 Thread.Sleep(1000);
                 _loader?.Close();
             }
@@ -321,8 +313,8 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             {
                 buttonShowDim.Visibility = Visibility.Visible;
                 buttonShowDim2.Visibility = Visibility.Collapsed;
-                _loader.SetAllLedsOn();
-                _loader.SetAllLedsOff(false);
+                _loader.SetAllLEDsOn();
+                _loader.SetAllLEDsOff(false);
                 Thread.Sleep(1000);
                 _loader.Close();
                 _loader = null;

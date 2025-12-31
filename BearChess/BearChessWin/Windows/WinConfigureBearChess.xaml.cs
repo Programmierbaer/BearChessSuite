@@ -69,7 +69,16 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 radioButtonDE.IsChecked = true;
             }
-            _rm = SpeechTranslator.ResourceManager;
+            var drawByRepetition = _configuration.GetIntValue("drawByRepetition", 3);
+            if (drawByRepetition == 3)
+            {
+                radioButtonDraw3.IsChecked = true;
+            }
+            else
+            {
+                radioButtonDraw5.IsChecked = true;
+            }
+                _rm = SpeechTranslator.ResourceManager;
             if (_blindUser)
             {
                 _synthesizer = BearChessSpeech.Instance;
@@ -169,6 +178,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 _configuration.DeleteClearLog();
             }
+
+            _configuration.SetIntValue("drawByRepetition", radioButtonDraw3.IsChecked.HasValue && radioButtonDraw3.IsChecked.Value ? 3 : 5);
             DialogResult = true;
         }
 

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -26,19 +28,33 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
 
         public bool PublishTournament => checkBoxPublish.IsChecked.HasValue && checkBoxPublish.IsChecked.Value;
 
+        private readonly ResourceManager _rm;
+
         public QueryTournamentWindow()
         {
-            InitializeComponent();           
+            InitializeComponent();
+            _rm = Properties.Resources.ResourceManager;
+            _rm.GetResourceSet(Thread.CurrentThread.CurrentUICulture, false, true);
         }
 
         private void buttonOk_Click(object sender, RoutedEventArgs e)
         {
-            DialogResult = true;
+            if (!string.IsNullOrEmpty(textBoxName.Text.Trim()))
+            {
+                DialogResult = true;
+            }
+            else
+            {
+                BearChessMessageBox.Show(_rm.GetString("TournamentNameMissing"), _rm.GetString("MissingParameter"), MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             textBoxName.Focus();
         }
+
+      
     }
 }

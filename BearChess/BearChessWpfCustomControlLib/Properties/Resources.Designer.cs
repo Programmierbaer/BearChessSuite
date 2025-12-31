@@ -1366,6 +1366,24 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Chess.com ähnelt.
+        /// </summary>
+        public static string chesscom {
+            get {
+                return ResourceManager.GetString("chesscom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Configure your Chess.com account ähnelt.
+        /// </summary>
+        public static string chesscomTip {
+            get {
+                return ResourceManager.GetString("chesscomTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Start opening training ähnelt.
         /// </summary>
         public static string ChessOpening {
@@ -2626,6 +2644,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Database ähnelt.
+        /// </summary>
+        public static string DatabaseMenu {
+            get {
+                return ResourceManager.GetString("DatabaseMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Database restored ähnelt.
         /// </summary>
         public static string DatabaseRestored {
@@ -3184,6 +3211,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Download from Chess.com ähnelt.
+        /// </summary>
+        public static string DownloadChessCom {
+            get {
+                return ResourceManager.GetString("DownloadChessCom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Download TWIC from number: ähnelt.
         /// </summary>
         public static string DownloadFromNumber {
@@ -3688,6 +3724,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Error trials: ähnelt.
+        /// </summary>
+        public static string ErrorTrials {
+            get {
+                return ResourceManager.GetString("ErrorTrials", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Error on uninstall opening book ähnelt.
         /// </summary>
         public static string ErrorUninstallBook {
@@ -3877,6 +3922,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die FEN: ähnelt.
+        /// </summary>
+        public static string Fen {
+            get {
+                return ResourceManager.GetString("Fen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Copy FEN position ähnelt.
         /// </summary>
         public static string FenCopy {
@@ -3904,7 +3958,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Configure you Free Internet Chess Server connection ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Configure your Free Internet Chess Server connection ähnelt.
         /// </summary>
         public static string FICSTip {
             get {
@@ -5011,6 +5065,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Manage &quot;Chess.com&quot; ähnelt.
+        /// </summary>
+        public static string ManageChessCom {
+            get {
+                return ResourceManager.GetString("ManageChessCom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Manage &apos;The Week in Chess&apos; ähnelt.
         /// </summary>
         public static string ManageTWIC {
@@ -5137,11 +5200,29 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Mode: Puzzle ähnelt.
+        /// </summary>
+        public static string ModePuzzle {
+            get {
+                return ResourceManager.GetString("ModePuzzle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Mode: Setup Position ähnelt.
         /// </summary>
         public static string ModeSetupPosition {
             get {
                 return ResourceManager.GetString("ModeSetupPosition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Month: ähnelt.
+        /// </summary>
+        public static string Month {
+            get {
+                return ResourceManager.GetString("Month", resourceCulture);
             }
         }
         
@@ -6069,6 +6150,87 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string PurePGNExport {
             get {
                 return ResourceManager.GetString("PurePGNExport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Puzzle ähnelt.
+        /// </summary>
+        public static string Puzzle {
+            get {
+                return ResourceManager.GetString("Puzzle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Comments: ähnelt.
+        /// </summary>
+        public static string PuzzleComments {
+            get {
+                return ResourceManager.GetString("PuzzleComments", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Give a hint ähnelt.
+        /// </summary>
+        public static string PuzzleHint {
+            get {
+                return ResourceManager.GetString("PuzzleHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Published: ähnelt.
+        /// </summary>
+        public static string PuzzlePublishTime {
+            get {
+                return ResourceManager.GetString("PuzzlePublishTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Request new puzzle ähnelt.
+        /// </summary>
+        public static string PuzzleRequestNew {
+            get {
+                return ResourceManager.GetString("PuzzleRequestNew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Request puzzle of the day ähnelt.
+        /// </summary>
+        public static string PuzzleRequestToday {
+            get {
+                return ResourceManager.GetString("PuzzleRequestToday", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Show the solution ähnelt.
+        /// </summary>
+        public static string PuzzleSolution {
+            get {
+                return ResourceManager.GetString("PuzzleSolution", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Title: ähnelt.
+        /// </summary>
+        public static string PuzzleTitle {
+            get {
+                return ResourceManager.GetString("PuzzleTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die URL: ähnelt.
+        /// </summary>
+        public static string PuzzleUrl {
+            get {
+                return ResourceManager.GetString("PuzzleUrl", resourceCulture);
             }
         }
         
@@ -7414,6 +7576,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Solution moves: ähnelt.
+        /// </summary>
+        public static string SolutionMoves {
+            get {
+                return ResourceManager.GetString("SolutionMoves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Sound file: ähnelt.
         /// </summary>
         public static string SoundFile {
@@ -8566,11 +8737,29 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Write ähnelt.
+        /// </summary>
+        public static string Write {
+            get {
+                return ResourceManager.GetString("Write", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Write log files ähnelt.
         /// </summary>
         public static string WriteLogFiles {
             get {
                 return ResourceManager.GetString("WriteLogFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Year: ähnelt.
+        /// </summary>
+        public static string Year {
+            get {
+                return ResourceManager.GetString("Year", resourceCulture);
             }
         }
         

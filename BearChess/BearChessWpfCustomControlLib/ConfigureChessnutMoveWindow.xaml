@@ -19,6 +19,45 @@
                 <CheckBox Grid.Row="1" Grid.Column="0" Margin="5" Unchecked="checkBoxUseLEDsUnChecked" Checked="checkBoxUseLEDsChecked" Name="checkBoxUseLEDs" ToolTip="{x:Static p:Resources.ShowLEDs}" Content="{x:Static p:Resources.ShowLEDs}"/>
             </Grid>
         </Border>
+        <Border Name="borderDelay" Margin="5" BorderBrush="Gray" BorderThickness="1">
+            <StackPanel Margin="0,5,0,5">
+                <DockPanel LastChildFill="False">
+                    <TextBlock DockPanel.Dock="Left" Margin="5" Text="{x:Static p:Resources.Delay}" FontWeight="DemiBold" Width="70"
+                         HorizontalAlignment="Left" VerticalAlignment="Center"
+                         ToolTip="{x:Static p:Resources.HigherValueIncrease}" />
+                    <Button DockPanel.Dock="Left" Margin="0,0,0,0" HorizontalAlignment="Left" Name="buttonDelDebounce"
+                      Width="32"
+                      Height="32"
+                      Click="ButtonDebounceDelete_OnClick" Background="Transparent" BorderBrush="Transparent"
+                      ToolTip="{x:Static p:Resources.DecrementDelay}">
+                        <Image Source="Assets/Icons/time_delete.png" />
+                    </Button>
+
+                    <Slider DockPanel.Dock="Left" Name="sliderDebounce" Margin="15,5,5,5" Minimum="1" Maximum="10"
+                      Width="100" Value="1"
+                      ValueChanged="SliderDebounce_OnValueChanged" />
+
+                    <Button DockPanel.Dock="Left" Margin="5,0,0,0" HorizontalAlignment="Left" Name="buttonPlusDebounce"
+                      Width="32"
+                      Height="32"
+                      Click="ButtonDebounceAdd_OnClick" Background="Transparent" BorderBrush="Transparent"
+                      ToolTip="{x:Static p:Resources.IncrementDelay}">
+                        <Image Source="Assets/Icons/time_add.png" />
+                    </Button>
+                    <TextBlock Name="textBlockDebounce" DockPanel.Dock="Left" HorizontalAlignment="Left"
+                         Margin="5,0,0,0"
+                         VerticalAlignment="Center" Text="1" />
+                </DockPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Button Margin="10,5,10,5" Name="buttonDebounceDefault" Background="Transparent"
+                      ToolTip="{x:Static p:Resources.ResetDefault}"
+                      BorderBrush="Transparent" Width="32" Height="32" Click="ButtonResetDebounce_OnClick">
+                        <Image Source="Assets/Icons/time.png" />
+                    </Button>
+                    <TextBlock VerticalAlignment="Center" Text="{x:Static p:Resources.ResetDefaultWithout}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
         <Border Name="borderLEDs" Margin="5" BorderBrush="Gray" BorderThickness="0">
             <TabControl Height="400" Name="tabControlLEDs">
                 <TabItem Header="{x:Static p:Resources.LEDs}">

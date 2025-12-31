@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -8,9 +7,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
+using www.SoLaNoSoft.com.BearChess.BearChessCommunication.ChessCom;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Implementations.pgn;
@@ -18,6 +19,11 @@ using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 using www.SoLaNoSoft.com.BearChessDatabase;
 using www.SoLaNoSoft.com.BearChessTools;
 using www.SoLaNoSoft.com.BearChessWpfCustomControlLib;
+using static www.SoLaNoSoft.com.BearChess.BearChessCommunication.ChessCom.ChessComReader;
+using DataGrid = System.Windows.Controls.DataGrid;
+using MessageBox = System.Windows.MessageBox;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 using TimeControl = www.SoLaNoSoft.com.BearChessBase.Implementations.TimeControl;
 
 namespace www.SoLaNoSoft.com.BearChessWin
@@ -33,7 +39,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private string _lastSyncFen = string.Empty;
         private readonly bool _readOnly;
         private readonly ILogging _logger;
-        private readonly PgnConfiguration _pgnConfiguration;
         private bool _syncWithBoard;
         private DatabaseFilterWindow _databaseFilterWindow;
         private GamesFilter _gamesFilter;
@@ -48,7 +53,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         public event EventHandler<DatabaseGame> SelectedGameChanged;
         public event EventHandler<GamesFilter> SelectedFilterChanged;
 
-        public DatabaseWindow(Configuration configuration, Database database, string fen, bool readOnly, ILogging logger, PgnConfiguration pgnConfiguration)
+        public DatabaseWindow(Configuration configuration, Database database, string fen, bool readOnly, ILogging logger)
         {
             InitializeComponent();
             _configuration = configuration;
@@ -64,7 +69,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _lastSyncFen = fen;
             _readOnly = readOnly;
             _logger = logger;
-            _pgnConfiguration = pgnConfiguration;
             _gamesFilter = _configuration.LoadGamesFilter();
             SetItemsSource();
             imageTableFilterActive.Visibility = _gamesFilter.FilterIsActive ? Visibility.Visible : Visibility.Hidden;
@@ -173,12 +177,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         public void SetReadOnly(bool readOnly)
         {
-            buttonDelete.IsEnabled = !readOnly;
-            buttonDeleteDb.IsEnabled = !readOnly;
-            buttonFileManager.IsEnabled = !readOnly;
-            buttonImport.IsEnabled = !readOnly;
-            buttonNewFolder.IsEnabled = !readOnly;
-            buttonRestoreDb.IsEnabled = !readOnly;
+
+            menuItemDelete.IsEnabled = !readOnly; 
+            menuItemDeleteGame.IsEnabled = !readOnly;
+            menuItemDeleteDatabase.IsEnabled = !readOnly;
+            menuItemOpenDatabase.IsEnabled = !readOnly;
+            menuItemImport.IsEnabled = !readOnly;
+            menuItemNewDatabase.IsEnabled = !readOnly;
+            menuItemRestoreDatabase.IsEnabled = !readOnly;
         }
 
         public void FilterByFen(string fen)
@@ -200,6 +206,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private void ButtonFileManager_OnClick(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new OpenFileDialog {Filter = "Database|*.db;"};
+            try
+            {
+                openFileDialog.InitialDirectory = Path.GetDirectoryName(_database.FileName);
+            }
+            catch
+            {
+                // ignored
+            }
+
             var showDialog = openFileDialog.ShowDialog(this);
             if (showDialog.Value && !string.IsNullOrWhiteSpace(openFileDialog.FileName))
             {
@@ -221,6 +236,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private void ButtonNewFolder_OnClick(object sender, RoutedEventArgs e)
         {
             var saveFileDialog = new SaveFileDialog {Filter = "Database|*.db;"};
+            try
+            {
+                saveFileDialog.InitialDirectory = Path.GetDirectoryName(_database.FileName);
+            }
+            catch
+            {
+                // ignored
+            }
             var showDialog = saveFileDialog.ShowDialog(this);
             if (showDialog.Value && !string.IsNullOrWhiteSpace(saveFileDialog.FileName))
             {
@@ -245,7 +268,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         {
             if (dataGridGames.SelectedItem is DatabaseGameSimple pgnGame)
             {
-                OnSelectedGamedChanged(_database.LoadGame(pgnGame.Id, _pgnConfiguration));
+                OnSelectedGamedChanged(_database.LoadGame(pgnGame.Id, _configuration.GetPgnConfiguration()));
             }
         }
 
@@ -323,6 +346,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
         {
            
             var openFileDialog = new OpenFileDialog {Filter = "Games|*.pgn;*.db"};
+            try
+            {
+                openFileDialog.InitialDirectory = Path.GetDirectoryName(_database.FileName);
+            }
+            catch
+            {
+                // ignored
+            }
             var showDialog = openFileDialog.ShowDialog(this);
             if (showDialog.Value && !string.IsNullOrWhiteSpace(openFileDialog.FileName))
             {
@@ -330,7 +361,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
         }
 
-      
+    
+
+
         private async Task ImportFile(string fileName, int twicId)
         {
             _logger?.LogDebug($"Import file started.");
@@ -356,7 +389,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     var startTime = DateTime.Now;
                     _logger?.LogDebug("Start import...");
-                    var tempDb = new Database(this, null, fileName, _pgnConfiguration);
+                    var tempDb = new Database(this, null, fileName);
                     tempDb.Open();
                     tempDb.Close();
                     var allIds = tempDb.GetGamesIds();
@@ -367,7 +400,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         {
                             infoWindow.SetInfo($"{count} {_rm.GetString("Games")}...");
                         }
-                        var dbGame = tempDb.LoadGame(id, _pgnConfiguration);
+                        var dbGame = tempDb.LoadGame(id, _configuration.GetPgnConfiguration());
                         _database.Save(dbGame, false, false, dbGame.TwicId);
                     }
 
@@ -500,18 +533,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
         }
 
-        private void ButtonCopy_OnClick(object sender, RoutedEventArgs e)
-        {
-            MenuItemCopy_OnClick(sender, e);
-        }
-
+    
         private void MenuItemCopy_OnClick(object sender, RoutedEventArgs e)
         {
             try
             {
                 if (dataGridGames.SelectedItem is DatabaseGameSimple pgnGame)
                 {
-                    ClipboardHelper.SetText(_database.LoadGame(pgnGame.Id, _pgnConfiguration).PgnGame.GetGame());
+                    ClipboardHelper.SetText(_database.LoadGame(pgnGame.Id, _configuration.GetPgnConfiguration()).PgnGame.GetGame());
                 }
             }
             catch (Exception ex)
@@ -560,12 +589,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 return;
             }
+
             var selectedItems = dataGridGames.SelectedItems;
             if (selectedItems.Count == 0)
             {
                 selectedItems = dataGridGames.Items;
             }
-            ExportGames.Export(selectedItems,_database, _pgnConfiguration,this);
+
+            ExportGames.Export(selectedItems, _database, _configuration.GetPgnConfiguration(), this);
         }
 
         private void ButtonSaveDb_OnClick(object sender, RoutedEventArgs e)
@@ -643,7 +674,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
             if (dataGridGames.SelectedItem is DatabaseGameSimple pgnGame)
             {
-                var databaseGame = _database.LoadGame(pgnGame.Id, _pgnConfiguration);
+                var databaseGame = _database.LoadGame(pgnGame.Id, _configuration.GetPgnConfiguration());
                 if (_database.IsDuelGame(pgnGame.Id))
                 {
                     MessageBox.Show(_rm.GetString("GameIsPartOfADuelContinue"), _rm.GetString("CannotContinue"), MessageBoxButton.OK, MessageBoxImage.Error);
@@ -689,9 +720,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 if (dataGridGames.SelectedItem is DatabaseGameSimple pgnGame)
                 {
-                    var game = _database.LoadGame(pgnGame.Id, _pgnConfiguration).PgnGame.GetGame();
-                    e.ClipboardRowContent.Add(
-                        new DataGridClipboardCellContent(e.Item, (sender as DataGrid).Columns[0], game));
+                    var game = _database.LoadGame(pgnGame.Id, _configuration.GetPgnConfiguration()).PgnGame.GetGame();
+                    e.ClipboardRowContent.Add(new DataGridClipboardCellContent(e.Item, (sender as DataGrid).Columns[0], game));
                 }
             }
             catch (Exception ex)
@@ -781,11 +811,145 @@ namespace www.SoLaNoSoft.com.BearChessWin
         {
             
             var twicWindow = new TwicWindow(_database,_logger,_configuration) { Owner = this };
-            var showDialog = twicWindow.ShowDialog();
+            twicWindow.ShowDialog();
             SetItemsSource();
             UpdateTitle();
         }
 
+        private async Task ImportChessCom(string username, int year, int monthFrom, int monthTo)
+        {
+            var startFromBasePosition = true;
+            CurrentGame currentGame;
+            var pgnLoader = new PgnLoader();
+            var chessBoard = new ChessBoard();
+            chessBoard.Init();
+            chessBoard.NewGame();
+            int total = 0;
+            int count = 0;
+            ProgressWindow infoWindow = null;
+            Dispatcher.Invoke(() =>
+            {
+                infoWindow = new ProgressWindow
+                {
+                    Owner = this
+                };
+
+                infoWindow.IsIndeterminate(true);
+                infoWindow.SetTitle($"{_rm.GetString("Import")}");
+                infoWindow.SetWait(_rm.GetString("PleaseWait"));
+                infoWindow.Show();
+            });
+            await Task.Factory.StartNew(() =>
+            {
+                _logger?.LogDebug("Start import...");
+                var startTime = DateTime.Now;
+                for (int month = monthFrom; month <= monthTo; month++)
+                {
+                    var games = ChessComReader.GetArchivedGamesMonth(username, year, month);
+                    count = 0;
+                    foreach (var aGame in games)
+                    {
+                        startFromBasePosition = true;
+                        count++;
+                        if (_database.GameExists(aGame.Uuid))
+                        {
+                            continue;
+                        }
+
+                        var pgnGame = pgnLoader.GetGame(aGame.Pgn);
+
+
+                        var fenValue = pgnGame.GetValue("FEN");
+                        if (!string.IsNullOrWhiteSpace(fenValue))
+                        {
+                            chessBoard.SetPosition(fenValue, false);
+                            startFromBasePosition = false;
+                        }
+
+                        for (var i = 0; i < pgnGame.MoveCount; i++)
+                        {
+                            chessBoard.MakePgnMove(pgnGame.GetMove(i), pgnGame.GetComment(i), pgnGame.GetEMT(i),
+                                pgnGame.GetClock(i));
+                        }
+
+                        total++;
+                      
+                        var uciInfoWhite = new UciInfo()
+                        {
+                            IsPlayer = true,
+                            Name = pgnGame.PlayerWhite
+                        };
+                        var uciInfoBlack = new UciInfo()
+                        {
+                            IsPlayer = true,
+                            Name = pgnGame.PlayerBlack
+                        };
+                        currentGame = new CurrentGame(uciInfoWhite, uciInfoBlack, string.Empty,
+                            new TimeControl(), pgnGame.PlayerWhite, pgnGame.PlayerBlack,
+                            startFromBasePosition, true);
+                        if (!startFromBasePosition)
+                        {
+                            currentGame.StartPosition = fenValue;
+                        }
+
+
+                        if (_database.Save(new DatabaseGame(pgnGame, chessBoard.GetPlayedMoveList(), currentGame),
+                                false,
+                                total % 100 == 0, 0, aGame.Uuid) > 0)
+                        {
+                            chessBoard.Init();
+                            chessBoard.NewGame();
+                        }
+                        else
+                        {
+                            break;
+                        }
+
+                    }
+
+                    var diff = DateTime.Now - startTime;
+                    Dispatcher.Invoke(() =>
+                    {
+                        infoWindow.SetInfo($" {year}-{month}: {_rm.GetString("Write")} {count} {_rm.GetString("Games")} ...");
+                    });
+                    _database.CommitAndClose();
+                    _logger?.LogDebug($"... {total} games imported in {diff.TotalSeconds} sec.");
+                }
+                _database.Compress();
+
+            }).ContinueWith(task =>
+            {
+                Dispatcher.Invoke(() => { infoWindow.Close(); });
+                //infoWindow.Close();
+                SetItemsSource();
+                UpdateTitle();
+            }, System.Threading.CancellationToken.None, TaskContinuationOptions.None,
+                TaskScheduler.FromCurrentSynchronizationContext());
+            _logger?.LogDebug("Import finished.");
+        }
+
+        private async void ButtonChessCom_OnClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var downloadWindow = new ChessComDownloadWindow
+                {
+                    Owner = this
+                };
+                var showDialog = downloadWindow.ShowDialog();
+                if (showDialog != true)
+                {
+                    return;
+                }
+
+                await ImportChessCom(downloadWindow.Username, downloadWindow.Year, downloadWindow.MonthFrom, downloadWindow.MonthTo);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex);
+                MessageBox.Show(ex.Message, "Error");
+            }
+        }
     }
 
     public class GamesValueToBrushConverter : IValueConverter

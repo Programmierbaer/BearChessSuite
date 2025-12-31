@@ -17,6 +17,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
         public void SetMove(int color, Move move, string fenPosition)
         {
             _moves[color] = (Move)move.Clone();
+            _moves[color].Fen = fenPosition;
             _fens[color] = fenPosition;
         }
 

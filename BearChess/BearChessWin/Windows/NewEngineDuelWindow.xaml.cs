@@ -24,7 +24,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private readonly Configuration _configuration;
         private readonly Database _database;
         private readonly bool _estimateElo;
-        private readonly PgnConfiguration _pgnConfiguration;
         private readonly Dictionary<string, UciInfo> _allUciInfos = new Dictionary<string, UciInfo>();
         private readonly bool _isInitialized;
         public UciInfo PlayerBlackConfigValues;
@@ -35,13 +34,12 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private Brush _foreground;
         private readonly ResourceManager _rm;
 
-        public NewEngineDuelWindow(Configuration configuration, Database database, bool estimateElo, bool startFromBasePosition, PgnConfiguration pgnConfiguration)
+        public NewEngineDuelWindow(Configuration configuration, Database database, bool estimateElo, bool startFromBasePosition)
         {
             _configuration = configuration;
             _rm = SpeechTranslator.ResourceManager;
             _database = database;
             _estimateElo = estimateElo;
-            _pgnConfiguration = pgnConfiguration;
             InitializeComponent();
             textBoxEvent.Text = estimateElo ? $"{_rm.GetString("Elo")} {_rm.GetString("Duel")}" : _rm.GetString("Duel");
             labelDatabaseName.Content = _database.FileName;
@@ -678,7 +676,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void ButtonDatabase_OnClick(object sender, RoutedEventArgs e)
         {
-            var databaseWindow = new DatabaseWindow(_configuration, _database, string.Empty, false, null, _pgnConfiguration);
+            var databaseWindow = new DatabaseWindow(_configuration, _database, string.Empty, false, null);
             databaseWindow.ShowDialog();
             labelDatabaseName.Content = _database.FileName;
             labelDatabaseName.ToolTip = _database.FileName;

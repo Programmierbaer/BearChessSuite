@@ -2852,4 +2852,22 @@
   <data name="Deep" xml:space="preserve">
     <value>Deep:</value>
   </data>
+  <data name="chesscom" xml:space="preserve">
+    <value>Chess.com</value>
+  </data>
+  <data name="chesscomTip" xml:space="preserve">
+    <value>Configure your Chess.com account</value>
+  </data>
+  <data name="ModePuzzle" xml:space="preserve">
+    <value>Mode: Puzzle</value>
+  </data>
+  <data name="Fen" xml:space="preserve">
+    <value>FEN:</value>
+  </data>
+  <data name="Write" xml:space="preserve">
+    <value>Write</value>
+  </data>
+  <data name="DownloadChessCom" xml:space="preserve">
+    <value>Download from Chess.com</value>
+  </data>
 </root>

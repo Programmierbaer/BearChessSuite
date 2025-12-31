@@ -89,6 +89,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             comboboxWhiteEBoardNames.Items.Add(new BoardSelection(Constants.ChessnutAir, false, false));
             comboboxWhiteEBoardNames.Items.Add(new BoardSelection(Constants.ChessnutAir, false, true));
             comboboxWhiteEBoardNames.Items.Add(new BoardSelection(Constants.ChessnutEvo,false,false));            
+            comboboxWhiteEBoardNames.Items.Add(new BoardSelection(Constants.ChessnutMove,false,true));            
             comboboxWhiteEBoardNames.Items.Add(new BoardSelection(Constants.DGT, false, false));
             comboboxWhiteEBoardNames.Items.Add(new BoardSelection(Constants.DGT, false, true));
             comboboxWhiteEBoardNames.Items.Add(new BoardSelection(Constants.IChessOne, false, false));
@@ -110,6 +111,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             comboboxBlackEBoardNames.Items.Add(new BoardSelection(Constants.ChessnutAir, false, false));
             comboboxBlackEBoardNames.Items.Add(new BoardSelection(Constants.ChessnutAir, false, true));
             comboboxBlackEBoardNames.Items.Add(new BoardSelection(Constants.ChessnutEvo, false, false));
+            comboboxBlackEBoardNames.Items.Add(new BoardSelection(Constants.ChessnutMove, false, true));
             comboboxBlackEBoardNames.Items.Add(new BoardSelection(Constants.DGT, false, false));
             comboboxBlackEBoardNames.Items.Add(new BoardSelection(Constants.DGT, false, true));
             comboboxBlackEBoardNames.Items.Add(new BoardSelection(Constants.IChessOne, false, false));
@@ -125,20 +127,20 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             comboboxBlackEBoardNames.Items.Add(new BoardSelection(Constants.TabutronicTactum, false, true));
             comboboxBlackEBoardNames.Items.Add(new BoardSelection(Constants.Zmartfun, false, false));
             comboboxBlackEBoardNames.Items.Add(new BoardSelection(Constants.Zmartfun, false, true));
-            for (int i=0; i< bcClientToken.Length; i++)
+            foreach (var token in bcClientToken)
             {
-                comboboxWhiteBCNames.Items.Add(bcClientToken[i]);
-                comboboxBlackBCNames.Items.Add(bcClientToken[i]);
+                comboboxWhiteBCNames.Items.Add(token);
+                comboboxBlackBCNames.Items.Add(token);
             }
             WhiteEBoard = null;
             BlackEBoard = null;
             WhiteConnectionId = string.Empty;
             BlackConnectionId = string.Empty;
-            comboboxWhiteBCNames.IsEnabled = false;
+            comboboxWhiteBCNames.IsEnabled = true;
             comboboxBlackEBoardNames.IsEnabled = true;
-            ButtonConfigureWhiteConnection.IsEnabled = true;
+            ButtonConfigureWhiteConnection.IsEnabled = false;
             CheckBoxSameConnection.IsChecked = true;
-            radioButtonWhiteDirectConnected.IsChecked = true;
+            radioButtonWhiteConnectedViaBC.IsChecked = true;
             BorderBlack.IsEnabled = false;
             _isInitialized = true;
         }
@@ -271,6 +273,32 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
                     }
 
                     return true;
+                }
+
+                return false;
+            }
+            if (selectedBoard.BoardName.Equals(Constants.ChessnutMove))
+            {
+                var configChessnut =
+                    new ConfigureChessnutMoveWindow(Configuration.Instance, configPath) { Owner = this };
+                var dialogResult = configChessnut.ShowDialog();
+                if (dialogResult.HasValue && dialogResult.Value)
+                {
+                    if (forWhite)
+                    {
+                        WhiteEBoard = new ChessnutMoveLoader(configPath);
+                        WhiteEBoard.Identification = Guid.NewGuid().ToString("N");
+                        WhiteConnectionId = WhiteEBoard.Identification;
+                    }
+                    else
+                    {
+                        BlackEBoard = new ChessnutMoveLoader(configPath);
+                        BlackEBoard.Identification = Guid.NewGuid().ToString("N");
+                        BlackConnectionId = BlackEBoard.Identification;
+                    }
+
+                    return true;
+
                 }
 
                 return false;

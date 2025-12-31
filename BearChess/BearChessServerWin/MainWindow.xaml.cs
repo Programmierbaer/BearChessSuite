@@ -50,7 +50,7 @@ namespace www.SoLaNoSoft.com.BearChessServerWin
             _rm = Properties.Resources.ResourceManager;
             _rm.GetResourceSet(Thread.CurrentThread.CurrentUICulture, false, true);
             InitializeComponent();
-            MenuItemTournaments.Visibility = Visibility.Collapsed;
+            // MenuItemTournaments.Visibility = Visibility.Collapsed;
             MenuItemEngine.Visibility = Visibility.Collapsed;
             SpeechTranslator.ResourceManager = _rm;
             var logPath = Path.Combine(Configuration.Instance.FolderPath, "log");
@@ -188,7 +188,7 @@ namespace www.SoLaNoSoft.com.BearChessServerWin
             //  chessboardView.AddRemoteClientToken(e);
         }
 
-        private void TWindow_Closed(object sender, EventArgs e)
+        private void TournamentWindow_Closed(object sender, EventArgs e)
         {
             try
             {
@@ -275,7 +275,7 @@ namespace www.SoLaNoSoft.com.BearChessServerWin
                     Owner = this
                 };
                 tWindow.Show();
-                tWindow.Closed += TWindow_Closed;
+                tWindow.Closed += TournamentWindow_Closed;
                 tWindow.Tag = Guid.NewGuid();
                 _tournamentWindowsList.Add(tWindow);
             }

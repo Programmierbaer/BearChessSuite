@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Windows"
         xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
         mc:Ignorable="d" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" SizeToContent="Height"
+        Icon="../Assets/Icons/FicsLogo.png"
         Title="Free Internet Chess Server" Height="200" Width="300">
     <Grid>
         <Grid.ColumnDefinitions>

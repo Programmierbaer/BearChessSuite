@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:gl="clr-namespace:System.Globalization;assembly=mscorlib"
         xmlns:bearChessWin="clr-namespace:www.SoLaNoSoft.com.BearChessWin"
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib"
         mc:Ignorable="d" Closing="DatabaseWindow_OnClosing" WindowStyle="SingleBorderWindow"
         Icon="../Assets/Icons/database.png" MinWidth="930"
         Title="Games" Height="450" Width="930">
@@ -17,11 +17,80 @@
     </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <DataGrid Name="dataGridGames" ItemsSource="{Binding}" Grid.Row="0" Margin="5" AutoGenerateColumns="False"
-                  VirtualizingStackPanel.IsVirtualizing="True" CopyingRowClipboardContent="DataGridGames_OnCopyingRowClipboardContent"
+        <Menu Grid.Row="0">
+            <MenuItem Tag="GamesManager" Name="menuItemGamesLoad" Header="{x:Static p:Resources.DatabaseMenu}">
+                <MenuItem Header="{x:Static p:Resources.NewDatabase}" Click="ButtonNewFolder_OnClick"
+                          Name="menuItemNewDatabase">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/database_add.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{x:Static p:Resources.OpenDatabase}" Click="ButtonFileManager_OnClick"
+                          Name="menuItemOpenDatabase">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/folder_database.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{x:Static p:Resources.CompressDatabase}" Click="ButtonCompressDb_OnClick">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/database_cleanup.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{x:Static p:Resources.SaveDatabase}" Click="ButtonSaveDb_OnClick">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/database_save.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{x:Static p:Resources.DeleteDatabase}" Click="ButtonDeleteDb_OnClick"
+                          Name="menuItemDeleteDatabase">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/database_delete.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{x:Static p:Resources.RestoreDatabase}" Click="ButtonRestoreDb_OnClick"
+                          Name="menuItemRestoreDatabase">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/database_refresh.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="{x:Static p:Resources.Games}" Name="menuItemGames">
+                <MenuItem Header="{x:Static p:Resources.DeleteGame}" Click="ButtonDelete_OnClick" Name="menuItemDelete">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/bin.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{x:Static p:Resources.ImportGames}" Click="ButtonImport_OnClick"
+                          Name="menuItemImport">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/saved_imports.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{x:Static p:Resources.CopyToClipboard}" Command="Copy">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/clipboard_sign_out.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{x:Static p:Resources.DeleteAllDuplicates}" Click="ButtonDeleteAllDuplicates_OnClick">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/database_repeat_delete.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+
+                <MenuItem Header="{x:Static p:Resources.ExportSelectedGames}" Click="ButtonExport_OnClick">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/text_exports.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+        <DataGrid Name="dataGridGames" ItemsSource="{Binding}" Grid.Row="1" Margin="5" AutoGenerateColumns="False"
+                  VirtualizingStackPanel.IsVirtualizing="True"
+                  CopyingRowClipboardContent="DataGridGames_OnCopyingRowClipboardContent"
                   VirtualizingStackPanel.VirtualizationMode="Recycling" SelectionChanged="DataGridGames_OnSelected"
                   SelectionMode="Extended" MouseDoubleClick="DataGridGames_OnMouseDoubleClick" IsReadOnly="True">
             <DataGrid.Resources>
@@ -31,22 +100,25 @@
             </DataGrid.Resources>
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="{x:Static p:Resources.LoadAndContinue}" Visibility="Collapsed" Name="menuItemContinue" Click="MenuItemContinue_OnClick">
+                    <MenuItem Header="{x:Static p:Resources.LoadAndContinue}" Visibility="Collapsed"
+                              Name="menuItemContinue" Click="MenuItemContinue_OnClick">
                         <MenuItem.Icon>
                             <Image Source="../Assets/Icons/control_play_blue.png" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="{x:Static p:Resources.Delete}" Name="menuItemDelete" Click="ButtonDelete_OnClick">
+                    <MenuItem Header="{x:Static p:Resources.Delete}" Name="menuItemDeleteGame"
+                              Click="ButtonDelete_OnClick">
                         <MenuItem.Icon>
                             <Image Source="../Assets/Icons/bin.png" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Command="Copy"  Header="{x:Static p:Resources.CopyToClipboard}" Name="menuItemCopy" >
+                    <MenuItem Command="Copy" Header="{x:Static p:Resources.CopyToClipboard}" Name="menuItemCopy">
                         <MenuItem.Icon>
                             <Image Source="../Assets/Icons/clipboard_sign_out.png" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="{x:Static p:Resources.DeleteMyDuplicates}" Name="menuItemDeleteDuplicates" Click="ButtonDeleteDuplicates_OnClick">
+                    <MenuItem Header="{x:Static p:Resources.DeleteMyDuplicates}" Name="menuItemDeleteDuplicates"
+                              Click="ButtonDeleteDuplicates_OnClick">
                         <MenuItem.Icon>
                             <Image Source="../Assets/Icons/database_repeat_delete.png" />
                         </MenuItem.Icon>
@@ -73,141 +145,103 @@
                     <DataGridTextColumn.Header>=</DataGridTextColumn.Header>
                 </DataGridTextColumn>
                 <DataGridTextColumn Binding="{Binding White}" Width="Auto" FontSize="13">
-                    <DataGridTextColumn.Header >
+                    <DataGridTextColumn.Header>
                         <TextBlock Text="{x:Static p:Resources.White}"></TextBlock>
                     </DataGridTextColumn.Header>
                 </DataGridTextColumn>
                 <DataGridTextColumn Binding="{Binding WhiteElo}" Width="Auto" FontSize="13">
-                    <DataGridTextColumn.Header >
+                    <DataGridTextColumn.Header>
                         <TextBlock Text="{x:Static p:Resources.Elo}"></TextBlock>
                     </DataGridTextColumn.Header>
                 </DataGridTextColumn>
                 <DataGridTextColumn Binding="{Binding Black}" Width="Auto" FontSize="13">
-                    <DataGridTextColumn.Header >
+                    <DataGridTextColumn.Header>
                         <TextBlock Text="{x:Static p:Resources.Black}"></TextBlock>
                     </DataGridTextColumn.Header>
                 </DataGridTextColumn>
                 <DataGridTextColumn Binding="{Binding BlackElo}" Width="Auto" FontSize="13">
-                    <DataGridTextColumn.Header >
+                    <DataGridTextColumn.Header>
                         <TextBlock Text="{x:Static p:Resources.Elo}"></TextBlock>
                     </DataGridTextColumn.Header>
                 </DataGridTextColumn>
                 <DataGridTextColumn Binding="{Binding GameEvent}" Width="Auto" FontSize="13">
-                    <DataGridTextColumn.Header >
+                    <DataGridTextColumn.Header>
                         <TextBlock Text="{x:Static p:Resources.Event}"></TextBlock>
                     </DataGridTextColumn.Header>
                 </DataGridTextColumn>
                 <DataGridTextColumn Binding="{Binding GameSite}" Width="Auto" FontSize="13">
-                    <DataGridTextColumn.Header >
+                    <DataGridTextColumn.Header>
                         <TextBlock Text="{x:Static p:Resources.Site}"></TextBlock>
                     </DataGridTextColumn.Header>
                 </DataGridTextColumn>
                 <DataGridTextColumn Binding="{Binding Round}" Width="Auto" FontSize="13">
-                    <DataGridTextColumn.Header >
+                    <DataGridTextColumn.Header>
                         <TextBlock Text="{x:Static p:Resources.Round}"></TextBlock>
                     </DataGridTextColumn.Header>
                 </DataGridTextColumn>
                 <DataGridTextColumn Binding="{Binding Result}" Width="Auto" FontSize="13">
-                    <DataGridTextColumn.Header >
+                    <DataGridTextColumn.Header>
                         <TextBlock Text="{x:Static p:Resources.Result}"></TextBlock>
                     </DataGridTextColumn.Header>
                 </DataGridTextColumn>
                 <DataGridTextColumn
                     Binding="{Binding GameDate , StringFormat=d, ConverterCulture={x:Static gl:CultureInfo.CurrentCulture}}"
                     Width="Auto" FontSize="13">
-                    <DataGridTextColumn.Header >
+                    <DataGridTextColumn.Header>
                         <TextBlock Text="{x:Static p:Resources.Date}"></TextBlock>
                     </DataGridTextColumn.Header>
                 </DataGridTextColumn>
                 <DataGridTextColumn Binding="{Binding MoveList}" Width="Auto" FontSize="13">
-                    <DataGridTextColumn.Header >
+                    <DataGridTextColumn.Header>
                         <TextBlock Text="{x:Static p:Resources.Moves}"></TextBlock>
                     </DataGridTextColumn.Header>
                 </DataGridTextColumn>
             </DataGrid.Columns>
 
         </DataGrid>
-        <StackPanel Margin="5" Grid.Row="1" Orientation="Horizontal">
-            <Button Margin="5" DockPanel.Dock="Left" Name="buttonNewFolder" Click="ButtonNewFolder_OnClick"
-                    Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.NewDatabase}">
-                <Image Source="../Assets/Icons/database_add.png" Width="32" Height="32" />
-            </Button>
+        <DockPanel Margin="5" Grid.Row="2" LastChildFill="False">
 
-            <Button Margin="5" DockPanel.Dock="Left" Name="buttonFileManager" Click="ButtonFileManager_OnClick"
-                    Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.OpenDatabase}">
-                <Image Source="../Assets/Icons/folder_database.png" Width="32" Height="32" />
-            </Button>
-
-            <Button Margin="15,5,5,5" DockPanel.Dock="Left" Name="buttonDelete" Click="ButtonDelete_OnClick"
-                    Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.DeleteGame}">
-                <Image Source="../Assets/Icons/bin.png" Width="32" Height="32" />
-            </Button>
-
-            <Button Margin="15,5,5,5" DockPanel.Dock="Left" Name="buttonImport" Click="ButtonImport_OnClick"
-                    Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.ImportGames}">
-                <Image Source="../Assets/Icons/saved_imports.png" Width="32" Height="32" />
-            </Button>
-
-            <Button Margin="15,5,5,5" DockPanel.Dock="Left" Name="buttonCopy" Command="Copy" 
-                    Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.CopyToClipboard}">
-                <Image Source="../Assets/Icons/clipboard_sign_out.png" Width="32" Height="32" />
-            </Button>
-            <Button Margin="15,5,5,5" DockPanel.Dock="Left"  Visibility="Visible" Name="buttonDeleteDuplicates" Click="ButtonDeleteAllDuplicates_OnClick"
-                    Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.DeleteAllDuplicates}">
-                <Image Source="../Assets/Icons/database_repeat_delete.png" Width="32" Height="32" />
-            </Button>
-            <Button Margin="15,5,5,5" DockPanel.Dock="Left"  Visibility="Visible" Name="buttonTwic" Click="ButtonTwic_OnClick"
-           Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.ManageTWIC}">
+            <Button Margin="15,5,5,5" DockPanel.Dock="Left" Visibility="Visible" Name="buttonTwic"
+                    Click="ButtonTwic_OnClick"
+                    Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.ManageTWIC}">
                 <Image Source="../Assets/Icons/outlook_calendar_week.png" Width="32" Height="32" />
             </Button>
 
-            <Button Margin="15,5,5,5" DockPanel.Dock="Left"  Visibility="Hidden" Name="buttonContinue" Click="ButtonContinue_OnClick"
+            <Button Margin="15,5,5,5" DockPanel.Dock="Left" Visibility="Visible" Name="buttonChessCom"
+                    Click="ButtonChessCom_OnClick"
+                    Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.DownloadChessCom}">
+                <Image Source="../Assets/Icons/Board2DPieces32.png" Width="32" Height="32" />
+            </Button>
+
+            <Button Margin="5,5,5,5" DockPanel.Dock="Left" Visibility="Hidden" Name="buttonContinue"
+                    Click="ButtonContinue_OnClick"
                     Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.LoadAndContinue}">
                 <Image Source="../Assets/Icons/control_play_blue.png" Width="32" Height="32" />
             </Button>
 
             <Button Margin="5,5,5,5" DockPanel.Dock="Left" Name="buttonSync" Click="ButtonSync_OnClick"
-                    Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.SynchronizeBoard}">
+                    Background="Transparent" BorderBrush="Transparent"
+                    ToolTip="{x:Static p:Resources.SynchronizeBoard}">
                 <StackPanel Orientation="Horizontal">
                     <Image Name="imageLinkClear" Source="../Assets/Icons/link_break.png" Width="32" Height="32"
                            Visibility="Collapsed" />
                     <Image Name="imageLinkApply" Source="../Assets/Icons/link.png" Width="32" Height="32" />
                 </StackPanel>
             </Button>
-            <Button Margin="15,5,5,5" DockPanel.Dock="Left" Name="buttonFilter" Click="ButtonFilter_OnClick"
+            <Button Margin="5,5,5,5" DockPanel.Dock="Left" Name="buttonFilter" Click="ButtonFilter_OnClick"
                     Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.FilterGames}">
                 <StackPanel Orientation="Horizontal">
                     <Image Name="imageTableFilter" Source="../Assets/Icons/table_filter.png" Width="32" Height="32" />
                 </StackPanel>
             </Button>
-            <Image Name="imageTableFilterActive" Source="../Assets/Icons/filter.png" Width="16" Height="16"
+            <Image Name="imageTableFilterActive" DockPanel.Dock="Left" Source="../Assets/Icons/filter.png" Width="16"
+                   Height="16"
                    Visibility="Hidden" ToolTip="{x:Static p:Resources.FilterIsActive}" />
 
-            <Button Margin="5,5,5,5" DockPanel.Dock="Left" Name="buttonExport" Click="ButtonExport_OnClick"
-                    Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.ExportSelectedGames}">
-                <Image Source="../Assets/Icons/text_exports.png" Width="32" Height="32" />
-            </Button>
-          
-            <Button Margin="5,5,5,5" DockPanel.Dock="Right" Name="buttonCompressDb" Click="ButtonCompressDb_OnClick"
-                    Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.CompressDatabase}">
-                <Image Source="../Assets/Icons/database_cleanup.png" Width="32" Height="32" />
-            </Button>
-            <Button Margin="5,5,5,5" DockPanel.Dock="Right" Name="buttonSaveDb" Click="ButtonSaveDb_OnClick"
-                    Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.SaveDatabase}">
-                <Image Source="../Assets/Icons/database_save.png" Width="32" Height="32" />
-            </Button>
-            <Button Margin="5,5,5,5" DockPanel.Dock="Right" Name="buttonRestoreDb" Click="ButtonRestoreDb_OnClick"
-                    Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.RestoreDatabase}">
-                <Image Source="../Assets/Icons/database_refresh.png" Width="32" Height="32" />
-            </Button>
-            <Button Margin="5,5,50,5" DockPanel.Dock="Right" Name="buttonDeleteDb" Click="ButtonDeleteDb_OnClick"
-                    Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.DeleteDatabase}">
-                <Image Source="../Assets/Icons/database_delete.png" Width="32" Height="32" />
-            </Button>
-            <Button Margin="5,5,5,5" DockPanel.Dock="Right" Name="buttonExit" Click="ButtonExit_OnClick"
+            <Button Margin="5,5,15,5" DockPanel.Dock="Right" Name="buttonExit" Click="ButtonExit_OnClick"
                     Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.Exit}">
                 <Image Source="../Assets/Icons/door_out.png" Width="32" Height="32" />
             </Button>
-        </StackPanel>
+        </DockPanel>
     </Grid>
 </Window>

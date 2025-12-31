@@ -35,6 +35,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutAirLoader
             configuration.UseBluetooth = true;
             configuration.PortName = "BTLE";
             var eBoardWrapper = new ChessnutMoveImpl(Name, basePath, configuration);
+            eBoardWrapper.SetDebounce(configuration.Debounce);
             return eBoardWrapper;
         }
 

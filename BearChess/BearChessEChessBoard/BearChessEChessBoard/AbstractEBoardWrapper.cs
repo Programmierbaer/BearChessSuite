@@ -3,13 +3,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Interfaces;
-using www.SoLaNoSoft.com.BearChessTools;
 
 namespace www.SoLaNoSoft.com.BearChess.EChessBoard
 {
@@ -44,8 +42,10 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         protected EChessBoardConfiguration _configuration;
         private bool _piecesFenBasePosition;
         private string _lastChangedFigure = string.Empty;
-        public bool UseChesstimation { get; set; }
+        //private ConcurrentBag<Move> _alternateMoveList = new ConcurrentBag<Move>();
+        private readonly List<string> _alternateMoveList = new List<string>();
 
+        public bool UseChesstimation { get; set; }
 
         public event EventHandler<string> MoveEvent;
         public event EventHandler<string> FenEvent;
@@ -59,6 +59,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         public event EventHandler<string[]> ProbeMoveEvent;
         public event EventHandler<string> GameEndEvent;
         public event EventHandler<ClockFromBoard> ClockEvent;
+        public event EventHandler<string> AlternateFenEvent;
 
         protected AbstractEBoardWrapper(string name, string basePath)
         {
@@ -409,14 +410,32 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
 
         public void ShowMove(SetLEDsParameter setLEDsParameter)
         {
+            _fileLogger?.LogDebug($"AB: Show Move for: {setLEDsParameter.FieldNames[0]}{setLEDsParameter.FieldNames[1]}");
             _internalChessBoard.MakeMove(setLEDsParameter.FieldNames[0], setLEDsParameter.FieldNames[1],
                 setLEDsParameter.Promote);
             var position = _internalChessBoard.GetPosition();
+            _fileLogger?.LogDebug($"AB: Wait for: {position}");
             _waitForFen.Enqueue(position);
             _board?.SetLedForFields(setLEDsParameter);
             _board?.SetFen(position);
             _stop = false;
         }
+
+        public void ShowMove(SetLEDsParameter setLEDsParameter, string[] alternateMoves)
+        {
+            _fileLogger?.LogDebug($"AB: Show Move for: {setLEDsParameter.FieldNames[0]}{setLEDsParameter.FieldNames[1]}");
+            _internalChessBoard.MakeMove(setLEDsParameter.FieldNames[0], setLEDsParameter.FieldNames[1],
+                setLEDsParameter.Promote);
+            var position = _internalChessBoard.GetPosition();
+            _fileLogger?.LogDebug($"AB: Wait for: {position}");
+            _alternateMoveList.Clear();
+            _alternateMoveList.AddRange(alternateMoves);
+            _waitForFen.Enqueue(position);
+            _board?.SetLedForFields(setLEDsParameter);
+            _board?.SetFen(position);
+            _stop = false;
+        }
+
 
         public void SetLedsFor(SetLEDsParameter setLeDsParameter)
         {
@@ -432,7 +451,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                 {
                     _waitForFen.TryDequeue(out _);
                 }
-
+                _alternateMoveList.Clear();
                 _board?.SetAllLEDsOff(forceOff);
                 while (_waitForFen.Count > 0)
                 {
@@ -480,7 +499,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             {
                 _waitForFen.TryDequeue(out _);
             }
-
+            _alternateMoveList.Clear();
             _stop = false;
             _waitForFen.Enqueue(_internalChessBoard.GetPosition());
         }
@@ -496,7 +515,6 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             SetAllLedsOff(false);
             _board?.SetFen(fen);
             _internalChessBoard = new InternalChessBoard();
-
             _internalChessBoard.NewGame();
             _internalChessBoard.SetPosition(fen);
         }
@@ -686,8 +704,6 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             string batteryLevel = string.Empty;
             string batteryStatus = string.Empty;
             bool alterMoveDetected = false;
-            bool alterMovesDetected = false;
-            Move[] alterMoves = null;
 
             _fileLogger?.LogDebug("AB: Handle board");
             while (!_stopCommunication)
@@ -698,10 +714,10 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                     continue;
                 }
 
-                if (_waitForFen.TryDequeue(out string fen))
+                if (_waitForFen.TryDequeue(out var fen))
                 {
                     waitForFen = fen;
-                    _fileLogger?.LogDebug($"AB: Wait for fen: {waitForFen}");
+                    _fileLogger?.LogDebug($"AB: Dequeue wait for FEN: {waitForFen}");
                 }
 
                 if (string.IsNullOrWhiteSpace(batteryStatus))
@@ -770,6 +786,24 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                     AwaitedPosition?.Invoke(this, null);
                 }
 
+                // Alternate position on board?
+                if (_board!=null && !_board.SelfMoving &&  !string.IsNullOrWhiteSpace(waitForFen) &&
+                    !string.IsNullOrWhiteSpace(piecesFen.FromBoard) &&
+                    !prevFen.Equals(piecesFen.FromBoard))
+                {
+                    
+                    if (_alternateMoveList.Any(a => a.StartsWith(piecesFen.FromBoard)))
+                    {
+                        _fileLogger?.LogDebug($"AB: Alternate fen position on board received: {waitForFen}");
+                        _board?.SetAllLEDsOff(false);
+                        waitForFen = string.Empty;
+                        _alternateMoveList.Clear();
+                        prevFen = piecesFen.FromBoard;
+                        AlternateFenEvent?.Invoke(this, piecesFen.FromBoard);
+                        continue;
+                    }
+                }
+
                 if (_forcedBasePosition || (piecesFen.Invalid && _piecesFenBasePosition))
                 {
                     _forcedBasePosition = false;
@@ -793,7 +827,6 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
 
                 if (!string.IsNullOrWhiteSpace(waitForFen))
                 {
-
                     continue;
                 }
 
@@ -808,37 +841,40 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                 {
                     continue;
                 }
-                var checkForAlternateMoves = Configuration.Instance.GetBoolValue("checkForAlternateMoves", true);
-                if (checkForAlternateMoves)
+
+                if (_board != null && !_board.SelfMoving)
                 {
-                    if (piecesFen.FromBoard.StartsWith("r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R"))
-                    {
-                        alterMoveDetected = false;
-                    }
                     var alternateMove = _internalChessBoard.GetAlternateMove(piecesFen.FromBoard);
                     if (alternateMove != null)
                     {
-                        _fileLogger?.LogDebug($"AB: Alternate move detected: {alternateMove.FromFieldName}{alternateMove.ToFieldName}");
+                        _fileLogger?.LogDebug(
+                            $"AB: Alternate move detected: {alternateMove.FromFieldName}{alternateMove.ToFieldName}");
                         _internalChessBoard.TakeBack();
                         alterMoveDetected = true;
                     }
                     else
                     {
-                        alterMoves = _internalChessBoard.GetAlternateMoves(piecesFen.FromBoard);
+                        var alterMoves = _internalChessBoard.GetAlternateMoves(piecesFen.FromBoard);
                         if (alterMoves != null && alterMoves.Length > 0)
                         {
-                            _fileLogger?.LogDebug($"AB: Alternate move sequence detected: {alterMoves[0].FromFieldName}{alterMoves[0].ToFieldName} {alterMoves[1].FromFieldName}{alterMoves[1].ToFieldName} ");
-                            _fileLogger?.LogDebug($"AB: OnMoveEvent: {alterMoves[0].FromFieldName}{alterMoves[0].ToFieldName} ");
+                            _fileLogger?.LogDebug(
+                                $"AB: Alternate move sequence detected: {alterMoves[0].FromFieldName}{alterMoves[0].ToFieldName} {alterMoves[1].FromFieldName}{alterMoves[1].ToFieldName} ");
+                            _fileLogger?.LogDebug(
+                                $"AB: OnMoveEvent: {alterMoves[0].FromFieldName}{alterMoves[0].ToFieldName} ");
                             potentialMove = string.Empty;
                             OnMoveEvent(alterMoves[0].Fen);
-                            _fileLogger?.LogDebug($"AB: OnMoveEvent: {alterMoves[1].FromFieldName}{alterMoves[1].ToFieldName} ");
+                            _fileLogger?.LogDebug(
+                                $"AB: OnMoveEvent: {alterMoves[1].FromFieldName}{alterMoves[1].ToFieldName} ");
                             OnMoveEvent(alterMoves[1].Fen);
                             currentFen = piecesFen.FromBoard;
                             continue;
                         }
                     }
                 }
-
+                else
+                {
+                    alterMoveDetected = false;
+                }
                 var move = _internalChessBoard.GetMove(piecesFen.FromBoard, false);
                 if (move.Length >= 4)
                 {
@@ -902,7 +938,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             }
 
             _fileLogger?.LogDebug($"AB: Move detected: {move}");
-            string promote = move.Length == 4 ? string.Empty : move.Substring(4, 1);
+            var promote = move.Length == 4 ? string.Empty : move.Substring(4, 1);
             _internalChessBoard.MakeMove(move.Substring(0, 2), move.Substring(2, 2), promote);
             // Inform the world about a new move 
             MoveEvent?.Invoke(this, move);
@@ -922,8 +958,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                 }
             }
 
-            _lastChangedFigure = changedFigure;
-            //      _lastFenColor = c;
+            _lastChangedFigure = changedFigure;            
             _fileLogger?.LogDebug($"AB: FenEvent from board: {fenPosition} {changedFigure}");
             FenEvent?.Invoke(this, fenPosition + " " + c);
         }

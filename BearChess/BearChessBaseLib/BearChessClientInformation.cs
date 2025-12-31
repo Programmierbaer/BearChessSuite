@@ -11,10 +11,17 @@
             get; set;
         }
 
+        public string AssignedBoardId
+        {
+            get;
+            set;
+        }
+
         public BearChessClientInformation()
         {
             Address = string.Empty;
             Name = string.Empty;
+            AssignedBoardId = string.Empty;
         }
 
         public override string ToString()

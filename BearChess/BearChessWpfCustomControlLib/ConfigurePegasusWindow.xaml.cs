@@ -162,7 +162,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
 
                 _loader.DimLeds((int)sliderDim.Value);
                 _loader.SetDebounce((int)sliderSpeed.Value);
-                _loader.SetLedsFor(new SetLEDsParameter()
+                _loader.SetLEDsFor(new SetLEDsParameter()
                 {
                     FieldNames = new[] { "e2", "e4" },
                     IsThinking = false,
@@ -181,7 +181,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
 
                 _loader.SetDebounce((int)sliderSpeed.Value);
                 _loader.DimLeds((int)sliderDim.Value);
-                _loader.SetLedsFor(new SetLEDsParameter()
+                _loader.SetLEDsFor(new SetLEDsParameter()
                 {
                     FieldNames = new[] { "e2", "e4" },
                     IsThinking = false,
@@ -193,7 +193,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
                 buttonShowDim.Visibility = Visibility.Visible;
                 buttonShowDim2.Visibility = Visibility.Collapsed;
                 //     _loader.SetAllLEDsOn();
-                _loader.SetAllLedsOff(true);
+                _loader.SetAllLEDsOff(true);
                 Thread.Sleep(500);
                 _loader.Release();
                 _loader.Close();
@@ -228,7 +228,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
 
                 _loader.DimLeds((int)sliderDim.Value);
                 _loader.SetDebounce((int)sliderSpeed.Value);
-                _loader.SetLedsFor(new SetLEDsParameter()
+                _loader.SetLEDsFor(new SetLEDsParameter()
                 {
                     FieldNames = new[] { "e2", "e4" },
                     IsThinking = false,

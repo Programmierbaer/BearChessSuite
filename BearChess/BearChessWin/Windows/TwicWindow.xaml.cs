@@ -5,6 +5,7 @@ using System.Resources;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using www.SoLaNoSoft.com.BearChess.BearChessCommunication.ChessCom;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Implementations.pgn;

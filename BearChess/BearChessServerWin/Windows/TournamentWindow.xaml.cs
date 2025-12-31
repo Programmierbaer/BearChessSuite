@@ -27,7 +27,8 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
         private readonly List<BearChessClientInformation> _tokenList = new List<BearChessClientInformation>();
         private readonly IBearChessController _bearChessController;
         private readonly bool _publishTournament;
-        private readonly ILogging _logging;
+        private readonly ILogging _serverLogging;
+        private readonly ILogging _localLogging;
 
         public string TournamentName { get; private set; }
         public string UniqueName { get; private set; }
@@ -39,22 +40,29 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
             Title = $"{Title} {name}";
             TournamentName = name;
             _publishTournament = publishTournament;
-            _logging = serverLogging;
+            _serverLogging = serverLogging;
             _bearChessController = bearChessController;
             _bearChessController.ClientMessage += _bearChessController_ClientMessage;
             UniqueName = $"T_{Guid.NewGuid():N}";
-            var logPath = Path.Combine(Configuration.Instance.FolderPath, "log", UniqueName);
-            if (!Directory.Exists(logPath))
+            try
             {
-                Directory.CreateDirectory(logPath);
+                var logPath = Path.Combine(Configuration.Instance.FolderPath, "log", UniqueName);
+                if (!Directory.Exists(logPath))
+                {
+                    Directory.CreateDirectory(logPath);
+                }
+
+                _localLogging = new FileLogger(Path.Combine(logPath, "Tournament.log"), 10, 10)
+                {
+                    Active = true
+                };
+            }
+            catch
+            {
+                // ignore
             }
 
-            var logging = new FileLogger(Path.Combine(logPath, "Tournament.log"), 10, 10)
-            {
-                Active = true
-            };
-
-            logging?.LogInfo($"Tournament: {name}");
+            _localLogging?.LogInfo($"Tournament: {name}");
 
             var colsCount = gamesCount > 3 ? 4 : gamesCount;
             var rowsCount = Math.Ceiling((decimal)((decimal)gamesCount / (decimal)colsCount));
@@ -90,7 +98,7 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
                     {
                         Margin = new Thickness(5),
                     };
-                    view1.SetLogging(logging);
+                    view1.SetLogging(_localLogging);
                     view1.ConfigurationRequested += Board_ConfigurationRequested;
                     _chessBoardList.Add(view1);
                     view1.SetBearChessController(_bearChessController);
@@ -111,14 +119,14 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
         {
             if (e.ActionCode.Equals("CONNECT"))
             {
-                _logging?.LogDebug($"Main: Connect: {e.Message}: {e.Address} ");
+                _serverLogging?.LogDebug($"Main: Connect: {e.Message}: {e.Address} ");
                 _tokenList.Add(new BearChessClientInformation() { Address = e.Address, Name = e.Message });
                 return;
             }
 
             if (e.ActionCode.Equals("DISCONNECT"))
             {
-                _logging?.LogDebug($"Main: Disconnect: {e.Message}: {e.Address} ");
+                _serverLogging?.LogDebug($"Main: Disconnect: {e.Message}: {e.Address} ");
                 var clientInfo = _tokenList.FirstOrDefault(t => t.Address.Equals(e.Address));
                 if (clientInfo != null)
                 {
@@ -135,17 +143,34 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
                 return;
             }
 
-            var configServerBoard = new ConfigureServerChessboardWindow(boardId, _tokenList.ToArray(), _logging)
+            var configServerBoard = new ConfigureServerChessboardWindow(boardId, _tokenList.Where(t => t.AssignedBoardId.Equals(boardId)
+            || string.IsNullOrWhiteSpace(t.AssignedBoardId)).ToArray(), _serverLogging)
             {
                 Owner = this
             };
             var dialogResult = configServerBoard.ShowDialog();
             if (dialogResult.HasValue && dialogResult.Value)
             {
-                _logging?.LogDebug(
+                _serverLogging?.LogDebug(
                     $"Main: Configured e-Board for white: {configServerBoard.WhiteConnectionId} {configServerBoard.WhiteEBoard} ");
-                _logging?.LogDebug(
+                _serverLogging?.LogDebug(
                     $"Main: Configured e-Board for black: {configServerBoard.BlackConnectionId} {configServerBoard.BlackEBoard} ");
+                foreach (var bearChessClientInformation in _tokenList.Where(bearChessClientInformation => bearChessClientInformation.AssignedBoardId.Equals(boardId)))
+                {
+                    bearChessClientInformation.AssignedBoardId = string.Empty;
+                }
+
+                var token = _tokenList.FirstOrDefault(t => t.Address.Equals(configServerBoard.WhiteConnectionId));
+                if (token != null)
+                {
+                    token.AssignedBoardId = boardId;
+                }
+                token = _tokenList.FirstOrDefault(t => t.Address.Equals(configServerBoard.BlackConnectionId));
+                if (token != null)
+                {
+                    token.AssignedBoardId = boardId;
+                }
+
                 configBoard.AddRemoteClientToken(configServerBoard.WhiteConnectionId);
                 configBoard.AddRemoteClientToken(configServerBoard.BlackConnectionId);
                 configBoard.WhitePlayerName(configServerBoard.WhitePlayerName);
@@ -231,8 +256,7 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
                 }
             }
 
-            var database = new Database(this, null, Configuration.Instance.GetConfigValue("DatabaseFile", string.Empty),
-                Configuration.Instance.GetPgnConfiguration());
+            var database = new Database(this, null, Configuration.Instance.GetConfigValue("DatabaseFile", string.Empty));
             foreach (var smallChessboard in _chessBoardList)
             {
                 var playedMoveList = smallChessboard.GetPlayedMoveList();

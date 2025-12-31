@@ -262,7 +262,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             {
                 buttonShowDim.Visibility = Visibility.Visible;
                 buttonShowDim2.Visibility = Visibility.Collapsed;
-                _loader.SetAllLedsOff(true);
+                _loader.SetAllLEDsOff(true);
                 Thread.Sleep(500);
                 _loader.Close();
                 _loader = null;
@@ -297,7 +297,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         private void ShowExample(string buttonName)
         {
             _lastButtonName = buttonName;
-            _loader.SetAllLedsOff(true);
+            _loader.SetAllLEDsOff(true);
             if (buttonName.Equals("buttonShowMoveFrom"))
             {
                 string movesFrom = "E2";
@@ -443,7 +443,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         {
             if (_loader != null)
             {
-                _loader?.SetAllLedsOff(true);
+                _loader?.SetAllLEDsOff(true);
                 Thread.Sleep(500);
                 _loader?.Close();
             }

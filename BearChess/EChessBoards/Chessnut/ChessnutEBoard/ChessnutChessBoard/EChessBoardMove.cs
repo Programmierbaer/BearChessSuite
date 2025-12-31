@@ -17,9 +17,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
     {
         private readonly bool _useBluetooth;
         private readonly bool _showMoveLine;
-        private bool _flashSync = false;
         private bool _release = false;
-        private readonly byte[] _lastSendBytes = { 0, 0, 0, 0, 0, 0, 0, 0 };
         private readonly byte[] _startReading = { 0x21, 0x01, 0x00 };
         private readonly byte[] _commandPrefix = { 0x42, 0x21 };
         private readonly byte[] _ledPrefix = { 0x43, 0x20 };
@@ -163,6 +161,8 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
         private string _boardColorRed = "1";
         private string _boardColorGreen = "2";
         private string _boardColorBlue = "3";
+        private ulong _repeatedTenthOfSeconds = 0;
+        private int _debounce = 1;
         
 
         public EChessBoardMove(ILogging logger, EChessBoardConfiguration configuration)
@@ -174,7 +174,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
             _logger = logger;
             MultiColorLEDs = true;
             PieceRecognition = true;
-            SelfMoving = true;
+            SelfMoving = _extendedBoardConfiguration.AutoMoveFigures;
             ValidForAnalyse = true;
             BatteryLevel = "---";
             BatteryStatus = "Full";
@@ -678,12 +678,12 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
 
         public override void SetDebounce(int debounce)
         {
-            // ignore
+            _debounce = debounce <1 ? 1 : debounce;
         }
 
         public override void FlashMode(EnumFlashMode flashMode)
         {
-            _flashSync = flashMode == EnumFlashMode.FlashSync;
+            //
         }
 
 
@@ -838,9 +838,9 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
                 return new DataFromBoard(_lastResult, dataFromBoard.Repeated);
             }
             _lastResult = result;
-
-
-            return new DataFromBoard(_lastResult, dataFromBoard.Repeated);
+            _logger?.LogDebug($"GetPiecesFen: {dataFromBoard.Repeated} times {_lastResult}");
+            _repeatedTenthOfSeconds = dataFromBoard.Repeated / (ulong)(9 * _debounce);
+            return new DataFromBoard(_lastResult, _repeatedTenthOfSeconds );
         }
 
         public override DataFromBoard GetDumpPiecesFen()

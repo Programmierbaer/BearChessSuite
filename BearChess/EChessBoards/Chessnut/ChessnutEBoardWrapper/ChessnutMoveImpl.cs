@@ -62,7 +62,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutEBoardWrapper
 
         public override void SetDebounce(int debounce)
         {
-            // ignore
+            _board?.SetDebounce(debounce);
         }
 
         public override void FlashMode(EnumFlashMode flashMode)

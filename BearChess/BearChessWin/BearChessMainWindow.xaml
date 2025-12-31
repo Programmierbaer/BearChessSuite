@@ -151,6 +151,11 @@
                                 <Image Source="Assets/Icons/book.png" />
                             </MenuItem.Icon>
                         </MenuItem>
+                        <MenuItem Name="menuItemStartPuzzle" Click="MenuItemStartPuzzle_OnClick" Header="{x:Static p:Resources.Puzzle}">
+                            <MenuItem.Icon>
+                                <Image Source="Assets/Icons/setpieces.png" />
+                            </MenuItem.Icon>
+                        </MenuItem>
                     </MenuItem>
                     <MenuItem Header="{x:Static p:Resources.Duel}" Name="menuItemDuel">
                         <MenuItem.Icon>
@@ -272,7 +277,7 @@
                     <MenuItem Tag="GamesManager" Name="menuItemGamesLoad" Header="{x:Static p:Resources.GamesManager}"
                               Click="MenuItemGamesLoad_OnClick">
                         <MenuItem.Icon>
-                            <Image Source="Assets/Icons/file_manager.png" Stretch="UniformToFill" />
+                            <Image Source="Assets/Icons/database.png" Stretch="UniformToFill" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Tag="GamesCopy" Name="menuItemGamesCopy" Command="Copy"
@@ -658,6 +663,12 @@
                             <Image Source="Assets/Icons/FicsLogo.png" />
                         </MenuItem.Icon>
                     </MenuItem>
+                    <MenuItem Name="menuItemChessCom" Header="{x:Static p:Resources.chesscom}" Click="MenuItemChessCom_OnClick"
+                              ToolTip="{x:Static p:Resources.chesscomTip}">
+                        <MenuItem.Icon>
+                            <Image Source="Assets/Icons/chesscom.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <MenuItem Name="menuItemBCServer" Header="{x:Static p:Resources.ConfigureBCSandFTP}" Click="MenuItemBCServer_OnClick"
            ToolTip="{x:Static p:Resources.BearChessServerTip}" Visibility="Visible">
                         <MenuItem.Icon>
@@ -870,7 +881,7 @@
                             <MenuItem Visibility="Visible" Name="menuItemBluetoothLESentioSpectrum"
                                       Header="{x:Static p:Resources.BTLE}"
                                       ToolTip="{x:Static p:Resources.BTLETip}"
-                                      Click="MenuItemBluetoothLESentio_OnClick">
+                                      Click="MenuItemBluetoothLESentioSpectrum_OnClick">
                                 <MenuItem.Icon>
                                     <Image Name="imageSentioSpectrumBluetoothLE" Source="Assets/Icons/tick.png"
                                            Visibility="Hidden" />

@@ -9,8 +9,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
 
     public class PgnCreator : AbstractPgnCreator
     {
-       
-
+        
         public PgnCreator(PgnConfiguration pgnConfigurationConfiguration)
         {
             _pgnConfiguration = pgnConfigurationConfiguration;

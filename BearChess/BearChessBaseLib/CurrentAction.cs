@@ -7,6 +7,7 @@
         InRunningGame,
         InSetupMode,
         InGameAnalyseMode,
-        InTrainingSetupMode
+        InTrainingSetupMode,
+        InChessComPuzzleMode
     }
 }

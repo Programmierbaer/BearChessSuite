@@ -1563,12 +1563,12 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             buttonPauseEngine.Visibility = Visibility.Collapsed;
         }
 
-        public void AllowTakeBack(bool allow)
+        public void AllowTakeBack()
         {
-            moveStepAllBack.Visibility = allow && !_isConnected ? Visibility.Visible : Visibility.Hidden;
-            moveStepAllForward.Visibility = allow && !_isConnected ? Visibility.Visible : Visibility.Hidden;
-            moveStepBack.Visibility = allow && !_isConnected ? Visibility.Visible : Visibility.Hidden;
-            moveStepForward.Visibility = allow && !_isConnected ? Visibility.Visible : Visibility.Hidden;
+            moveStepAllBack.Visibility = !_isConnected ? Visibility.Visible : Visibility.Hidden;
+            moveStepAllForward.Visibility = !_isConnected ? Visibility.Visible : Visibility.Hidden;
+            moveStepBack.Visibility = !_isConnected ? Visibility.Visible : Visibility.Hidden;
+            moveStepForward.Visibility = !_isConnected ? Visibility.Visible : Visibility.Hidden;
         }      
 
 
@@ -1834,6 +1834,13 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         private void ButtonRotate_OnClick(object sender, RoutedEventArgs e)
         {
             RotateBoardEvent?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void MarkField(int field)
+        {
+            _fromFieldTag = field;
+            _markedGreenFields[_fromFieldTag] = true;
+            _piecesBorderBitmaps[_fromFieldTag].Source = FindResource("bitmapGreenFrame") as BitmapImage;
         }
 
         private void UIElement_OnMouseDown(object sender, MouseButtonEventArgs e)

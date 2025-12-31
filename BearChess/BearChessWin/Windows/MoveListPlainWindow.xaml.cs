@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Globalization;
 using System.Resources;
 using System.Runtime.InteropServices;
@@ -24,7 +25,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
     public partial class MoveListPlainWindow : Window, IMoveListPlainWindow
     {
         private readonly Configuration _configuration;
-        private readonly PgnConfiguration _pgnConfiguration;
         private int _lastMoveNumber;
         private int _currentMoveNumber;
         private WrapPanel _wrapPanel;
@@ -57,7 +57,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
         public MoveListPlainWindow(Configuration configuration)
         {
             _configuration = configuration;
-            _pgnConfiguration = configuration.GetPgnConfiguration();
             InitializeComponent();
             
             _rm = SpeechTranslator.ResourceManager;
@@ -107,7 +106,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         public void SetPlayer(string player, int color)
         {
-            //
+            if (color == Fields.COLOR_WHITE)
+            {
+                textBlockWhitePlayer.Text = player;
+            }
+            else
+            {
+                textBlockBlackPlayer.Text = player;
+            }
+
         }
 
         public void SetStartPosition(string gameStartPosition)
@@ -131,12 +138,20 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         public void AddMove(Move move)
         {
+            if (move == null)
+            {
+                return;
+            }
             _moveList.Add(move);
             AddInternalMove(move);
         }
 
         public void AddMove(Move move, bool tournamentMode)
         {
+            if (move == null)
+            {
+                return;
+            }
             _moveList.Add(move);
             AddInternalMove(move);
         }
@@ -548,7 +563,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void ButtonCopy_OnClick(object sender, RoutedEventArgs e)
         {
-            var pgnCreator = new PgnCreator(_gameStartPosition, _pgnConfiguration);
+            var pgnCreator = new PgnCreator(_gameStartPosition, _configuration.GetPgnConfiguration());
             for (int w = 0; w < stackPanelMoves.Children.Count; w++)
             {
                 if (stackPanelMoves.Children[w] is WrapPanel wrapPanel1)

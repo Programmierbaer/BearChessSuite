@@ -94,8 +94,8 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
             var eBoard = _allBoards[color].FirstOrDefault(b => b.Identification.Equals(identification));
             if (eBoard != null)
             {
-                eBoard.SetAllLedsOff(true);
-                eBoard.SetLedsFor(new SetLEDsParameter()
+                eBoard.SetAllLEDsOff(true);
+                eBoard.SetLEDsFor(new SetLEDsParameter()
                     { FieldNames = new string[] { fromField, toField }, IsMove = true });
                 var dict = _awaitedFens[color];
                 dict[identification] = awaitedFen.Split(" ".ToCharArray())[0];
@@ -474,7 +474,7 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
             if (!string.IsNullOrEmpty(awaited) && fen.StartsWith(awaited))
             {
                 dict[eBoard.Identification] = string.Empty;
-                eBoard.SetAllLedsOff(true);
+                eBoard.SetAllLEDsOff(true);
             }
 
             ClientMessage?.Invoke(this,
@@ -501,7 +501,7 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
             if (!string.IsNullOrEmpty(awaited) && fen.StartsWith(awaited))
             {
                 dict[eBoard.Identification] = string.Empty;
-                eBoard.SetAllLedsOff(true);
+                eBoard.SetAllLEDsOff(true);
             }
 
             ClientMessage?.Invoke(this,

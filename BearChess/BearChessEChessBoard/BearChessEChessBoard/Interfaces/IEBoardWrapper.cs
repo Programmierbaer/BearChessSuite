@@ -41,7 +41,8 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         void ShowMove(string allMoves, string fenStartPosition, SetLEDsParameter setLeDsParameter, bool waitFor);
 
         void ShowMove(SetLEDsParameter setLEDsParameter);
-        
+        void ShowMove(SetLEDsParameter setLEDsParameter, string[] alternateMoves);
+
         void SetLedsFor(SetLEDsParameter setLeDsParameter);
 
         /// <summary>
@@ -143,6 +144,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         /// New FEN position on board by user
         /// </summary>
         event EventHandler<string> FenEvent;
+        event EventHandler<string> AlternateFenEvent;
         event EventHandler<string> DataEvent;
         event EventHandler<string[]> ProbeMoveEvent;
 

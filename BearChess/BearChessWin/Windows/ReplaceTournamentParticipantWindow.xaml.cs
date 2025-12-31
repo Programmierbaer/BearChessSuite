@@ -23,7 +23,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
     {
         private readonly Configuration _configuration;
         private readonly Database _database;
-        private readonly PgnConfiguration _pgnConfiguration;
         private  ObservableCollection<UciInfo> _uciInfos;
         private  ObservableCollection<UciInfo> _uciInfosPlayer;
 

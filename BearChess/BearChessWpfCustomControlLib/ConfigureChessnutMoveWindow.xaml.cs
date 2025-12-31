@@ -89,6 +89,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             buttonShowTakeBack.Visibility = Visibility.Hidden;
             buttonShowCurrentGoodMoveEvaluation.Visibility = Visibility.Hidden;
             buttonShowCurrentPossibleMoves.Visibility = Visibility.Hidden;
+            sliderDebounce.Value = _eChessBoardConfiguration.Debounce;
         }
 
         private void ShowCurrentConfig()
@@ -181,7 +182,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             {
                 buttonShowDim.Visibility = Visibility.Visible;
                 buttonShowDim2.Visibility = Visibility.Collapsed;
-                _loader.SetAllLedsOff(true);
+                _loader.SetAllLEDsOff(true);
                 Thread.Sleep(500);
                 _loader.Close();
                 _loader = null;
@@ -444,13 +445,14 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             _eChessBoardConfiguration.ShowPossibleMovesEval = extendedConfiguration.ShowPossibleMovesEval;
             _eChessBoardConfiguration.ShowOwnMoves = extendedConfiguration.ShowOwnMoves;
             _eChessBoardConfiguration.ShowHintMoves = extendedConfiguration.ShowHintMoves;
+            _eChessBoardConfiguration.Debounce = (int)sliderDebounce.Value;
         }
 
         private void ButtonOk_OnClick(object sender, RoutedEventArgs e)
         {
             if (_loader != null)
             {
-                _loader?.SetAllLedsOff(true);
+                _loader?.SetAllLEDsOff(true);
                 Thread.Sleep(500);
                 _loader?.Close();
             }            
@@ -532,7 +534,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         {
             if (_loader != null)
             {
-                _loader?.SetAllLedsOff(true);
+                _loader?.SetAllLEDsOff(true);
                 Thread.Sleep(1000);
                 _loader?.Close();
             }
@@ -549,5 +551,40 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         {
             tabControlLEDs.IsEnabled = false;
         }
+
+        private void SliderDebounce_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            SetDebounceText();
+        }
+
+        private void SetDebounceText()
+        {
+            if (textBlockDebounce != null)
+            {
+                textBlockDebounce.Text = ((int)sliderDebounce.Value).ToString();
+            }
+        }
+
+        private void ButtonDebounceAdd_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (sliderDebounce.Value < sliderDebounce.Maximum)
+            {
+                sliderDebounce.Value++;
+            }
+        }
+
+        private void ButtonDebounceDelete_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (sliderDebounce.Value > sliderDebounce.Minimum)
+            {
+                sliderDebounce.Value--;
+            }
+        }
+
+        private void ButtonResetDebounce_OnClick(object sender, RoutedEventArgs e)
+        {
+            sliderDebounce.Value = 1;
+        }
+
     }
 }
