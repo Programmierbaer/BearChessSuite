@@ -9572,7 +9572,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void EChessBoardMoveEvent(object sender, string move)
         {
-            if (_pureEngineMatch || _currentAction==CurrentAction.InTrainingSetupMode || _currentAction != CurrentAction.InChessComPuzzleMode)
+            if (_pureEngineMatch || _currentAction==CurrentAction.InTrainingSetupMode || _currentAction == CurrentAction.InChessComPuzzleMode)
             {
                 return;
             }
