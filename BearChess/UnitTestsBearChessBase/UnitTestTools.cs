@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using www.SoLaNoSoft.com.BearChess.BearChessCommunication.lichess;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessTools;
 using www.SoLaNoSoft.com.BearChessWin;
@@ -28,6 +29,13 @@ namespace UnitTestsBearChessBase
             Assert.AreEqual(maxValue, splits[20]);
             Assert.AreEqual(0, EloValueSplitter.GetSplitValue(splits, 1350));
             Assert.AreEqual(10, EloValueSplitter.GetSplitValue(splits, splits[10]));
+        }
+
+        [TestMethod]
+        public void LichesPuzzleRead()
+        {
+           var line = LichessPuzzleReader.GetPuzzle();
+
         }
 
     }

@@ -159,6 +159,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="LichessPuzzleInfoWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MaterialUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -338,6 +342,9 @@
       <DependentUpon>InfoWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="IUciConfigUserControl.cs" />
+    <Compile Include="LichessPuzzleInfoWindow.xaml.cs">
+      <DependentUpon>LichessPuzzleInfoWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MaterialUserControl.xaml.cs">
       <DependentUpon>MaterialUserControl.xaml</DependentUpon>
     </Compile>
@@ -939,6 +946,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Icons\calendar_view_day.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\help.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

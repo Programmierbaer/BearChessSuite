@@ -1,19 +1,65 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication.ChessCom
 {
+    public class MateProblem
+    {
+        [JsonPropertyName("problemid")]
+        public int Problemid
+        {
+            get;
+            set;
+        }
+
+        [JsonPropertyName("first")]
+        public string First
+        {
+            get;
+            set;
+        }
+        [JsonPropertyName("title")]
+        public string MateType
+        {
+            get;
+            set;
+        }
+        [JsonPropertyName("fen")]
+        public string Fen
+        {
+            get;
+            set;
+        }
+
+        [JsonPropertyName("moves")]
+        public string Moves
+        {
+            get;
+            set;
+        }
+    }
+
+    public class MatePattern
+    {
+        [JsonPropertyName("problems")]
+        public MateProblem[] Problems
+        {
+            get;
+            set;
+        }
+    }
+    public static class PuzzleImporter
+    {
+        public static MatePattern LoadFromFile(string fileName)
+        {
+            var data = File.ReadAllText(fileName);
+            return JsonSerializer.Deserialize<MatePattern>(data);
+        }
+    }
     public static class ChessComReader
     {
-
 
         private static string profileUrl = "https://api.chess.com/pub/player/";
         private static string currentGamesUrl = "https://api.chess.com/pub/player/{username}/games";

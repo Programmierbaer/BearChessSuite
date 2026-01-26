@@ -18,16 +18,17 @@ using www.SoLaNoSoft.com.BearChessBase.Implementations.pgn;
 
 namespace www.SoLaNoSoft.com.BearChessDatabase
 {
-    public class Database : IDisposable
+    public class Database : IDisposable, IGamesDatabase
     {
 
         public string FileName { get; private set; }
+        public bool InError => _inError;
 
         private readonly Window _owner;
         private readonly ILogging _logging;
         private SQLiteConnection _connection;
         private bool _dbExists;
-        private bool _inError;
+        private bool _inError = false;
         private int _storageVersion;
         private SQLiteTransaction _sqLiteTransaction;
 
@@ -948,7 +949,10 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 }
                 var moveNumber = 1;
                 var fastBoard = new FastChessBoard();
-             
+                if (!string.IsNullOrEmpty(databaseGame.PgnGame.FENLine))
+                {
+                    fastBoard.Init(databaseGame.PgnGame.FENLine, Array.Empty<string>());
+                }
                 foreach (var move in databaseGame.MoveList)
                 {
                     if (move == null)
@@ -1026,12 +1030,9 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
         public void CommitAndClose()
         {
-            if (_sqLiteTransaction != null)
-            {
-                _sqLiteTransaction.Commit();
-                _connection.Close();
-                _sqLiteTransaction = null;
-            }
+            _sqLiteTransaction?.Commit();
+            _sqLiteTransaction = null;
+            _connection?.Close();
         }
 
 
@@ -1400,8 +1401,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             return allGames.ToArray();
         }
 
-   
-
+        
         private DatabaseGameSimple[] GetBySql(string sql)
         {
             DatabaseGameSimple[] allGames = null;

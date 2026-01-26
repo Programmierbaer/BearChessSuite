@@ -23,8 +23,6 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
             _fenStartPosition = fenStartPosition;
         }
 
-
-
         public string[] GetAllMoves()
         {
             _chessBoard = new ChessBoard();

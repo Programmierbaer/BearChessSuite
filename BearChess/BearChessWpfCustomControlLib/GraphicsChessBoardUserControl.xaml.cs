@@ -1912,8 +1912,10 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
                 {
                     RemoveHintArrows();
                 }
-
-                _piecesBorderBitmaps[_fromFieldTag].Source = FindResource("bitmapEmpty") as BitmapImage;
+                if (_fromFieldTag != 0)
+                {
+                    _piecesBorderBitmaps[_fromFieldTag].Source = FindResource("bitmapEmpty") as BitmapImage;
+                }
                 _fromFieldTag = 0;
                 _toFieldTag = 0;
             }

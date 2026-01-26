@@ -468,6 +468,16 @@ namespace www.SoLaNoSoft.com.BearChessBase
             SetConfigValue(key, value.ToString());
         }
 
+        public long GetLongValue(string key, long defaultValue)
+        {
+            return long.Parse(GetConfigValue(key, defaultValue.ToString()));
+        }
+
+        public void SetLongValue(string key, long value)
+        {
+            SetConfigValue(key, value.ToString());
+        }
+
         public void SaveGamesFilter(GamesFilter gamesFilter)
         {
             try

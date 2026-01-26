@@ -526,7 +526,7 @@
     <value>Remis durch 50-Züge-Regel</value>
   </data>
   <data name="DrawByMaterial" xml:space="preserve">
-    <value>Remis durch unzureichendem Material</value>
+    <value>Remis durch unzureichendes Material</value>
   </data>
   <data name="DrawByRepetition" xml:space="preserve">
     <value>Remis durch Stellungswiederholung</value>
@@ -3023,5 +3023,29 @@
   </data>
   <data name="DownloadChessCom" xml:space="preserve">
     <value>Herunterladen von Chess.com</value>
+  </data>
+  <data name="SkipError" xml:space="preserve">
+    <value>Keine Fehlermeldung bei bereits installierter Engine</value>
+  </data>
+  <data name="PuzzleImport" xml:space="preserve">
+    <value>Puzzles Importieren</value>
+  </data>
+  <data name="PuzzleSources" xml:space="preserve">
+    <value>Herkunft</value>
+  </data>
+  <data name="lichess" xml:space="preserve">
+    <value>lichess.org</value>
+  </data>
+  <data name="SelectPuzzleFile" xml:space="preserve">
+    <value>Puzzle-Datei auswählen</value>
+  </data>
+  <data name="OwnPuzzles" xml:space="preserve">
+    <value>Eigene Puzzle</value>
+  </data>
+  <data name="PuzzleSource" xml:space="preserve">
+    <value>Herkunft:</value>
+  </data>
+  <data name="MateInByBearChess" xml:space="preserve">
+    <value>BearChess Mattaufgaben</value>
   </data>
 </root>

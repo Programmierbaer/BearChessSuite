@@ -7,6 +7,8 @@ using www.SoLaNoSoft.com.BearChessBase.Implementations.pgn;
 
 namespace www.SoLaNoSoft.com.BearChessDatabase
 {
+
+
     [Serializable]
     public class DatabaseGame
     {
@@ -69,14 +71,23 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
         [XmlIgnore]
         public bool Continue { get; set; }
 
+
+        private DateTime ConvertDateString(string dateString)
+        {
+            dateString = dateString.Replace("????", "1900");
+            dateString = dateString.Replace("??", "01");
+            if (!DateTime.TryParse(dateString, out DateTime gameDate))
+            {
+                return new DateTime(1900, 1, 1);
+            }
+            return gameDate;
+        }
+
         public DatabaseGame(PgnGame pgnGame, Move[] moveList, CurrentGame currentGame)
         {
             CurrentGame = currentGame;
             PgnGame = pgnGame;
-            if (!DateTime.TryParse(pgnGame.GameDate.Replace("??", "01"), out _gameDate))
-            {
-                _gameDate = DateTime.Now;
-            }
+            _gameDate = ConvertDateString(pgnGame.GameDate);
             var myMove = new List<Move>();
             foreach (var move in moveList)
             {

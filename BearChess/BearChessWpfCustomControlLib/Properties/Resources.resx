@@ -3024,4 +3024,28 @@
   <data name="DownloadChessCom" xml:space="preserve">
     <value>Download from Chess.com</value>
   </data>
+  <data name="SkipError" xml:space="preserve">
+    <value>Skip error if the engine already is installed</value>
+  </data>
+  <data name="PuzzleImport" xml:space="preserve">
+    <value>Import puzzles</value>
+  </data>
+  <data name="PuzzleSources" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="lichess" xml:space="preserve">
+    <value>lichess.org</value>
+  </data>
+  <data name="SelectPuzzleFile" xml:space="preserve">
+    <value>Select a puzzle file</value>
+  </data>
+  <data name="OwnPuzzles" xml:space="preserve">
+    <value>Own puzzles</value>
+  </data>
+  <data name="PuzzleSource" xml:space="preserve">
+    <value>Source:</value>
+  </data>
+  <data name="MateInByBearChess" xml:space="preserve">
+    <value>BearChess mate puzzles</value>
+  </data>
 </root>

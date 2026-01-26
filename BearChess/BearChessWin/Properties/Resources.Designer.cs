@@ -4921,6 +4921,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die BearChess mate puzzles ähnelt.
+        /// </summary>
+        public static string MateInByBearChess {
+            get {
+                return ResourceManager.GetString("MateInByBearChess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Maximal number of games: ähnelt.
         /// </summary>
         public static string MaximalNumberOfGames {
@@ -5587,6 +5596,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Own puzzles ähnelt.
+        /// </summary>
+        public static string OwnPuzzles {
+            get {
+                return ResourceManager.GetString("OwnPuzzles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Own symbol... ähnelt.
         /// </summary>
         public static string OwnSymbol {
@@ -5970,6 +5988,42 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         public static string PurePGNExport {
             get {
                 return ResourceManager.GetString("PurePGNExport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die You must first select a source ähnelt.
+        /// </summary>
+        public static string PuzzelSourceMissing {
+            get {
+                return ResourceManager.GetString("PuzzelSourceMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Puzzle ähnelt.
+        /// </summary>
+        public static string Puzzle {
+            get {
+                return ResourceManager.GetString("Puzzle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Your puzzle database does not yet contain any puzzles. ähnelt.
+        /// </summary>
+        public static string PuzzleDatabaseEmpty {
+            get {
+                return ResourceManager.GetString("PuzzleDatabaseEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die puzzles imported ähnelt.
+        /// </summary>
+        public static string PuzzlesImported {
+            get {
+                return ResourceManager.GetString("PuzzlesImported", resourceCulture);
             }
         }
         
@@ -6667,6 +6721,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select a puzzle file ähnelt.
+        /// </summary>
+        public static string SelectPuzzleFile {
+            get {
+                return ResourceManager.GetString("SelectPuzzleFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Select a sound file ähnelt.
         /// </summary>
         public static string SelectSoundFile {
@@ -7149,6 +7212,24 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         public static string SkillLevel {
             get {
                 return ResourceManager.GetString("SkillLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Skip error if the engine already is installed ähnelt.
+        /// </summary>
+        public static string SkipError {
+            get {
+                return ResourceManager.GetString("SkipError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die solved ähnelt.
+        /// </summary>
+        public static string Solved {
+            get {
+                return ResourceManager.GetString("Solved", resourceCulture);
             }
         }
         

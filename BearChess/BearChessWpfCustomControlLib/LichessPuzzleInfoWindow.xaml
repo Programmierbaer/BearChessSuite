@@ -1,0 +1,47 @@
+﻿<Window x:Class="www.SoLaNoSoft.com.BearChessWpfCustomControlLib.LichessPuzzleInfoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib"
+        mc:Ignorable="d" WindowStartupLocation="CenterOwner" SizeToContent="Height"
+        Title="lichess.org Download" Height="400" Width="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <TextBlock Margin="10,10,10,5" Grid.Row="0" Name="TextBlockGerman1" TextWrapping="Wrap">lichess.org stellt eine große Datei mit über 5,5 Millionen
+            Aufgaben zur Verfügung. Sie können die Datei über den unten stehenden Link herunterladen. Die Datei heißt lichess_db_puzzle.csv.zst
+            und ist komprimiert.</TextBlock>
+        <TextBlock Margin="10,5,10,5" Grid.Row="1" Name="TextBlockGerman2" TextWrapping="Wrap">Zur Verwendung in BearChess müssen Sie die Datei zuerst entpacken.
+        Anschließend können Sie die CSV-Datei als Quelle für die lichess.org Puzzles auswählen.</TextBlock>
+        <TextBlock Margin="10,5,10,5" Grid.Row="2" Name="TextBlockGerman4" TextWrapping="Wrap">BearChess wählt immer zufällig eines der Aufgaben aus der Datei. </TextBlock>
+        <TextBlock Margin="10,5,10,5" Grid.Row="3" Name="TextBlockGerman5" TextWrapping="Wrap">Im Gegensatz zu Aufgaben, die aus einer Datenbank gelesen werden,
+            merkt sich BearChess nicht, welche Rätsel Sie bereits gelöst haben. Das bedeutet, dass einige Aufgaben möglicherweise wiederholt werden, aber angesichts der großen Anzahl verfügbarer Aufgaben
+            sollte dies nicht sehr oft vorkommen.</TextBlock>
+
+        <TextBlock Margin="10,10,10,5" Grid.Row="0" Name="TextBlockEN1" Visibility="Hidden" TextWrapping="Wrap">lichess.org provides a large file with over 5.5 million
+            tasks. You can download the file via the link below. The file is called lichess_db_puzzle.csv.zst
+            and is compressed.</TextBlock>
+        <TextBlock Margin="10,5,10,5" Grid.Row="1" Name="TextBlockEN2"  Visibility="Hidden" TextWrapping="Wrap">To use in BearChess, you must first unzip the file.
+            Then you can select the csv file as the source for the lichess.org puzzles.</TextBlock>
+        <TextBlock Margin="10,5,10,5" Grid.Row="2" Name="TextBlockEN4" Visibility="Hidden" TextWrapping="Wrap">BearChess will always randomly select one of the puzzles.</TextBlock>
+        <TextBlock Margin="10,5,10,5" Grid.Row="3" Name="TextBlockEN5" Visibility="Hidden" TextWrapping="Wrap">Unlike puzzles that are read from a database,
+            BearChess does not remember which puzzles you have already solved. This means that some puzzles may be repeated, but given the large number of puzzles available,
+            this should not happen very often.</TextBlock>
+
+        <TextBlock Margin="15" Name="textBlockUrl" TextWrapping="Wrap"  Grid.Row="4">
+            <Hyperlink Name="hyperlinkUrl" NavigateUri="https://database.lichess.org/#puzzles" RequestNavigate="HyperlinkUrl_OnRequestNavigate">
+                <Run Name="runtextBlockUrl">https://database.lichess.org/#puzzles</Run>
+            </Hyperlink>
+        </TextBlock>
+        <Button Grid.Row="5" Margin="10" HorizontalAlignment="Right" Width="30" Height="30"  Background="Transparent" BorderBrush="Transparent" Click="ButtonCancel_OnClick">
+            <Image Source="Assets/Icons/door_out.png" ></Image>
+        </Button>
+    </Grid>
+</Window>

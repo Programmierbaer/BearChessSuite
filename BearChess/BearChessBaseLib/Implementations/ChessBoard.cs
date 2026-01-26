@@ -820,7 +820,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
 
         public void MakeMove(int fromField, int toField, int promotionFigureId)
         {
-            string multipleAttackSign = string.Empty;
+            var multipleAttackSign = string.Empty;
             var chessFigure = _figures[fromField];
 
             if (chessFigure.Color != CurrentColor)

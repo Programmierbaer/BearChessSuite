@@ -3,8 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib"
         mc:Ignorable="d" WindowStartupLocation="CenterOwner"
-        Title="Parameter " Height="360" Width="450">
+        Title="{x:Static p:Resources.Parameter}" Height="360" Width="450">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -22,9 +23,9 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <TextBlock Height="30" VerticalAlignment="Top" TextAlignment="Center" Margin="5,0,5,5" Grid.Column="0"
-                       Grid.Row="0" Name="textBlockText">Engine</TextBlock>
+                       Grid.Row="0" Name="textBlockText" Text="{x:Static p:Resources.Engine}"/>
             <TextBox Height="30" VerticalAlignment="Top" TextAlignment="Left" HorizontalContentAlignment="Left"
-                     VerticalContentAlignment="Top" Margin="5,0,5,5" Grid.Column="1" Grid.Row="0" Name="textBoxText">Engine</TextBox>
+                     VerticalContentAlignment="Top" Margin="5,0,5,5" Grid.Column="1" Grid.Row="0" Name="textBoxText"/>
             <Button Grid.Row="0" Grid.Column="2" Name="buttonParameterFile" Click="ButtonParameter_OnClick"
                     BorderBrush="Transparent" Background="Transparent">
                 <Image Source="../Assets/Icons/folder.png" Width="16" Height="16" />
@@ -32,7 +33,7 @@
             <ListBox VerticalAlignment="Top" Margin="5" Grid.Column="1" Grid.Row="1" SelectionMode="Single"
                      SelectionChanged="ListBoxEngines_OnSelectionChanged" Name="listBoxEngines" MouseDoubleClick="ListBoxEngines_OnMouseDoubleClick" />
             <TextBlock Height="30" VerticalAlignment="Top" Name="textBlockFilter" TextAlignment="Center" Margin="5,0,5,5" Grid.Column="0"
-                       Grid.Row="2" Visibility="Visible">Filter:</TextBlock>
+                       Grid.Row="2" Visibility="Visible" Text="{x:Static p:Resources.Filter}"/>
             <TextBox Height="30" VerticalAlignment="Top" TextAlignment="Left" HorizontalContentAlignment="Left" TextChanged="TextBoxFilter_OnTextChanged"
                      VerticalContentAlignment="Top" Margin="5,0,5,5" Grid.Column="1" Grid.Row="2" Name="textBoxFilter" Visibility="Visible"/>
         </Grid>
@@ -41,7 +42,7 @@
                     Background="Transparent" ToolTip="Save">
                 <Image Source="../Assets/Icons/accept_button.png" Width="32" Height="32" />
             </Button>
-            <CheckBox VerticalAlignment="Center" Margin="10,5" Name="checkBoxSkipWarning"  DockPanel.Dock="Left">Skip error if the engine already is installed</CheckBox>
+            <CheckBox VerticalAlignment="Center" Margin="10,5" Name="checkBoxSkipWarning"  DockPanel.Dock="Left" Content="{x:Static p:Resources.SkipError}"></CheckBox>
             <Button DockPanel.Dock="Right" Name="buttonCancel" Click="ButtonCancel_OnClick" BorderBrush="Transparent"
                     Background="Transparent" ToolTip="Cancel">
                 <Image Source="../Assets/Icons/cancel.png" Width="32" Height="32" />

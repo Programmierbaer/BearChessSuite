@@ -9,13 +9,12 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
     {
 
         public string Filename { get; private set; }
-        //public PgnGame[] Games => pgnGames.Values.ToArray();
 
         public IEnumerable<PgnGame> Load(string fileName)
         {
-             Filename = fileName;
-             var sb = new StringBuilder();
-            using (var fs = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            Filename = fileName;
+            var sb = new StringBuilder();
+            using (var fs = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 using (var bs = new BufferedStream(fs))
                 {
@@ -31,10 +30,11 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
                             {
                                 continue;
                             }
+
                             if (!startNewGame && line.StartsWith("[Event", StringComparison.OrdinalIgnoreCase))
                             {
                                 startNewGame = true;
-                                if (sb.Length> 0)
+                                if (sb.Length > 0)
                                 {
                                     currentGame = GetGame(sb.ToString());
                                     sb.Clear();
@@ -49,9 +49,11 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
                                 {
                                     startNewGame = false;
                                 }
+
                                 sb.AppendLine(line);
                             }
                         }
+
                         if (sb.Length > 0)
                         {
                             currentGame = GetGame(sb.ToString());
@@ -61,37 +63,9 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
                     }
                 }
             }
-
         }
 
-        private string ReadingComment(char parenthesis, string line, ref int index)
-        {
-            string comment = string.Empty;
-            int i = 0;
-            for (i = index+1;i < line.Length; i++)
-            {
-                if (line[i] == '{')
-                {
-                    comment += ReadingComment('}', line, ref i);
-                    continue;
-                }
-                if (line[i] == '(')
-                {
-                    comment += ReadingComment(')', line, ref i);
-                    continue;
-                }
-                if (line[i] == parenthesis)
-                {
-                    break;
-                }
-                comment += line[i];
-               
-            }
-
-            index = i;
-            return comment;
-        }
-
+    
         public PgnGame GetGame(string pgnGame)
         {
             PgnGame currentGame = null;
@@ -318,11 +292,40 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
                 }
                 return currentGame;
             }
-            catch 
+            catch
             {
+         
                 return null;
             }
-        }    
-      
+        }
+
+        private string ReadingComment(char parenthesis, string line, ref int index)
+        {
+            string comment = string.Empty;
+            int i = 0;
+            for (i = index + 1; i < line.Length; i++)
+            {
+                if (line[i] == '{')
+                {
+                    comment += ReadingComment('}', line, ref i);
+                    continue;
+                }
+                if (line[i] == '(')
+                {
+                    comment += ReadingComment(')', line, ref i);
+                    continue;
+                }
+                if (line[i] == parenthesis)
+                {
+                    break;
+                }
+                comment += line[i];
+
+            }
+
+            index = i;
+            return comment;
+        }
+
     }
 }

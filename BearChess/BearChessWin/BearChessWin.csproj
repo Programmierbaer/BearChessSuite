@@ -1740,6 +1740,9 @@
   <ItemGroup>
     <Resource Include="Assets\Icons\calendar_view_day.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\help.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

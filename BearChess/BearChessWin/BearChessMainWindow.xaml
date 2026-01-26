@@ -151,11 +151,14 @@
                                 <Image Source="Assets/Icons/book.png" />
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Name="menuItemStartPuzzle" Click="MenuItemStartPuzzle_OnClick" Header="{x:Static p:Resources.Puzzle}">
-                            <MenuItem.Icon>
-                                <Image Source="Assets/Icons/setpieces.png" />
-                            </MenuItem.Icon>
-                        </MenuItem>
+                        
+                        
+                            <MenuItem Name="menuItemStartPuzzle" Click="MenuItemStartPuzzle_OnClick" Header="{x:Static p:Resources.Puzzle}">
+                                <MenuItem.Icon>
+                                    <Image Source="Assets/Icons/setpieces.png" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+
                     </MenuItem>
                     <MenuItem Header="{x:Static p:Resources.Duel}" Name="menuItemDuel">
                         <MenuItem.Icon>

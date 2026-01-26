@@ -490,9 +490,20 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             }
 
             var figureSymbol = FigureId.FigureIdToFenCharacter[Figure].ToUpper();
-            if (figureSymbol.Equals("P"))
+            if (CapturedFigure != FigureId.NO_PIECE)
             {
-                _pgnMove = figureSymbol.Equals("P") ? ToFieldName : figureSymbol + ToFieldName;
+                _pgnMove = figureSymbol.Equals("P") ?  FromFieldName.ToLower()+"x"+ToFieldName.ToLower() : figureSymbol + ShortMoveIdentifier + "x" + ToFieldName.ToLower();
+            }
+            else 
+            {
+                //if (string.IsNullOrWhiteSpace(ShortMoveIdentifier))
+                //{
+                //    _pgnMove = figureSymbol.Equals("P") ? ToFieldName.ToLower() : figureSymbol + ToFieldName.ToLower();
+                //}
+                //else
+                {
+                    _pgnMove = figureSymbol.Equals("P") ? ShortMoveIdentifier+ ToFieldName.ToLower() : figureSymbol +ShortMoveIdentifier + ToFieldName.ToLower();
+                }
             }
 
             return _pgnMove;

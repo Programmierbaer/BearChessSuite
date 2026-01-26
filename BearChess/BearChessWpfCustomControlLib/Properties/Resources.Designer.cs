@@ -4867,6 +4867,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die lichess.org ähnelt.
+        /// </summary>
+        public static string lichess {
+            get {
+                return ResourceManager.GetString("lichess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Load and continue ähnelt.
         /// </summary>
         public static string LoadAndContinue {
@@ -5097,6 +5106,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string MateIn {
             get {
                 return ResourceManager.GetString("MateIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die BearChess mate puzzles ähnelt.
+        /// </summary>
+        public static string MateInByBearChess {
+            get {
+                return ResourceManager.GetString("MateInByBearChess", resourceCulture);
             }
         }
         
@@ -5749,6 +5767,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Own puzzles ähnelt.
+        /// </summary>
+        public static string OwnPuzzles {
+            get {
+                return ResourceManager.GetString("OwnPuzzles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Own symbol... ähnelt.
         /// </summary>
         public static string OwnSymbol {
@@ -6181,6 +6208,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Import puzzles ähnelt.
+        /// </summary>
+        public static string PuzzleImport {
+            get {
+                return ResourceManager.GetString("PuzzleImport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Published: ähnelt.
         /// </summary>
         public static string PuzzlePublishTime {
@@ -6213,6 +6249,24 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string PuzzleSolution {
             get {
                 return ResourceManager.GetString("PuzzleSolution", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Source: ähnelt.
+        /// </summary>
+        public static string PuzzleSource {
+            get {
+                return ResourceManager.GetString("PuzzleSource", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Source ähnelt.
+        /// </summary>
+        public static string PuzzleSources {
+            get {
+                return ResourceManager.GetString("PuzzleSources", resourceCulture);
             }
         }
         
@@ -7009,6 +7063,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Select a puzzle file ähnelt.
+        /// </summary>
+        public static string SelectPuzzleFile {
+            get {
+                return ResourceManager.GetString("SelectPuzzleFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Select a sound file ähnelt.
         /// </summary>
         public static string SelectSoundFile {
@@ -7572,6 +7635,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string SizeBytes {
             get {
                 return ResourceManager.GetString("SizeBytes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Skip error if the engine already is installed ähnelt.
+        /// </summary>
+        public static string SkipError {
+            get {
+                return ResourceManager.GetString("SkipError", resourceCulture);
             }
         }
         

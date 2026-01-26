@@ -106,7 +106,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
 
         public string GetValue(string keyWord)
         {
-            return _userDefined.ContainsKey(keyWord) ? _userDefined[keyWord] : string.Empty;
+            return _userDefined != null && _userDefined.TryGetValue(keyWord, out var value) ? value : string.Empty;
         }
 
         public void AddValue(string keyWord, string keyValue)
@@ -143,8 +143,8 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
         public string GetMoveList()
         {
             var sb = new StringBuilder();
-            int moveCnt = 0;
-            bool newMove = true;
+            var moveCnt = 0;
+            var newMove = true;
             foreach (var s in _moveList)
             {
                 if (newMove)
@@ -180,7 +180,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
                 if (s.Equals("Date"))
                 {
                     var value = GetValue(s);
-                    if (DateTime.TryParse(value.Replace("??", "01"), out  DateTime gameDate))
+                    if (DateTime.TryParse(value.Replace("??", "01"), out  var gameDate))
                     {
                         value = gameDate.ToString("yyyy.MM.dd");
 
@@ -218,8 +218,8 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations.pgn
                 sb.AppendLine($"[{key} \"{value}\"]");
             }
 
-            int moveCnt = 0;
-            bool newMove = true;
+            var moveCnt = 0;
+            var newMove = true;
             foreach (var s in _moveList)
             {
                 if (newMove)
