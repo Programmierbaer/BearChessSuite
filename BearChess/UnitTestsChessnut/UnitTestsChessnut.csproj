@@ -60,6 +60,10 @@
       <Project>{b298b210-c007-4f95-84ca-b0b8ad26281b}</Project>
       <Name>BearChessBaseLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\BearChessEChessBoard\BearChessEChessBoard\BearChessEChessBoard.csproj">
+      <Project>{a6bcdc78-1edc-40c7-936f-880423360ba3}</Project>
+      <Name>BearChessEChessBoard</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EChessBoards\Chessnut\ChessnutEBoard\ChessnutChessBoard\ChessnutChessBoard.csproj">
       <Project>{3b7651f1-e9ef-4ee0-9671-dfeeb2ddd64f}</Project>
       <Name>ChessnutChessBoard</Name>

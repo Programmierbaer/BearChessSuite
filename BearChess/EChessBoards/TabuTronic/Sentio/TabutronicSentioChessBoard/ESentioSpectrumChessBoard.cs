@@ -435,7 +435,7 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Sentio.ChessBoard
                 {
                     _flashFields.TryDequeue(out _);
                     _logger.LogDebug($"EB: Set error LEDs for {ledsParameter}");
-                    SetLedForFields(fieldNamesList.ToArray(), rgbMoveFrom);
+                    SetLedForFields(fieldNamesList.Except(ledsParameter.InvalidFieldNames).ToArray(), rgbMoveFrom);
                     SetLedForFields(ledsParameter.InvalidFieldNames, rgbInvalid);
 
 

@@ -311,7 +311,7 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
                 {
                     _flashFields.TryDequeue(out _);
                     _logger.LogDebug($"EB: Set error LEDs for {ledsParameter}");
-                    SetLedForFields(fieldNamesList.ToArray(), rgbMoveFrom);
+                    SetLedForFields(fieldNamesList.Except(ledsParameter.InvalidFieldNames).ToArray(), rgbMoveFrom);
                     SetLedForFields(ledsParameter.InvalidFieldNames, rgbInvalid);
 
 
@@ -775,7 +775,7 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
                             fenLine.Contains(UnknownPieceCode) ? string.Empty : fenLine,
                             boardData.Repeated);
                     }
-                    if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(fenLine))
+                    if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(fenLine) && !_inDemoMode)
                     {
                         var fastChessBoard = new FastChessBoard();
                         fastChessBoard.Init(fenLine, Array.Empty<string>());

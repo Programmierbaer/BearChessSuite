@@ -152,12 +152,12 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
         };
 
 
-        private string _lastSendLeds;
+        private string _lastSendLEDs;
         private EnumFlashMode _flashMode = EnumFlashMode.FlashAsync;
         private readonly bool _showMoveLine;
         private readonly ConcurrentQueue<ProbingMove[]> _probingFields = new ConcurrentQueue<ProbingMove[]>();
         private bool _release = false;
-        private bool _eOneBoard = false;
+        private readonly bool _eOneBoard = false;
 
         private string _eprom
         {
@@ -200,13 +200,12 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             }
             else
             {
-                Information = "Millennium " + _serialCommunication.BoardInformation;
+                Information = $"Millennium {_serialCommunication.BoardInformation}";
             }
 
             _eOneBoard = _serialCommunication.BoardInformation.Equals(Constants.MeOne);
 
-            PieceRecognition = _serialCommunication.BoardInformation != Constants.MeOne && !_useElfacun &&
-                               !_useChesstimation;
+            PieceRecognition = !_eOneBoard && !_useElfacun && !_useChesstimation;
             ValidForAnalyse = PieceRecognition;
             SelfControlled = false;
             MultiColorLEDs = true;
@@ -235,7 +234,6 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                     if (!_acceptProbingMoves)
                     {
                         _probingFields.TryDequeue(out _);
-                        // SetAllLEDsOff(true);
                         continue;
                     }
 
@@ -256,7 +254,10 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                     {
                         var ledForFields = GetLedForProbingFields(showFields.ToArray(),
                             _boardConfiguration.ShowPossibleMovesEval ? probingMove.FieldName : string.Empty, true);
-                        _serialCommunication.Send(_lastSendLeds = $"L22{ledForFields}");
+                        lock (_locker)
+                        {
+                            _serialCommunication.Send(_lastSendLEDs = $"L22{ledForFields}");
+                        }
                     }
 
                     Thread.Sleep(100);
@@ -407,7 +408,7 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             _probingFields.TryDequeue(out _);
             if ((ledsParameter.FieldNames.Length == 2) && _showMoveLine)
             {
-                string[] moveLine =
+                var moveLine =
                     MoveLineHelper.GetMoveLine(ledsParameter.FieldNames[0], ledsParameter.FieldNames[1]);
                 _logger.LogDebug($"Extend move line: {string.Join(" ", moveLine)} ");
                 ledForFields = GetLedForFields(moveLine, ledsParameter.IsThinking, _ledCorner);
@@ -417,16 +418,16 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                 ledForFields = GetLedForFields(ledsParameter.FieldNames, ledsParameter.IsThinking, _ledCorner);
             }
 
-            if (!string.IsNullOrWhiteSpace(_lastSendLeds) && _lastSendLeds.Equals($"L22{ledForFields}"))
+            if (!string.IsNullOrWhiteSpace(_lastSendLEDs) && _lastSendLEDs.Equals($"L22{ledForFields}"))
             {
                 return;
             }
 
-            _lastSendLeds = $"L22{ledForFields}";
+            _lastSendLEDs = $"L22{ledForFields}";
             _logger?.LogDebug($"SendFields : {string.Join(" ", ledsParameter.FieldNames)}");
             lock (_locker)
             {
-                _serialCommunication.Send(_lastSendLeds);
+                _serialCommunication.Send(_lastSendLEDs);
                 if (ledsParameter.FieldNames.Length == 1 && (_useChesstimation || _useElfacun))
                 {
                     _serialCommunication.Send("S");
@@ -570,12 +571,14 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
 
         public override void RequestDump()
         {
-            if (!PieceRecognition)
+            if (PieceRecognition)
             {
-                lock (_locker)
-                {
-                    _serialCommunication.Send("G");
-                }
+                return;
+            }
+
+            lock (_locker)
+            {
+                _serialCommunication.Send("G");
             }
         }
 
@@ -594,8 +597,6 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             {
                 if (!dataFromBoard.FromBoard.Contains("?"))
                 {
-
-
                     if (dataFromBoard.FromBoard.StartsWith(
                             "srnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR"))
                     {
@@ -629,7 +630,7 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
                 return new DataFromBoard(result, dataFromBoard.Repeated);
             }
 
-            if (!string.IsNullOrWhiteSpace(_lastFenLine) && !_lastFenLine.Equals(result))
+            if (!string.IsNullOrWhiteSpace(_lastFenLine) && !_lastFenLine.Equals(result) && !_inDemoMode)
             {
 
                 var fastChessBoard = new FastChessBoard();
@@ -680,12 +681,14 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
             _lastFenLine = string.Empty;
             _probingFields.TryDequeue(out _);
             _currentEval = "0";
-            if (!PieceRecognition)
+            if (PieceRecognition)
             {
-                lock (_locker)
-                {
-                    _serialCommunication.Send("S");
-                }
+                return;
+            }
+
+            lock (_locker)
+            {
+                _serialCommunication.Send("S");
             }
         }
 

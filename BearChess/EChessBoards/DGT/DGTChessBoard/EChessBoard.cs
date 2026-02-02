@@ -664,7 +664,7 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                                 {
                                     return new DataFromBoard(_currentFen,3);
                                 }
-                                if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(_currentFen))
+                                if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(_currentFen) && !_inDemoMode)
                                 {
 
                                     var fastChessBoard = new FastChessBoard();

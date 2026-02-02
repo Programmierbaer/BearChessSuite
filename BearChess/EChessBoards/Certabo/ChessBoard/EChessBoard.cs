@@ -635,7 +635,7 @@ namespace www.SoLaNoSoft.com.BearChess.CertaboChessBoard
                             fenLine.Contains(UnknownPieceCode) ? string.Empty : fenLine,
                             boardData.Repeated);
                     }
-                    if (!string.IsNullOrWhiteSpace(_lastFenLine) && !_lastFenLine.Equals(fenLine))
+                    if (!string.IsNullOrWhiteSpace(_lastFenLine) && !_lastFenLine.Equals(fenLine) && !_inDemoMode)
                     {
 
                         var fastChessBoard = new FastChessBoard();

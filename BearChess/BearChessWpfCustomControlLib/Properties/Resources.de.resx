@@ -3048,4 +3048,19 @@
   <data name="MateInByBearChess" xml:space="preserve">
     <value>BearChess Mattaufgaben</value>
   </data>
+  <data name="ClickToCancel" xml:space="preserve">
+    <value>Klicken um abzubrechen</value>
+  </data>
+  <data name="DatabaseReset" xml:space="preserve">
+    <value>Datenbank zurücksetzen</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Warnung</value>
+  </data>
+  <data name="PuzzleRequestNext" xml:space="preserve">
+    <value>Nächstes Puzzle abfragen</value>
+  </data>
+  <data name="PuzzleRequestRandom" xml:space="preserve">
+    <value>Nächstes zufälliges Puzzle abfragen</value>
+  </data>
 </root>

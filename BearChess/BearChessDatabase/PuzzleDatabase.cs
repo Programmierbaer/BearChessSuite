@@ -12,7 +12,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
     public class PuzzleDatabase : IDatabase
     {
 
-        public static string BearChessDbFileName = "puzzle_795D43D763D347F1B53303723B39CFE2.db";
+        public static string BearChessDbFileName = "puzzle_7040F19DE68142369C2368FC0A6D585F.db";
         public static string ImportDbFileName = "puzzle_5D3926EBE6A84D32AD5F66A3FD2989A6.db";
 
         public bool InError => _inError;
@@ -135,6 +135,53 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             }
             catch (Exception ex)
             {
+                _logging?.LogError(ex);
+            }
+
+            _connection.Close();
+
+            return puzzle;
+        }
+
+        public DatabasePuzzle LoadNextPuzzle(int id)
+        {
+            if (!_dbExists)
+            {
+                if (!CreateTables())
+                {
+                    return null;
+                }
+            }
+
+            var puzzle = new DatabasePuzzle();
+
+            try
+            {
+
+                Open();
+                string sql = @"SELECT id, label, event, pgn, playCount, solved from puzzles WHERE solved=0 and id>@id ORDER BY id limit 1;";
+                using (var cmd = new SQLiteCommand(sql, _connection))
+                {
+                    cmd.Parameters.Add("@id", DbType.Int32).Value = id;
+                    using (var rdr = cmd.ExecuteReader())
+                    {                        
+                        if (rdr.Read())
+                        {
+                            var pgnLoader = new PgnLoader();
+                            var pgn = rdr.GetString(3);
+                            puzzle.Id = rdr.GetInt32(0);
+                            puzzle.Label = rdr.GetString(1);
+                            puzzle.PgnGame = pgnLoader.GetGame(pgn);
+                            puzzle.PlayCount = rdr.GetInt32(4);
+                            puzzle.IsSolved = false;
+                        }
+                        rdr.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
                 _logging?.LogError(ex);
             }
 

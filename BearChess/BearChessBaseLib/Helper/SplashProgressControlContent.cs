@@ -16,7 +16,7 @@
         public string SubLabel { get; set; }
 
         /// <summary>
-        /// Progressbar is usong  <see cref="MaxValue"/> und <see cref="CurrentValue"/>.
+        /// Progressbar is using  <see cref="MaxValue"/> und <see cref="CurrentValue"/>.
         /// </summary>
         public bool ShowValues { get; set; }
 

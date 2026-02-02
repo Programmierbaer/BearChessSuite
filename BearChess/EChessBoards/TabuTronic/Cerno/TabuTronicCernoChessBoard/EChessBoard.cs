@@ -626,7 +626,7 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
                             fenLine.Contains(UnknownPieceCode) ? string.Empty : fenLine,
                             boardData.Repeated);
                     }
-                    if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(fenLine))
+                    if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(fenLine) && !_inDemoMode)
                     {
 
                         var fastChessBoard = new FastChessBoard();

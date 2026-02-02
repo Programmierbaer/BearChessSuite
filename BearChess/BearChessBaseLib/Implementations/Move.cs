@@ -502,10 +502,14 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                 //}
                 //else
                 {
-                    _pgnMove = figureSymbol.Equals("P") ? ShortMoveIdentifier+ ToFieldName.ToLower() : figureSymbol +ShortMoveIdentifier + ToFieldName.ToLower();
+                    _pgnMove = figureSymbol.Equals("P") ? ShortMoveIdentifier + ToFieldName.ToLower() : figureSymbol + ShortMoveIdentifier + ToFieldName.ToLower();
                 }
             }
 
+            //if (PromotedFigure != FigureId.NO_PIECE)
+            {
+                _pgnMove += FigureId.GetFigureIdToFenCharacter(PromotedFigure);
+            }
             return _pgnMove;
         }
 

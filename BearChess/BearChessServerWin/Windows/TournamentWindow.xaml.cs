@@ -177,8 +177,8 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
                 configBoard.BlackPlayerName(configServerBoard.BlackPlayerName);
                 _bearChessController.AddWhiteEBoard(configServerBoard.WhiteEBoard);
                 _bearChessController.AddBlackEBoard(configServerBoard.BlackEBoard);
-                _bearChessController.TokenAssigned(boardId, configServerBoard.WhiteConnectionId);
-                _bearChessController.TokenAssigned(boardId, configServerBoard.BlackConnectionId);
+                _bearChessController.AssignToken(boardId, configServerBoard.WhiteConnectionId);
+                _bearChessController.AssignToken(boardId, configServerBoard.BlackConnectionId);
                 if (!string.IsNullOrWhiteSpace(configServerBoard.WhiteConnectionId))
                 {
                     _bearChessController.SendToClient(configServerBoard.WhiteConnectionId,

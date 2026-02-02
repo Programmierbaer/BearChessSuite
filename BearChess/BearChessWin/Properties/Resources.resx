@@ -2897,4 +2897,13 @@
   <data name="Puzzle" xml:space="preserve">
     <value>Puzzle</value>
   </data>
+  <data name="ClickToCancel" xml:space="preserve">
+    <value>Click to cancel</value>
+  </data>
+  <data name="ResetDatabase" xml:space="preserve">
+    <value>Reset database</value>
+  </data>
+  <data name="BoardNotSuitableForPuzzle" xml:space="preserve">
+    <value>This board is not suitable for puzzles</value>
+  </data>
 </root>

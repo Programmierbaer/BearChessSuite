@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessWin;
 
 namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
@@ -90,6 +92,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             WindowStartupLocation = WindowStartupLocation.Manual;
             Left = left;
             Top = top;
+
         }
 
 
@@ -157,5 +160,11 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         }
 
         #endregion
+
+        private void SplashWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            Configuration.Instance.SetDoubleValue("SplashWinLeft", Left);
+            Configuration.Instance.SetDoubleValue("SplashWinTop", Top);
+        }
     }
 }

@@ -277,7 +277,7 @@ namespace www.SoLaNoSoft.com.BearChess.HoSChessBoard
             {
                 return new DataFromBoard(_lastResult, dataFromBoard.Repeated);
             }
-            if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(_lastResult) )
+            if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(_lastResult) && !_inDemoMode )
             {
                 var fastChessBoard = new FastChessBoard();
                 fastChessBoard.Init(_lastResult, Array.Empty<string>());

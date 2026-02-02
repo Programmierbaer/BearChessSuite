@@ -225,7 +225,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
                 return;
             }
             
-            string[] fieldNames = ledsParameter.FieldNames.Length > 0
+            var fieldNames = ledsParameter.FieldNames.Length > 0
                 ? new List<string>(ledsParameter.FieldNames).ToArray()
                 : new List<string>(ledsParameter.InvalidFieldNames).ToArray();
             if (fieldNames.Length == 0)
@@ -257,7 +257,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
                     return;
                 }
             }
-            _logger?.LogDebug($"B: set leds for {joinedString}");
+            _logger?.LogDebug($"B: set LEDs for {joinedString}");
             if (ledsParameter.IsThinking && fieldNames.Length > 1)
             {
                 _flashFields.Enqueue(fieldNames);
@@ -267,9 +267,9 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
 
             _prevJoinedString = joinedString;
             byte[] result = { 0, 0, 0, 0, 0, 0, 0, 0 };
-            if (fieldNames.Length == 2 && _showMoveLine)
+            if (fieldNames.Length == 2 && _showMoveLine && !ledsParameter.IsError)
             {
-                string[] moveLine = MoveLineHelper.GetMoveLine(fieldNames[0], fieldNames[1]);
+                var moveLine = MoveLineHelper.GetMoveLine(fieldNames[0], fieldNames[1]);
                 foreach (string fieldName in moveLine)
                 {
                     result = UpdateLedsForField(fieldName, result);
@@ -329,6 +329,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
             }
             _probingFields.TryDequeue(out _);
             _flashFields.TryDequeue(out _);
+            _prevJoinedString = string.Empty;
             _serialCommunication.Send(_allLEDSOff);
         }
 
@@ -340,6 +341,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
             }
             _probingFields.TryDequeue(out _);
             _flashFields.TryDequeue(out _);
+            _prevJoinedString = string.Empty;
             _serialCommunication.Send(_allLEDSOn);
 
         }
@@ -492,7 +494,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
             {
                 return new DataFromBoard(result, dataFromBoard.Repeated);
             }
-            if (!string.IsNullOrWhiteSpace(_lastResult) && !_lastResult.Equals(result))
+            if (!string.IsNullOrWhiteSpace(_lastResult) && !_lastResult.Equals(result) && !_inDemoMode)
             {
 
                 var fastChessBoard = new FastChessBoard();
@@ -501,6 +503,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
                 {
                     if (fastChessBoard.WhiteKingOnCastleMove())
                     {
+                        _logger?.LogDebug($"White king on castle move: return {_lastResult}");
                         return new DataFromBoard(
                             _lastResult.Contains(UnknownPieceCode) ? string.Empty : _lastResult,
                             dataFromBoard.Repeated);
@@ -511,6 +514,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
                 {
                     if (fastChessBoard.BlackKingOnCastleMove())
                     {
+                        _logger?.LogDebug($"Black king on castle move: return {_lastResult}");
                         return new DataFromBoard(
                             _lastResult.Contains(UnknownPieceCode) ? string.Empty : _lastResult,
                             dataFromBoard.Repeated);

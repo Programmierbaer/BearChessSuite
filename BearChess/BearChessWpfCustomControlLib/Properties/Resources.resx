@@ -3048,4 +3048,19 @@
   <data name="MateInByBearChess" xml:space="preserve">
     <value>BearChess mate puzzles</value>
   </data>
+  <data name="ClickToCancel" xml:space="preserve">
+    <value>Click to cancel</value>
+  </data>
+  <data name="DatabaseReset" xml:space="preserve">
+    <value>Reset database</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="PuzzleRequestNext" xml:space="preserve">
+    <value>Request next puzzle</value>
+  </data>
+  <data name="PuzzleRequestRandom" xml:space="preserve">
+    <value>Request next random puzzle</value>
+  </data>
 </root>

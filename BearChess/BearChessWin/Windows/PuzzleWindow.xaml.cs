@@ -3,20 +3,17 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Resources;
-using System.Security.Policy;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Navigation;
-using Microsoft.Win32;
-using www.SoLaNoSoft.com.BearChess.BearChessCommunication.lichess;
 using www.SoLaNoSoft.com.BearChessBase;
-using www.SoLaNoSoft.com.BearChessBase.Implementations;
 using www.SoLaNoSoft.com.BearChessBase.Implementations.pgn;
 using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 using www.SoLaNoSoft.com.BearChessDatabase;
 using www.SoLaNoSoft.com.BearChessWpfCustomControlLib;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+
 
 namespace www.SoLaNoSoft.com.BearChessWin
 {
@@ -27,6 +24,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
     {
 
         public event EventHandler<PuzzleSource> NextPuzzle;
+        public event EventHandler<PuzzleSource> NextPuzzleRandom;
+        public event EventHandler<PuzzleSource> ResetDatabase;
         public event EventHandler<PuzzleSource> PuzzleOfToday;
         public event EventHandler<PuzzleSource> SolutionRequested;
         public event EventHandler<PuzzleSource> HintRequested;
@@ -39,7 +38,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private PuzzleSource _puzzleSource;
         private ResourceManager _rm;
         private readonly ILogging _logger;
-
+        private Timer _timer = null;
+        private bool _lastRequestWasRandom = false;
+    
         public PuzzleWindow(Configuration configuration, string dbPath, ILogging logger)
         {
             InitializeComponent();
@@ -56,7 +57,37 @@ namespace www.SoLaNoSoft.com.BearChessWin
             Height = _configuration.GetDoubleValue("PuzzleWindowHeight", 320);
             buttonHint.IsEnabled = false;
             buttonResign.IsEnabled = false;
+            _timer = new Timer(1000);
+            _timer.AutoReset = true;
+            _timer.Elapsed += TimerOnElapsed;
             UpdateSourceSelection();
+        }
+
+        private void TimerOnElapsed(object sender, ElapsedEventArgs e)
+        {
+            Dispatcher?.Invoke(() =>
+            {
+                var value = progressBarSeconds.Value;
+                if (value < progressBarSeconds.Maximum)
+                {
+                    progressBarSeconds.Value = value + 1;
+                }
+                else
+                {
+                    _timer.Enabled = false;
+                    progressBarSeconds.Value = 0;
+                    if (_lastRequestWasRandom)
+                    {
+
+                        NextPuzzleRandom?.Invoke(this, _puzzleSource);
+                    }
+                    else
+                    {
+                        NextPuzzle?.Invoke(this, _puzzleSource);
+                    }
+                }
+            });
+
         }
 
         public void IncTries()
@@ -65,15 +96,29 @@ namespace www.SoLaNoSoft.com.BearChessWin
             textBlocktTries.Text = _tries.ToString();
         }
 
+        public void ResetSolvedCount()
+        {
+            _solvedCount = 0;
+            _tries = 0;
+            UpdateSourceSelection();
+        }
+
         public void PuzzleSolved()
         {
             buttonHint.IsEnabled = false;
             buttonResign.IsEnabled = false;
             imageSolved.Visibility = Visibility.Visible;
+            if (checkBoxCountdown.IsChecked.HasValue && checkBoxCountdown.IsChecked.Value)
+            {
+                progressBarSeconds.Value = 0;
+                _timer.Enabled = true;
+            }
         }
 
         public void SetPuzzle(PgnGame pgnGame, int moveCount, DateTime dateTime, string url, int totalCount, int solvedCount)
         {
+            _timer.Enabled = false;
+            progressBarSeconds.Value = 0;
             _tries = 0;
             _totalCount = totalCount;
             _solvedCount = solvedCount;
@@ -112,9 +157,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _configuration.SetDoubleValue("PuzzleWindowLeft", Left);
             _configuration.SetDoubleValue("PuzzleWindowWidth", Width);
             _configuration.SetDoubleValue("PuzzleWindowHeight", Height);
+            _timer.Enabled = false;
+            _timer.Close();
         }
 
-        private void ButtonRefresh_OnClick(object sender, RoutedEventArgs e)
+        private void ButtonNextPuzzle_OnClick(object sender, RoutedEventArgs e)
         {
             if (_puzzleSource == PuzzleSource.None)
             {
@@ -122,6 +169,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+            _lastRequestWasRandom = false;
             NextPuzzle?.Invoke(this, _puzzleSource);
         }
 
@@ -154,6 +202,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 return;
             }
+            _lastRequestWasRandom = false;
             PuzzleOfToday?.Invoke(this, _puzzleSource);
         }
 
@@ -162,6 +211,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _puzzleSource = PuzzleSource.ChessCom;
             _solvedCount = 0;
             _totalCount = 0;
+            _lastRequestWasRandom = true;
             ClearInfos();
             UpdateSourceSelection();
         }
@@ -177,18 +227,17 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     return;
                 }
-
             }
             _solvedCount = 0;
             _totalCount = 0;
             _puzzleSource = PuzzleSource.Lichess;
+            _lastRequestWasRandom = true;
             ClearInfos();
             UpdateSourceSelection();
         }
 
         private void MenuItemBearChess_OnClick(object sender, RoutedEventArgs e)
         {
-          
             _puzzleSource = PuzzleSource.BearChess;
             _solvedCount = 0;
             _totalCount = 0;
@@ -228,7 +277,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     _puzzleSource = PuzzleSource.None;
                 }
             }
-
+            buttonNextPuzzle.IsEnabled = _puzzleSource == PuzzleSource.BearChess || _puzzleSource == PuzzleSource.Database;
+            buttonNextPuzzle.Visibility = _puzzleSource == PuzzleSource.BearChess || _puzzleSource == PuzzleSource.Database ? Visibility.Visible : Visibility.Hidden;
+            buttonDatabaseReset.IsEnabled = _puzzleSource == PuzzleSource.BearChess || _puzzleSource == PuzzleSource.Database;
+            buttonDatabaseReset.Visibility = _puzzleSource == PuzzleSource.BearChess || _puzzleSource == PuzzleSource.Database ? Visibility.Visible : Visibility.Hidden;
             buttonToday.IsEnabled = _puzzleSource == PuzzleSource.ChessCom;
             buttonToday.Visibility = _puzzleSource == PuzzleSource.ChessCom ? Visibility.Visible : Visibility.Hidden;
             imageBearChess.Visibility = _puzzleSource == PuzzleSource.BearChess ? Visibility.Visible : Visibility.Hidden;
@@ -297,8 +349,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void MenuItemHelpLichess_OnClick(object sender, RoutedEventArgs e)
         {
-            var helpWindow = new LichessPuzzleInfoWindow();
-            helpWindow.Owner = this;
+            var helpWindow = new LichessPuzzleInfoWindow
+            {
+                Owner = this
+            };
             helpWindow.ShowDialog();
         }
 
@@ -359,7 +413,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private async void MenuItemImportPuzzle_OnClick(object sender, RoutedEventArgs e)
         {
-
             var openFileDialog = new OpenFileDialog { Filter = "Puzzle|*.pgn;" };
             var showDialog = openFileDialog.ShowDialog(this);
             if (!showDialog.Value || string.IsNullOrWhiteSpace(openFileDialog.FileName))
@@ -377,6 +430,52 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 BearChessMessageBox.Show(ex.Message,
                     _rm.GetString("Error"),
                     MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CheckBoxCountdown_OnUnchecked(object sender, RoutedEventArgs e)
+        {
+            _timer.Enabled = false;
+            progressBarSeconds.Value = 0;
+            progressBarSeconds.Maximum = numericUpDownUserControlDuration.Value;
+        }
+
+        private void NumericUpDownUserControlDuration_OnValueChanged(object sender, int e)
+        { 
+            progressBarSeconds.Value = 0;
+            progressBarSeconds.Maximum = numericUpDownUserControlDuration.Value;
+        }
+
+        private void CheckBoxCountdown_OnChecked(object sender, RoutedEventArgs e)
+        {
+            if (imageSolved.Visibility == Visibility.Visible)
+            {
+                progressBarSeconds.Value = 0;
+                progressBarSeconds.Maximum = numericUpDownUserControlDuration.Value;
+                _timer.Enabled = true;
+            }
+        }
+
+        private void ButtonNextPuzzleRandom_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (_puzzleSource == PuzzleSource.None)
+            {
+                BearChessMessageBox.Show(_rm.GetString("PuzzelSourceMissing"), _rm.GetString("MissingInformation"),
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            _lastRequestWasRandom = true;
+            NextPuzzleRandom?.Invoke(this, _puzzleSource);
+        }
+
+        private void ButtonDatabaseReset_OnClick(object sender, RoutedEventArgs e)
+        {
+            var messageBoxResult = BearChessMessageBox.Show(_rm.GetString("ResetDatabase")+"?", _rm.GetString("Warning"),
+                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                ResetDatabase?.Invoke(this, _puzzleSource);
             }
         }
     }

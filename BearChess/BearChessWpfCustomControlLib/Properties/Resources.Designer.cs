@@ -1501,6 +1501,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Click to cancel ähnelt.
+        /// </summary>
+        public static string ClickToCancel {
+            get {
+                return ResourceManager.GetString("ClickToCancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Click to continue ähnelt.
         /// </summary>
         public static string ClickToContinue {
@@ -2649,6 +2658,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string DatabaseMenu {
             get {
                 return ResourceManager.GetString("DatabaseMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Reset database ähnelt.
+        /// </summary>
+        public static string DatabaseReset {
+            get {
+                return ResourceManager.GetString("DatabaseReset", resourceCulture);
             }
         }
         
@@ -6235,6 +6253,24 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Request next puzzle ähnelt.
+        /// </summary>
+        public static string PuzzleRequestNext {
+            get {
+                return ResourceManager.GetString("PuzzleRequestNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Request next random puzzle ähnelt.
+        /// </summary>
+        public static string PuzzleRequestRandom {
+            get {
+                return ResourceManager.GetString("PuzzleRequestRandom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Request puzzle of the day ähnelt.
         /// </summary>
         public static string PuzzleRequestToday {
@@ -8625,6 +8661,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string WaitingForNewGame {
             get {
                 return ResourceManager.GetString("WaitingForNewGame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Warning ähnelt.
+        /// </summary>
+        public static string Warning {
+            get {
+                return ResourceManager.GetString("Warning", resourceCulture);
             }
         }
         

@@ -853,6 +853,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die This board is not suitable for puzzles ähnelt.
+        /// </summary>
+        public static string BoardNotSuitableForPuzzle {
+            get {
+                return ResourceManager.GetString("BoardNotSuitableForPuzzle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Board send current position only on updates ähnelt.
         /// </summary>
         public static string BoardSendOnlyUpdates {
@@ -1479,6 +1488,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         public static string ClickOn {
             get {
                 return ResourceManager.GetString("ClickOn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Click to cancel ähnelt.
+        /// </summary>
+        public static string ClickToCancel {
+            get {
+                return ResourceManager.GetString("ClickToCancel", resourceCulture);
             }
         }
         
@@ -6231,6 +6249,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         public static string ResetBoard {
             get {
                 return ResourceManager.GetString("ResetBoard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Reset database ähnelt.
+        /// </summary>
+        public static string ResetDatabase {
+            get {
+                return ResourceManager.GetString("ResetDatabase", resourceCulture);
             }
         }
         

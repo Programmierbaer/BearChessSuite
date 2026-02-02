@@ -158,6 +158,11 @@
                                     <Image Source="Assets/Icons/setpieces.png" />
                                 </MenuItem.Icon>
                             </MenuItem>
+                        <MenuItem Name="menuItemStartPuzzle2" Click="MenuItemImportPuzzle_OnClick" Header="{x:Static p:Resources.Puzzle}" Visibility="Collapsed">
+                            <MenuItem.Icon>
+                                <Image Source="Assets/Icons/setpieces.png" />
+                            </MenuItem.Icon>
+                        </MenuItem>
 
                     </MenuItem>
                     <MenuItem Header="{x:Static p:Resources.Duel}" Name="menuItemDuel">

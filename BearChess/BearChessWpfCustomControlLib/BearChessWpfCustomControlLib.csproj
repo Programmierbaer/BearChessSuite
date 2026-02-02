@@ -950,5 +950,8 @@
   <ItemGroup>
     <Resource Include="Assets\Icons\help.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\dice.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

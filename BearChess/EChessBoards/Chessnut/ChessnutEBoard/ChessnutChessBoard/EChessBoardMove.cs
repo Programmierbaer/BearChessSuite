@@ -806,7 +806,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
             {
                 return new DataFromBoard(result, dataFromBoard.Repeated);
             }
-            if (!string.IsNullOrWhiteSpace(_lastResult) && !_lastResult.Equals(result))
+            if (!string.IsNullOrWhiteSpace(_lastResult) && !_lastResult.Equals(result) && !_inDemoMode)
             {
 
                 var fastChessBoard = new FastChessBoard();

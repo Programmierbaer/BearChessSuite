@@ -76,6 +76,41 @@ Bg4 93. Kg6 Bh5+ 94. Kg5 Be8 95. Kg4 Bf7 96. Kg5 Be8 97. Kg4 Kd4 98. Kf5 Kd5
         }
 
         [TestMethod]
+        public void TestFen()
+        {
+            var chessBoard = new ChessBoard();
+            chessBoard.Init();
+            chessBoard.NewGame();
+            chessBoard.SetPosition("6r1/2Q2P2/5k2/5P2/5K2/8/8/8 w - - 0 1");
+            string moveString = "f7-g8n";
+            var m = moveString.Split("-".ToCharArray());
+            if (m[1].Length == 3)
+            {
+                chessBoard.MakeMove(m[0], m[1].Substring(0, 2), m[1].Substring(2, 1));
+            }
+            else
+            {
+                chessBoard.MakeMove(m[0], m[1]);
+            }
+
+            chessBoard.GenerateMoveList();
+            var pgnGame = new PgnGame();
+            pgnGame.FENLine = chessBoard.GetFenPosition();
+            foreach (var move in chessBoard.GetPlayedMoveList())
+            {
+                if (move == null)
+                {
+                    continue;
+                }
+                pgnGame.AddMove(move.PGNMove);
+            }
+
+            var aMove = pgnGame.GetMove(0);
+            Assert.IsNotNull(aMove);
+            Assert.AreEqual("f7xg8N",aMove);
+        }
+
+        [TestMethod]
         public void TestMoves()
         {
             var chessBoard = new ChessBoard();

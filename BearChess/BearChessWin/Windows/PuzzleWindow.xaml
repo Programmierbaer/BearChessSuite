@@ -4,9 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWin.Windows"
-        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
-        mc:Ignorable="d" Closing="PuzzleWindow_OnClosing"
-        Title="{x:Static p:Resources.Puzzle}" Height="320" Width="450">
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib"
+        xmlns:bearChessWpfCustomControlLib="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib;assembly=BearChessWpfCustomControlLib"
+        mc:Ignorable="d" Closing="PuzzleWindow_OnClosing" SizeToContent="Height"
+        Title="{x:Static p:Resources.Puzzle}" Height="370" Width="450">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -14,104 +15,158 @@
         </Grid.RowDefinitions>
         <Menu Grid.Row="0" Margin="0,1,0,5">
             <MenuItem Header="{x:Static p:Resources.PuzzleSources}">
-                <MenuItem Header="{x:Static p:Resources.chesscom}"  Name="menuItemChessCom" Click="MenuItemChessCom_OnClick">
+                <MenuItem Header="{x:Static p:Resources.chesscom}" Name="menuItemChessCom"
+                          Click="MenuItemChessCom_OnClick">
                     <MenuItem.Icon>
                         <Image Name="imageChessCom" Source="../Assets/Icons/tick.png" Visibility="Hidden" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="{x:Static p:Resources.lichess}"   >
-                    <MenuItem Header="{x:Static p:Resources.lichess}" Click="MenuItemLichess_OnClick" >
+                <MenuItem Header="{x:Static p:Resources.lichess}">
+                    <MenuItem Header="{x:Static p:Resources.lichess}" Click="MenuItemLichess_OnClick">
                         <MenuItem.Icon>
                             <Image Name="imageLichess" Source="../Assets/Icons/tick.png" Visibility="Hidden" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="{x:Static p:Resources.SelectPuzzleFile}" Click="MenuItemLichessSelectFile_OnClick" >
+                    <MenuItem Header="{x:Static p:Resources.SelectPuzzleFile}"
+                              Click="MenuItemLichessSelectFile_OnClick">
                         <MenuItem.Icon>
-                            <Image  Source="../Assets/Icons/file_manager.png"  />
+                            <Image Source="../Assets/Icons/file_manager.png" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="{x:Static p:Resources.Help}" Click="MenuItemHelpLichess_OnClick" >
+                    <MenuItem Header="{x:Static p:Resources.Help}" Click="MenuItemHelpLichess_OnClick">
                         <MenuItem.Icon>
                             <Image Source="../Assets/Icons/help.png" />
                         </MenuItem.Icon>
                     </MenuItem>
 
                 </MenuItem>
-                <MenuItem Header="{x:Static p:Resources.MateInByBearChess}"  Name="menuItemBearChess" Click="MenuItemBearChess_OnClick">
+                <MenuItem Header="{x:Static p:Resources.MateInByBearChess}" Name="menuItemBearChess"
+                          Click="MenuItemBearChess_OnClick">
                     <MenuItem.Icon>
                         <Image Name="imageBearChess" Source="../Assets/Icons/tick.png" Visibility="Hidden" />
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem Header="{x:Static p:Resources.OwnPuzzles}">
-                <MenuItem Header="{x:Static p:Resources.OwnPuzzles}"  Name="menuItemDatabase" Click="MenuItemDatabase_OnClick">
-                    <MenuItem.Icon>
-                        <Image Name="imageDatabase" Source="../Assets/Icons/tick.png" Visibility="Hidden" />
-                    </MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Name="menuItemImportPuzzle" Click="MenuItemImportPuzzle_OnClick" Header="{x:Static p:Resources.PuzzleImport}">
-                    <MenuItem.Icon>
-                        <Image Source="../Assets/Icons/saved_imports.png" />
-                    </MenuItem.Icon>
-                </MenuItem>
+                    <MenuItem Header="{x:Static p:Resources.OwnPuzzles}" Name="menuItemDatabase"
+                              Click="MenuItemDatabase_OnClick">
+                        <MenuItem.Icon>
+                            <Image Name="imageDatabase" Source="../Assets/Icons/tick.png" Visibility="Hidden" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Name="menuItemImportPuzzle" Click="MenuItemImportPuzzle_OnClick"
+                              Header="{x:Static p:Resources.PuzzleImport}">
+                        <MenuItem.Icon>
+                            <Image Source="../Assets/Icons/saved_imports.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </MenuItem>
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="35"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-        </Grid.RowDefinitions>
-        <TextBlock Margin="5" Grid.Column="0" Grid.Row="0" FontWeight="SemiBold" Text="{x:Static p:Resources.PuzzleTitle}"/>
-        <TextBlock Margin="5" Name="textBlockTitle" Grid.Column="1" Grid.Row="0"></TextBlock>
-        <TextBlock Margin="5" Grid.Column="0" Grid.Row="1" FontWeight="SemiBold" Text="{x:Static p:Resources.PuzzlePublishTime}"/>
-        <TextBlock Margin="5" Name="textBlockPublished" Grid.Column="1" Grid.Row="1"></TextBlock>
-        <TextBlock Margin="5" Grid.Column="0" Grid.Row="2" FontWeight="SemiBold" Text="{x:Static p:Resources.PuzzleUrl}"/>
-        <TextBlock Margin="5" Name="textBlockUrl" TextWrapping="Wrap" Grid.Column="1"  Grid.Row="2">
-            <Hyperlink Name="hyperlinkUrl" NavigateUri="http://stackoverflow.com" RequestNavigate="HyperlinkUrl_OnRequestNavigate">
-                <Run Name="runtextBlockUrl"></Run>
-            </Hyperlink>
-        </TextBlock>
-        <TextBlock Margin="5" Grid.Column="0" Grid.Row="3" FontWeight="SemiBold" Text="{x:Static p:Resources.Fen}"/>
-        <TextBlock Margin="5" Name="textBlockFen" TextWrapping="Wrap" Grid.Column="1" Grid.Row="3"></TextBlock>
-        <TextBlock Margin="5" Grid.Column="0" Grid.Row="4" FontWeight="SemiBold" Text="{x:Static p:Resources.SolutionMoves}"/>
-        <TextBlock Margin="5" Name="textBlockMoveCount" TextWrapping="Wrap" Grid.Column="1" Grid.Row="4"></TextBlock>
-        <TextBlock Margin="5" Grid.Column="0" Grid.Row="5" FontWeight="SemiBold" Text="{x:Static p:Resources.ErrorTrials}"/>
-        <TextBlock Margin="5" Name="textBlocktTries" TextWrapping="Wrap" Grid.Column="1" Grid.Row="5"></TextBlock>
-        <TextBlock Margin="5" Grid.Column="0" Grid.Row="6" FontWeight="SemiBold" Text="{x:Static p:Resources.PuzzleSource}"/>
-        <TextBlock Margin="5" Name="textBlocktSources" TextWrapping="Wrap" Grid.Column="1" Grid.Row="6"></TextBlock>
-            <Image  Name="imageSolved" Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="7" Width="30" Height="30"  Source="../Assets/Icons/cup_gold.png" Visibility="Hidden"  ></Image>
-        <DockPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="8" Margin="5" DockPanel.Dock="Bottom" LastChildFill="False">
-            <Button Name="buttonRefresh" Margin="5,5,5,5" DockPanel.Dock="Left"  Width="30" Height="30" Background="Transparent" BorderBrush="Transparent"  Click="ButtonRefresh_OnClick" 
-                    ToolTip="{x:Static p:Resources.PuzzleRequestNew}">
-                <Image Source="../Assets/Icons/Board2DPieces32.png" ></Image>
-            </Button>
-            <Button Name="buttonToday" Margin="5,5,5,5" DockPanel.Dock="Left"  Width="30" Height="30" Background="Transparent" BorderBrush="Transparent"  Click="ButtonToday_OnClick" 
-                    ToolTip="{x:Static p:Resources.PuzzleRequestToday}">
-                <Image Source="../Assets/Icons/calendar_view_day.png" ></Image>
-            </Button>
-            <Button Name="buttonHint" Margin="25,5,5,5" DockPanel.Dock="Left"  Width="30" Height="30" Background="Transparent" BorderBrush="Transparent" Click="ButtonHint_OnClick"  
-                    ToolTip="{x:Static p:Resources.PuzzleHint}">
-                <Image Source="../Assets/Icons/emotion_question.png" ></Image>
-            </Button>
-            <Button Name="buttonResign" Margin="5,5,5,5" DockPanel.Dock="Left"  Width="30" Height="30" Background="Transparent" BorderBrush="Transparent" Click="ButtonResign_OnClick" 
-                    ToolTip="{x:Static p:Resources.PuzzleSolution}">
-                <Image Source="../Assets/Icons/6-2-chess-png.png" ></Image>
-            </Button>
-            <Button Name="buttonCancel"  Margin="5,5,5,5" DockPanel.Dock="Right"  Width="30" Height="30"  Background="Transparent" BorderBrush="Transparent" Click="ButtonCancel_OnClick">
-                <Image Source="../Assets/Icons/door_out.png" ></Image>
-            </Button>
-        </DockPanel>
-    </Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <TextBlock Margin="5" Grid.Column="0" Grid.Row="0" FontWeight="SemiBold"
+                       Text="{x:Static p:Resources.PuzzleTitle}" />
+            <TextBlock Margin="5" Name="textBlockTitle" Grid.Column="1" Grid.Row="0"></TextBlock>
+            <TextBlock Margin="5" Grid.Column="0" Grid.Row="1" FontWeight="SemiBold"
+                       Text="{x:Static p:Resources.PuzzlePublishTime}" />
+            <TextBlock Margin="5" Name="textBlockPublished" Grid.Column="1" Grid.Row="1"></TextBlock>
+            <TextBlock Margin="5" Grid.Column="0" Grid.Row="2" FontWeight="SemiBold"
+                       Text="{x:Static p:Resources.PuzzleUrl}" />
+            <TextBlock Margin="5" Name="textBlockUrl" TextWrapping="Wrap" Grid.Column="1" Grid.Row="2">
+                <Hyperlink Name="hyperlinkUrl" NavigateUri="http://stackoverflow.com"
+                           RequestNavigate="HyperlinkUrl_OnRequestNavigate">
+                    <Run Name="runtextBlockUrl"></Run>
+                </Hyperlink>
+            </TextBlock>
+            <TextBlock Margin="5" Grid.Column="0" Grid.Row="3" FontWeight="SemiBold" Text="{x:Static p:Resources.Fen}" />
+            <TextBlock Margin="5" Name="textBlockFen" TextWrapping="Wrap" Grid.Column="1" Grid.Row="3"></TextBlock>
+            <TextBlock Margin="5" Grid.Column="0" Grid.Row="4" FontWeight="SemiBold"
+                       Text="{x:Static p:Resources.SolutionMoves}" />
+            <TextBlock Margin="5" Name="textBlockMoveCount" TextWrapping="Wrap" Grid.Column="1" Grid.Row="4"></TextBlock>
+            <TextBlock Margin="5" Grid.Column="0" Grid.Row="5" FontWeight="SemiBold"
+                       Text="{x:Static p:Resources.ErrorTrials}" />
+            <TextBlock Margin="5" Name="textBlocktTries" TextWrapping="Wrap" Grid.Column="1" Grid.Row="5"></TextBlock>
+            <TextBlock Margin="5" Grid.Column="0" Grid.Row="6" FontWeight="SemiBold"
+                       Text="{x:Static p:Resources.PuzzleSource}" />
+            <TextBlock Margin="5" Name="textBlocktSources" TextWrapping="Wrap" Grid.Column="1" Grid.Row="6"></TextBlock>
+            <Image Name="imageSolved" Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="7" Width="30" Height="30"
+                   Source="../Assets/Icons/cup_gold.png" Visibility="Hidden">
+            </Image>
+            <StackPanel Grid.Row="8" Grid.Column="0" Orientation="Horizontal">
+                <CheckBox Name="checkBoxCountdown" Margin="5,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Center" Checked="CheckBoxCountdown_OnChecked" Unchecked="CheckBoxCountdown_OnUnchecked" 
+                          Content="Countdown"/>
+                
+            </StackPanel>
+            <Grid Name="gridWait" Grid.Row="8" Grid.Column="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <ProgressBar Grid.Row="0" Margin="5" Grid.Column="0" Height="15" Name="progressBarSeconds" Maximum="10" Minimum="0" />
+                <bearChessWpfCustomControlLib:NumericUpDownUserControl Margin="5" Grid.Row="0" Grid.Column="1" Value="10" ValueChanged="NumericUpDownUserControlDuration_OnValueChanged"
+                                                       x:Name="numericUpDownUserControlDuration"
+                                                       MinValue="1"
+                                                       MaxValue="60" TextWidthProperty="25">
+                </bearChessWpfCustomControlLib:NumericUpDownUserControl>
+                
+            
+            </Grid>
+            <DockPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="9" Margin="5" DockPanel.Dock="Bottom"
+                       LastChildFill="False">
+                <Button Name="buttonNextPuzzleRandom" Margin="5,5,5,5" DockPanel.Dock="Left" Width="30" Height="30"
+                        Background="Transparent" BorderBrush="Transparent" Click="ButtonNextPuzzleRandom_OnClick"
+                        ToolTip="{x:Static p:Resources.PuzzleRequestRandom}">
+                    <Image Source="../Assets/Icons/dice.png "></Image>
+                </Button>
+                <Button Name="buttonNextPuzzle" Margin="5,5,5,5" DockPanel.Dock="Left" Width="30" Height="30"
+                        Background="Transparent" BorderBrush="Transparent" Click="ButtonNextPuzzle_OnClick"
+                        ToolTip="{x:Static p:Resources.PuzzleRequestNext}">
+                    <Image Source="../Assets/Icons/Board2DPieces32.png"></Image>
+                </Button>
+                
+                <Button Name="buttonToday" Margin="5,5,5,5" DockPanel.Dock="Left" Width="30" Height="30"
+                        Background="Transparent" BorderBrush="Transparent" Click="ButtonToday_OnClick"
+                        ToolTip="{x:Static p:Resources.PuzzleRequestToday}">
+                    <Image Source="../Assets/Icons/calendar_view_day.png"></Image>
+                </Button>
+                <Button Name="buttonHint" Margin="25,5,5,5" DockPanel.Dock="Left" Width="30" Height="30"
+                        Background="Transparent" BorderBrush="Transparent" Click="ButtonHint_OnClick"
+                        ToolTip="{x:Static p:Resources.PuzzleHint}">
+                    <Image Source="../Assets/Icons/emotion_question.png"></Image>
+                </Button>
+                <Button Name="buttonResign" Margin="5,5,5,5" DockPanel.Dock="Left" Width="30" Height="30"
+                        Background="Transparent" BorderBrush="Transparent" Click="ButtonResign_OnClick"
+                        ToolTip="{x:Static p:Resources.PuzzleSolution}">
+                    <Image Source="../Assets/Icons/6-2-chess-png.png"></Image>
+                </Button>
+
+                <Button Name="buttonCancel" Margin="5,5,5,5" DockPanel.Dock="Right" Width="30" Height="30"
+                        Background="Transparent" BorderBrush="Transparent" Click="ButtonCancel_OnClick">
+                    <Image Source="../Assets/Icons/door_out.png"></Image>
+                </Button>
+                <Button Name="buttonDatabaseReset" Margin="5,5,5,5" DockPanel.Dock="Right" Width="30" Height="30"
+                        Background="Transparent" BorderBrush="Transparent" Click="ButtonDatabaseReset_OnClick"
+                        ToolTip="{x:Static p:Resources.DatabaseReset}">
+                    <Image Source="../Assets/Icons/database_refresh.png"></Image>
+                </Button>
+            </DockPanel>
+        </Grid>
     </Grid>
 </Window>

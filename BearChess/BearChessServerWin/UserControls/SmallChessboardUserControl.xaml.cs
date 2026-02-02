@@ -164,7 +164,11 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
         {
             if (!_clientToken.Contains(e.Address))
             {
-                return;
+                if (!_bearChessController.TokenAssigned(BoardId, e.Address))
+                {
+                    return;
+                }
+                _clientToken.Add(e.Address);
             }
             _logging?.LogDebug($"Chessboard {BoardId}: Handle client message: {e.Address} {e.ActionCode} {e.Message} {e.Color}");
             if (e.ActionCode.Equals("DISCONNECT"))
@@ -279,7 +283,24 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.UserControls
                 });
                 return;
             }
-          
+
+            if (e.ActionCode.Equals("PUBLISH") )
+            {
+                var loader = new PgnLoader();
+                var pgnGame = loader.GetGame(e.Message);
+                _chessBoard.Init();
+                _chessBoard.NewGame();
+                for (var i = 0; i < pgnGame.MoveCount; i++)
+                {
+                    _chessBoard.MakePgnMove(pgnGame.GetMove(i), pgnGame.GetComment(i), pgnGame.GetEMT(i), pgnGame.GetClock(i));
+                }
+
+                Dispatcher?.Invoke(() =>
+                {
+                    RepaintBoard(_chessBoard);
+                });
+                return;
+            }
             if (e.ActionCode.Equals("MOVE") && (_chessBoard.CurrentColor == color))
             {
                 string[] moveArray = e.Message.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);

@@ -140,14 +140,22 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             var result = new List<Move>();
             var chessBoard = new ChessBoard();
             chessBoard.Init(this);
-            var moveList = GenerateMoveList();
-            foreach (var move in moveList)
+            try
             {
-                chessBoard.Init(this);
-                chessBoard.MakeMove(move);
-                move.Fen = chessBoard.GetFenPosition();
-                result.Add(move);
+                var moveList = GenerateMoveList();
+                foreach (var move in moveList)
+                {
+                    chessBoard.Init(this);
+                    chessBoard.MakeMove(move);
+                    move.Fen = chessBoard.GetFenPosition();
+                    result.Add(move);
+                }
             }
+            catch
+            {
+                result.Clear();
+            }
+
             return result;
         }
 
@@ -197,6 +205,11 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
         public IChessFigure[] GetFigures(int color)
         {
             return _figures.Where(f => f.Color == color).ToArray();
+        }
+
+        public IChessFigure[] GetAllFigures()
+        {
+            return _figures.Where(f => f.Color == Fields.COLOR_WHITE || f.Color==Fields.COLOR_BLACK).ToArray();
         }
 
         /// <inheritdoc />
@@ -813,6 +826,10 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
 
         public void MakeMove(string fromField, string toField, string promotionFigure)
         {
+            if (CurrentColor == Fields.COLOR_WHITE)
+            {
+                promotionFigure = promotionFigure.ToUpper();
+            }
             MakeMove(Fields.GetFieldNumber(fromField), Fields.GetFieldNumber(toField), FigureId.GetFenCharacterToFigureId(promotionFigure));
         }
 
@@ -1340,33 +1357,44 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
         /// <inheritdoc />
         public List<Move> GenerateMoveList()
         {
-            foreach (var chessFigure in _figures)
-            {
-                chessFigure.ClearAttacks();
-            }
             CurrentMoveList = new List<Move>(50);
             EnemyMoveList = new List<Move>(50);
-            if (CapturedFigure.GeneralFigureId == FigureId.KING)
+            try
             {
-                return CurrentMoveList;
-            }
-            foreach (var i in CurrentFigureList)
-            {
-                var chessFigure = GetFigureOn(i);
-
-                if (chessFigure.Color == EnemyColor)
+                foreach (var chessFigure in _figures)
                 {
-                    EnemyMoveList.AddRange(chessFigure.GetMoveList());
+                    chessFigure.ClearAttacks();
+                }
+                if (CapturedFigure.GeneralFigureId == FigureId.KING)
+                {
+                    return CurrentMoveList;
+                }
+
+                foreach (var i in CurrentFigureList)
+                {
+                    var chessFigure = GetFigureOn(i);
+
+                    if (chessFigure.Color == EnemyColor)
+                    {
+                        EnemyMoveList.AddRange(chessFigure.GetMoveList());
+                    }
+                }
+
+                foreach (var i in CurrentFigureList)
+                {
+                    var chessFigure = GetFigureOn(i);
+
+                    if (chessFigure.Color == CurrentColor)
+                    {
+                        CurrentMoveList.AddRange(chessFigure.GetMoveList());
+                    }
                 }
             }
-            foreach (var i in CurrentFigureList)
+            catch
             {
-                var chessFigure = GetFigureOn(i);
-
-                if (chessFigure.Color == CurrentColor)
-                {
-                    CurrentMoveList.AddRange(chessFigure.GetMoveList());
-                }
+                CurrentMoveList.Clear();
+                EnemyMoveList.Clear();
+                //
             }
             return CurrentMoveList;
         }

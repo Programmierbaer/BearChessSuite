@@ -233,13 +233,22 @@ namespace www.SoLaNoSoft.com.BearChessBase.Definitions
                                                                                     {FenCodes.BlackQueen, BLACK_QUEEN},
                                                                                     {FenCodes.BlackKing, BLACK_KING},
                                                                                 };
-        public static  int GetFenCharacterToFigureId(string fenChar)
+        public static int GetFenCharacterToFigureId(string fenChar)
         {
             if (FenCharacterToFigureId.TryGetValue(fenChar, out var id))
             {
                 return id;
             }
             return NO_PIECE;
+        }
+
+        public static string GetFigureIdToFenCharacter(int figureId)
+        {
+            if (FigureIdToFenCharacter.TryGetValue(figureId, out var fenChar))
+            {
+                return fenChar;
+            }
+            return string.Empty;
         }
     }
 }

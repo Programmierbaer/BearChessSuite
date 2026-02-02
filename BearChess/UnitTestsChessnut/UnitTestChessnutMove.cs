@@ -91,8 +91,9 @@ namespace UnitTestsChessnut
             {
                 Assert.AreEqual(result[i], _basePositionsBytes[i]);
             }
-            
         }
+
+
     }
 
 }

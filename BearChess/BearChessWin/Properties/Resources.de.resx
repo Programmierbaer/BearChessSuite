@@ -2892,4 +2892,13 @@
   <data name="Puzzle" xml:space="preserve">
     <value>Aufgaben</value>
   </data>
+  <data name="ClickToCancel" xml:space="preserve">
+    <value>Klicken um abzubrechen</value>
+  </data>
+  <data name="ResetDatabase" xml:space="preserve">
+    <value>Datenbank zurücksetzen</value>
+  </data>
+  <data name="BoardNotSuitableForPuzzle" xml:space="preserve">
+    <value>Dieses Schachbrett ist für das Lösen von Puzzles nicht geeignet.</value>
+  </data>
 </root>

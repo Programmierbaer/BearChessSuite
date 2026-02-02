@@ -32,7 +32,8 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
         void RemoveEBoard(IElectronicChessBoard eBoard);
         List<UciInfo> InstalledEngines();
         UciInfo SelectedEngine { get; set; }
-        void TokenAssigned(string boardId, string token);
+        void AssignToken(string boardId, string token);
+        bool TokenAssigned(string boardId, string token);
         void SendToClient(string clientAddr, BearChessServerMessage message);
         BearChessClientInformation[] GetCurrentConnectionList();
     }

@@ -73,22 +73,20 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
                     {
                         if (_byteDataToBoard.TryDequeue(out var byteData))
                         {
-                          
-                                convertFromRead = ConvertFromArray(byteData.Data);
-                                var force = false;
-                                if (_forcedSend)
-                                {
-                                    force = ConvertFromArray(_forcedSendValue).Equals(convertFromRead);
-                                }
+                            convertFromRead = ConvertFromArray(byteData.Data);
+                            var force = false;
+                            if (_forcedSend)
+                            {
+                                force = ConvertFromArray(_forcedSendValue).Equals(convertFromRead);
+                            }
 
-                                if (!lastReadToSend.Equals(convertFromRead) || force)
-                                {
-                                    _forcedSend = false;
-                                    _logger?.LogDebug($"SC: Send byteData {convertFromRead}");
-                                    _comPort.Write(byteData.Data, 0, byteData.Data.Length);
-                                    lastReadToSend = convertFromRead;
-                                }
-                            
+                            if (!lastReadToSend.Equals(convertFromRead) || force)
+                            {
+                                _forcedSend = false;
+                                _logger?.LogDebug($"SC: Send byteData {convertFromRead}");
+                                _comPort.Write(byteData.Data, 0, byteData.Data.Length);
+                                lastReadToSend = convertFromRead;
+                            }
                         }
 
                     }
@@ -158,41 +156,37 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
                     {
                         withConnection = Connect();
                     }
+
                     if (withConnection && !_pauseReading)
                     {
-                            readLine = string.Empty;
-                            try
+                        readLine = string.Empty;
+                        try
+                        {
                             {
+                                var readByte = _comPort.ReadByteArray();
+                                if (readByte.Length > 0)
                                 {
-                                    var readByte = _comPort.ReadByteArray();
-                                    if (readByte.Length > 0)
-                                    {
-                                        var convertFromRead = ConvertFromRead(readByte);
-                                        readLine = convertFromRead;
-                                    }
-
+                                    var convertFromRead = ConvertFromRead(readByte);
+                                    readLine = convertFromRead;
                                 }
                             }
-                            catch
-                            {
-                                // _logger?.LogDebug("SC: Catch");
-                            }
+                        }
+                        catch
+                        {
+                            // _logger?.LogDebug("SC: Catch");
+                        }
 
+                        if (string.IsNullOrWhiteSpace(readLine))
+                        {
+                            continue;
+                        }
 
-                            if (string.IsNullOrWhiteSpace(readLine))
-                            {
-                                continue;
-                            }
-                            if (!readLine.Equals(prevLine))
-                            {
-                             //   _logger?.LogDebug($"SC: Read {readLine.Length} bytes from board: {readLine}");
-                            }
-
+                        if (!readLine.Equals(prevLine) && readLine.StartsWith("01"))
+                        {
+                            _logger?.LogDebug($"SC: Read {readLine.Length} bytes from board: {readLine}");
                             prevLine = readLine;
-                            _dataFromBoard.Enqueue(readLine);
-
-                           
-                        
+                        }
+                        _dataFromBoard.Enqueue(readLine);
                     }
 
                 }

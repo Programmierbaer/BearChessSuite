@@ -430,7 +430,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
                 if (ledsParameter.IsError)
                 {
                     _logger.LogDebug($"EB: Set error LEDs for {ledsParameter}");
-                    SetLedForFields(fieldNamesList.ToArray(), rgbMoveFrom, _extendedConfiguration.FlashCurrentColor,
+                    SetLedForFields(fieldNamesList.Except(ledsParameter.InvalidFieldNames).ToArray(), rgbMoveFrom, _extendedConfiguration.FlashCurrentColor,
                         _extendedConfiguration.DimMoveFrom.ToString(), false, "Invalid fields: Move from");
                     SetLedForFields(ledsParameter.InvalidFieldNames, rgbInvalid, _extendedConfiguration.FlashInvalid,
                         _extendedConfiguration.DimInvalid.ToString(), fieldNamesList.ToArray().Length > 0,
@@ -560,7 +560,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
         {
             var dataFromBoard = _serialCommunication.GetFromBoard();
 
-            if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(dataFromBoard.FromBoard))
+            if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(dataFromBoard.FromBoard) && !_inDemoMode)
             {
                 var fastChessBoard = new FastChessBoard();
                 fastChessBoard.Init(dataFromBoard.FromBoard, Array.Empty<string>());

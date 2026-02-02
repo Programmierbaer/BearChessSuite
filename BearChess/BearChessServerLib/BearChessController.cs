@@ -68,7 +68,7 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
             ReadInstalledEngines();
         }
 
-        public void TokenAssigned(string boardId, string token)
+        public void AssignToken(string boardId, string token)
         {
             if (string.IsNullOrEmpty(token))
             {
@@ -80,6 +80,15 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
             }
             _logging?.LogDebug($"BCC: Add token {token} for board {boardId}");
             _board2Token[boardId].Add(token);
+        }
+
+        public bool TokenAssigned(string boardId, string token) {
+            if (!_board2Token.ContainsKey(boardId))
+            {
+                return false;
+            }
+
+            return _board2Token[boardId].Contains(token);
         }
 
         public void SendToClient(string clientAddr, BearChessServerMessage message)
@@ -443,12 +452,12 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
             if (e.ActionCode.Equals("PUBLISH"))
             {
                 _gamePublisher?.Publish(e.Address, e.Message);
-                return;
+                
             }
             if (e.ActionCode.Equals("PUBLISHFEN"))
             {
                 _gamePublisher?.PublishFen(e.Address, e.Message);
-                return;
+                
             }
             ClientMessage?.Invoke(this, e);
         }

@@ -215,8 +215,13 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
 
                         //message has successfully been received
                         var msg = completeMessage.ToString();
-                        _logging?.LogDebug($"ComServer {ipAddr}: Read completed");                        
-                        //_logging?.LogDebug($"ComServer {ipAddr}: Complete message: {msg}");                        
+
+                        if (string.IsNullOrWhiteSpace(msg))
+                        {
+                            continue;
+                        }
+
+                        _logging?.LogDebug($"ComServer {ipAddr}: Read completed for message: {msg}");
                         var msgArray = msg.Split("|".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                         for (int i = 0; i < msgArray.Length; i++)
                         {

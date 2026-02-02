@@ -9,6 +9,6 @@
         InSetupMode,
         InGameAnalyseMode,
         InTrainingSetupMode,
-        InChessComPuzzleMode
+        InPuzzleMode
     }
 }

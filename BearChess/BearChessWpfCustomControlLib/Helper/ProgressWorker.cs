@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessWin;
 
 namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
@@ -118,7 +119,13 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             }
             else
             {
-                splash.SetStartupLocation(WindowStartupLocation.CenterScreen);
+                var left = Configuration.Instance.GetDoubleValue("SplashWinLeft", 0);
+                var top = Configuration.Instance.GetDoubleValue("SplashWinTop", 0);
+                if (left == 0 && top == 0)
+                {
+                    splash.SetStartupLocation(WindowStartupLocation.CenterScreen);
+                }
+                splash.SetStartupLocation(left,top);
             }
             splash.Title = _title;
             splash.OnCancelClick += Splash_OnCancelClick;

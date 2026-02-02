@@ -139,6 +139,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             comboboxWhiteBCNames.IsEnabled = true;
             comboboxBlackEBoardNames.IsEnabled = true;
             ButtonConfigureWhiteConnection.IsEnabled = false;
+            comboboxWhiteEBoardNames.IsEnabled = false;
             CheckBoxSameConnection.IsChecked = true;
             radioButtonWhiteConnectedViaBC.IsChecked = true;
             BorderBlack.IsEnabled = false;

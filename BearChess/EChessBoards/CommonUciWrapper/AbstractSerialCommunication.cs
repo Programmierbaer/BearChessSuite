@@ -101,7 +101,7 @@ namespace www.SoLaNoSoft.com.BearChess.CommonUciWrapper
                 {
                     if (!string.IsNullOrWhiteSpace(line) && !line.Equals(_lastLine))
                     {
-                        _logger?.LogDebug($"S: Dequeue from board {line}");
+                      //  _logger?.LogDebug($"S: Dequeue from board {line}");
                     }
                     
                     if (line.Trim().Length > 1 || line.Equals("L"))
