@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -61,15 +62,15 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication.ChessCom
     public static class ChessComReader
     {
 
-        private static string profileUrl = "https://api.chess.com/pub/player/";
+        private static readonly string profileUrl = "https://api.chess.com/pub/player/";
         private static string currentGamesUrl = "https://api.chess.com/pub/player/{username}/games";
         private static string archivedGamesListUrl = "https://api.chess.com/pub/player/{username}/games/archives";
 
-        private static string archivedGamesMonthListUrl =
-            "https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}";
+        private static string gamesMonthListUrl = "https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}";
 
-        private static string puzzleUrl = "https://api.chess.com/pub/puzzle";
-        private static string puzzleRandomUrl = "https://api.chess.com/pub/puzzle/random";
+        private static readonly string puzzleUrl = "https://api.chess.com/pub/puzzle";
+        private static readonly string puzzleRandomUrl = "https://api.chess.com/pub/puzzle/random";
+        private static string puzzleOfDayRange = "https://www.chess.com/callback/puzzles/daily?start={start}&end={end}";
 
         public class ProfileResponse
         {
@@ -117,6 +118,37 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication.ChessCom
 
         }
 
+        public class PuzzleOfDayRangeResponse
+        {
+            [JsonPropertyName("id")]
+            public int Id
+            {
+                get;
+                set;
+            }
+            
+            [JsonPropertyName("date")]
+            public string Date
+            {
+                get;
+                set;
+            }
+            
+            [JsonPropertyName("title")]
+            public string Title
+            {
+                get;
+                set;
+            }
+            
+            [JsonPropertyName("pgn")]
+            public string Pgn
+            {
+                get;
+                set;
+            }
+        }
+        
         public class PuzzleResponse
         {
             [JsonPropertyName("title")]
@@ -316,6 +348,17 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication.ChessCom
             }
         }
 
+        public static PuzzleOfDayRangeResponse[] GetPuzzleRange(DateTime startTime, DateTime endTime)
+        {
+            var webClient = new WebClient();
+            webClient.Headers.Add("user-agent",
+                "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
+            var data = webClient.OpenRead(
+                $"{puzzleOfDayRange.Replace("{start}", startTime.ToString("yyyy-MM-dd")).Replace("{end}", endTime.ToString("yyyy-MM-dd"))}");
+            var responseData = JsonSerializer.Deserialize<PuzzleOfDayRangeResponse[]>(data);
+            return responseData;
+        }
+
         public static PuzzleResponse GetPuzzle(bool random)
         {
             var webClient = new WebClient();
@@ -344,7 +387,7 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication.ChessCom
             webClient.Headers.Add("user-agent",
                 "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
             var data = webClient.OpenRead(
-                $"{archivedGamesMonthListUrl.Replace("{username}", userName).Replace("{YYYY}", year.ToString()).Replace("{MM}", month.ToString("D2"))}");
+                $"{gamesMonthListUrl.Replace("{username}", userName).Replace("{YYYY}", year.ToString()).Replace("{MM}", month.ToString("D2"))}");
             var responseData = JsonSerializer.Deserialize<ArchivedGamesListResponse>(data);
             return responseData.Archives;
         }

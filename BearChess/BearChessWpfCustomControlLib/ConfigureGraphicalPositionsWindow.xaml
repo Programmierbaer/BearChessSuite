@@ -8,9 +8,9 @@
         mc:Ignorable="d" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
         Title="{x:Static p:Resources.ConfigureGraphicalPositionScore}" Height="430" Width="300">
     <Grid>
-         <Grid.ColumnDefinitions>
-             <ColumnDefinition Width="Auto"></ColumnDefinition>
-         </Grid.ColumnDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -22,7 +22,7 @@
         <CheckBox VerticalAlignment="Center" Checked="CheckBoxShowGraphicScoreLine_OnChecked"  Unchecked="CheckBoxShowGraphicScoreLine_OnUnchecked" Grid.Column="0" Grid.Row="0" Margin="10" Name="checkBoxShowGraphicScoreLine"  Content="{x:Static p:Resources.ShowGraphicalPositionScore}"/>
         <CheckBox VerticalAlignment="Center" Checked="CheckBoxLimitGraphicScoreLine_OnChecked" Unchecked="CheckBoxLimitGraphicScoreLine_OnUnchecked" Grid.Column="0" Grid.Row="1" Margin="10" Name="checkBoxLimitGraphicScoreLine"  Content="{x:Static p:Resources.MaximumMinimumIsLimited}"/>
         <StackPanel Margin="25,5,5,5" Grid.Column="0" Grid.Row="2" Orientation="Horizontal">
-            <TextBlock Margin="5" VerticalAlignment="Center" Text="{x:Static p:Resources.DisplayLimitation}" ></TextBlock>             
+            <TextBlock Margin="5" VerticalAlignment="Center" Text="{x:Static p:Resources.DisplayLimitation}" ></TextBlock>
             <local:NumericUpDownUserControl x:Name="numericUpDownValue" VerticalAlignment="Center"  TextWidthProperty="30" MinValue="1" Value="9" MaxValue="999"></local:NumericUpDownUserControl>
         </StackPanel>
         <Grid Name="gridBackgroundColor"  Margin="5" Grid.Column="0" Grid.Row="3">
@@ -36,10 +36,10 @@
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
             <TextBlock Grid.Column="0" Grid.Row="1" Margin="5"  VerticalAlignment="Center" Text="{x:Static p:Resources.BackgroundColor}"></TextBlock>
-            <Button Name="buttonBackgroundColor" Click="buttonBackgroundColor_Click" Margin="5" Grid.Column="1" Grid.Row="1"  Background="Transparent" BorderBrush="Transparent"  Width="16" Height="16">
+            <Button Name="buttonBackgroundColor" Click="buttonBackgroundColor_Click" Margin="5" Grid.Column="1" Grid.Row="1"  Background="Transparent" BorderBrush="Transparent"  Width="24" Height="24">
                 <Image Source="/BearChessWpfCustomControlLib;component/Assets/Icons/cog.png"></Image>
             </Button>
-            <Button HorizontalAlignment="Right"  Click="buttonDefaultBackgroundColor_Click" Margin="5" Grid.Column="2" Grid.Row="1"  Background="Transparent" BorderBrush="Transparent"  Width="16" Height="16">
+            <Button HorizontalAlignment="Right"  Click="buttonDefaultBackgroundColor_Click" Margin="5" Grid.Column="2" Grid.Row="1"  Background="Transparent" BorderBrush="Transparent"  Width="24" Height="24">
                 <Image Source="/BearChessWpfCustomControlLib;component/Assets/Icons/undo.png"></Image>
             </Button>
             <Border Grid.Column="0" Grid.Row="0"  Grid.ColumnSpan="2" Margin="5" BorderBrush="Black" BorderThickness=".2"></Border>
@@ -74,10 +74,10 @@
                 <Border Name="borderEngineWhiteBackground" Grid.Column="1" Grid.Row="0" Margin="0" Height="30" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  Background="AliceBlue" BorderThickness="1">
                     <Border Name="borderEngineWhite"  Grid.Column="1" Grid.Row="0" Background="DarkGoldenrod"  Width="50"  Height="2" ></Border>
                 </Border>
-                <Button Name="buttonEngineWhite" Click="buttonEngineWhite_Click" Margin="5,0,0,0" Grid.Column="2" Grid.Row="0"  Background="Transparent" BorderBrush="Transparent"  Width="16" Height="16">
+                <Button Name="buttonEngineWhite" Click="buttonEngineWhite_Click" Margin="5,0,0,0" Grid.Column="2" Grid.Row="0"  Background="Transparent" BorderBrush="Transparent"  Width="24" Height="24">
                     <Image Source="/BearChessWpfCustomControlLib;component/Assets/Icons/cog.png"></Image>
                 </Button>
-                <Button HorizontalAlignment="Right"  Click="ButtonDefaultEngineWhiteColor_OnClick" Margin="5" Grid.Column="3" Grid.Row="0"  Background="Transparent" BorderBrush="Transparent"  Width="16" Height="16">
+                <Button HorizontalAlignment="Right"  Click="ButtonDefaultEngineWhiteColor_OnClick" Margin="5" Grid.Column="3" Grid.Row="0"  Background="Transparent" BorderBrush="Transparent"  Width="24" Height="24">
                     <Image Source="/BearChessWpfCustomControlLib;component/Assets/Icons/undo.png"></Image>
                 </Button>
 
@@ -85,10 +85,10 @@
                 <Border Name="borderEngineBlackBackground" Grid.Column="1" Grid.Row="1" Margin="0" Height="30" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="AliceBlue" BorderThickness="1">
                     <Border Name="borderEngineBlack" Grid.Column="1" Grid.Row="1"  Background="Black"  Width="50" Height="2" ></Border>
                 </Border>
-                <Button  Name="buttonEngineBlack" Click="buttonEngineBlack_Click" Margin="5,0,0,0" Grid.Column="2" Grid.Row="1"  Background="Transparent" BorderBrush="Transparent"  Width="16" Height="16">
+                <Button  Name="buttonEngineBlack" Click="buttonEngineBlack_Click" Margin="5,0,0,0" Grid.Column="2" Grid.Row="1"  Background="Transparent" BorderBrush="Transparent"  Width="24" Height="24">
                     <Image Source="/BearChessWpfCustomControlLib;component/Assets/Icons/cog.png"></Image>
                 </Button>
-                <Button HorizontalAlignment="Right"  Click="ButtonDefaultEngineBlackColor_OnClick" Margin="5" Grid.Column="3" Grid.Row="1"  Background="Transparent" BorderBrush="Transparent"  Width="16" Height="16">
+                <Button HorizontalAlignment="Right"  Click="ButtonDefaultEngineBlackColor_OnClick" Margin="5" Grid.Column="3" Grid.Row="1"  Background="Transparent" BorderBrush="Transparent"  Width="24" Height="24">
                     <Image Source="/BearChessWpfCustomControlLib;component/Assets/Icons/undo.png"></Image>
                 </Button>
             </Grid>
@@ -109,10 +109,10 @@
                 <Border Name="borderBuddyWhiteBackground" Grid.Column="1" Grid.Row="0" Margin="0" Height="30" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  Background="AliceBlue" BorderThickness="1">
                     <Border Name="borderBuddyWhite" Grid.Column="1" Grid.Row="0"  Background="CornflowerBlue"  Width="50" Height="2" ></Border>
                 </Border>
-                <Button Name="buttonBuddyWhite" Click="buttonBuddyWhite_Click" Margin="5,0,0,0" Grid.Column="2" Grid.Row="0"  Background="Transparent" BorderBrush="Transparent"  Width="16" Height="16">
+                <Button Name="buttonBuddyWhite" Click="buttonBuddyWhite_Click" Margin="5,0,0,0" Grid.Column="2" Grid.Row="0"  Background="Transparent" BorderBrush="Transparent"  Width="24" Height="24">
                     <Image Source="/BearChessWpfCustomControlLib;component/Assets/Icons/cog.png"></Image>
                 </Button>
-                <Button HorizontalAlignment="Right"  Click="ButtonDefaultBuddyWhiteColor_OnClick" Margin="5" Grid.Column="3" Grid.Row="0"  Background="Transparent" BorderBrush="Transparent"  Width="16" Height="16">
+                <Button HorizontalAlignment="Right"  Click="ButtonDefaultBuddyWhiteColor_OnClick" Margin="5" Grid.Column="3" Grid.Row="0"  Background="Transparent" BorderBrush="Transparent"  Width="24" Height="24">
                     <Image Source="/BearChessWpfCustomControlLib;component/Assets/Icons/undo.png"></Image>
                 </Button>
 
@@ -120,10 +120,10 @@
                 <Border Name="borderBuddyBlackBackground" Grid.Column="1" Grid.Row="1" Margin="0" Height="30" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  Background="AliceBlue" BorderThickness="1">
                     <Border Name="borderBuddyBlack" Grid.Column="1" Grid.Row="1"   Background="Green"  Width="50" Height="2" ></Border>
                 </Border>
-                <Button Name="buttonBuddyBlack"  Click="buttonBuddyBlack_Click" Margin="5,0,0,0" Grid.Column="2" Grid.Row="1"  Background="Transparent" BorderBrush="Transparent"  Width="16" Height="16">
+                <Button Name="buttonBuddyBlack"  Click="buttonBuddyBlack_Click" Margin="5,0,0,0" Grid.Column="2" Grid.Row="1"  Background="Transparent" BorderBrush="Transparent"  Width="24" Height="24">
                     <Image Source="/BearChessWpfCustomControlLib;component/Assets/Icons/cog.png"></Image>
                 </Button>
-                <Button HorizontalAlignment="Right"  Click="ButtonDefaultBuddyBlackColor_OnClick" Margin="5" Grid.Column="3" Grid.Row="1"  Background="Transparent" BorderBrush="Transparent"  Width="16" Height="16">
+                <Button HorizontalAlignment="Right"  Click="ButtonDefaultBuddyBlackColor_OnClick" Margin="5" Grid.Column="3" Grid.Row="1"  Background="Transparent" BorderBrush="Transparent"  Width="24" Height="24">
                     <Image Source="/BearChessWpfCustomControlLib;component/Assets/Icons/undo.png"></Image>
                 </Button>
             </Grid>

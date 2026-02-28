@@ -333,10 +333,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             //    moveValue = -moveValue;
             //}
 
-            if (moveValue >= 99 || moveValue <= -99)
-            {
-                moveValue = moveValue;
-            }
+          
             if (_limitMaxValue)
             {
                 if (moveValue > _maxValueLimit)
@@ -481,15 +478,18 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             _midTopPosition = _topDownLength / 2;
             canvas.Children.Clear();
             DrawScaleLines();
-            int cIndex = 2;
+            
             foreach (var dictionaryKey in _valuesPerEngine.Keys.OrderBy(k => k))
             {
                 if (_valuesPerEngine[dictionaryKey].Keys.Count == 0)
                 {
                     continue;
                 }
-                var colorIndex = _engineToDrawColor[dictionaryKey]; 
-                
+                var colorIndex = _engineToDrawColor[dictionaryKey];
+                if (colorIndex >= _colors.Length)
+                {
+                    colorIndex = _colors.Length - 1;
+                }
 
                 var maxValueIndex = _valuesPerEngine[dictionaryKey].Max(v => v.Key);
                 var minValueIndex = _valuesPerEngine[dictionaryKey].Min(v => v.Key);
@@ -505,10 +505,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
                         continue;
                     }
                     var aValue = _valuesPerEngine[dictionaryKey][i];
-                    if (aValue >= 99 || aValue <= -99)
-                    {
-                        aValue = aValue;
-                    }
+                 
                     var lineY = new Line
                     {                        
                         Stroke = new SolidColorBrush(System.Windows.Media.Color.FromArgb(_colors[colorIndex].A, _colors[colorIndex].R, _colors[colorIndex].G, _colors[colorIndex].B)),

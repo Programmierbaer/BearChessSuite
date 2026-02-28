@@ -12,6 +12,7 @@
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,10 +35,12 @@
     <Reference Include="InTheHand.Net.Personal, Version=3.5.605.0, Culture=neutral, PublicKeyToken=ea38caa273134499, processorArchitecture=MSIL">
       <HintPath>..\packages\32feet.NET.3.5.0.0\lib\net\InTheHand.Net.Personal.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Speech" />
     <Reference Include="System.Windows" />
     <Reference Include="System.Xml.Linq" />
@@ -80,6 +83,7 @@
     <Compile Include="GamesFilter.cs" />
     <Compile Include="Helper\BoardFieldsSetup.cs" />
     <Compile Include="Helper\BoardPiecesSetup.cs" />
+    <Compile Include="Helper\ColorHelper.cs" />
     <Compile Include="Helper\EgineEventArgs.cs" />
     <Compile Include="Helper\ExtensionMethods.cs" />
     <Compile Include="Helper\SplashProgressControlContent.cs" />
@@ -147,6 +151,7 @@
     <Compile Include="Interfaces\IUciWrapper.cs" />
     <Compile Include="MaterialHelper.cs" />
     <Compile Include="MoveLineHelper.cs" />
+    <Compile Include="NewPuzzleRequest.cs" />
     <Compile Include="OpeningTrainingConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PuzzleSource.cs" />

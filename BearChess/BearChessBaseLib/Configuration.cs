@@ -2,11 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.Net;
 using System.Reflection;
 using System.Threading;
+using System.Windows.Media;
 using System.Xml.Serialization;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
@@ -478,6 +479,42 @@ namespace www.SoLaNoSoft.com.BearChessBase
             SetConfigValue(key, value.ToString());
         }
 
+        public void SetDateValue(string key, DateTime value)
+        {
+            SetConfigValue(key, value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        public DateTime GetDateValue(string key, DateTime defaultValue)
+        {
+            return DateTime.Parse(GetConfigValue(key, defaultValue.ToString(CultureInfo.InvariantCulture)),CultureInfo.InvariantCulture);
+        }
+    
+
+        public void SaveColorValue(string key, SolidColorBrush brush)
+        {
+            var argb = System.Drawing.Color.FromArgb(brush.Color.A, brush.Color.R, brush.Color.G, brush.Color.B);
+            SetIntValue(key, argb.ToArgb());
+        }
+
+        public SolidColorBrush GetColorValue(string key, SolidColorBrush defaultValue)
+        {
+            var aRGB = GetIntValue(key, 0);
+            if (aRGB == 0)
+            {
+                return defaultValue;
+            }
+
+            var color = System.Drawing.Color.FromArgb(aRGB);
+            return new SolidColorBrush(System.Windows.Media.Color.FromArgb(color.A, color.R, color.G, color.B));
+        }
+
+        public SolidColorBrush GetColorValue(string key, int defaultValue)
+        {
+            var aRGB = GetIntValue(key, defaultValue);
+            var color = System.Drawing.Color.FromArgb(aRGB);
+            return new SolidColorBrush(System.Windows.Media.Color.FromArgb(color.A, color.R, color.G, color.B));
+        }
+
         public void SaveGamesFilter(GamesFilter gamesFilter)
         {
             try
@@ -806,5 +843,6 @@ namespace www.SoLaNoSoft.com.BearChessBase
         {
             settings[key] = value;
         }
+        
     }
 }

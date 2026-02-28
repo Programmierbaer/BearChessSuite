@@ -3063,4 +3063,28 @@
   <data name="PuzzleRequestRandom" xml:space="preserve">
     <value>Request next random puzzle</value>
   </data>
+  <data name="PuzzleChangeDate" xml:space="preserve">
+    <value>Change start date</value>
+  </data>
+  <data name="PuzzleRequestForDay" xml:space="preserve">
+    <value>Request puzzle from</value>
+  </data>
+  <data name="lichessTip" xml:space="preserve">
+    <value>Configure your lichess.org account</value>
+  </data>
+  <data name="lichessOnline" xml:space="preserve">
+    <value>lichess.org online</value>
+  </data>
+  <data name="lichessFilebased" xml:space="preserve">
+    <value>lichess.org file based</value>
+  </data>
+  <data name="ArrowColors" xml:space="preserve">
+    <value>Arrow colors</value>
+  </data>
+  <data name="ConfigureArrowColors" xml:space="preserve">
+    <value>Configure arrows and colors</value>
+  </data>
+  <data name="Combine" xml:space="preserve">
+    <value>Combine</value>
+  </data>
 </root>

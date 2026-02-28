@@ -174,6 +174,7 @@ namespace www.SoLaNoSoft.com.BearChessBTLETools
                     GattCommunicationStatus status = AsyncHelper.RunSync(async () =>
                         await _readCharacteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
                             GattClientCharacteristicConfigurationDescriptorValue.Notify));
+                    _bluetoothLeDevice.ConnectionStatusChanged += Device_ConnectionStatusChanged;
                 }
                 catch { }
 
@@ -208,6 +209,14 @@ namespace www.SoLaNoSoft.com.BearChessBTLETools
 
             while (_byteArrayQueue.TryDequeue(out byte[] _)) ;
             while (_byteQueue.TryDequeue(out byte _)) ;
+        }
+
+        private void Device_ConnectionStatusChanged(BluetoothLEDevice sender, object args)
+        {
+            if (sender.ConnectionStatus != BluetoothConnectionStatus.Connected)
+            {
+                Close();
+            }
         }
 
         private void _readCharacteristicC_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
@@ -280,10 +289,10 @@ namespace www.SoLaNoSoft.com.BearChessBTLETools
                 _readBatteryCharacteristic = null;
             }
 
-
             _writeCharacteristic = null;
             while (_byteArrayQueue.TryDequeue(out byte[] _));
             while (_byteQueue.TryDequeue(out byte _));
+            _bluetoothLeDevice.ConnectionStatusChanged -= Device_ConnectionStatusChanged;
             SerialBTLECommunicationTools.Clear();
             _service?.Dispose();
             _bluetoothLeDevice?.Dispose();

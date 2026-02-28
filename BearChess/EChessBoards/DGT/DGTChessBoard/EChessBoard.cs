@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using System.Threading;
-using www.SoLaNoSoft.com.BearChess.BearChessCommunication;
 using www.SoLaNoSoft.com.BearChess.EChessBoard;
 using www.SoLaNoSoft.com.BearChessBase.Definitions;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
@@ -117,11 +115,11 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
         {
             private readonly bool _playWithWhite;
             private readonly List<string> _boardBytes = new List<string>();
-            private string fenCode = "s";
+            private string _fenCode = "s";
             public bool Complete => _boardBytes.Count == 67;
 
-            public string GetFenCode => FenConversions.GetPiecesFen(fenCode, false, true);
-            public string GetFenBytes => fenCode;
+            public string GetFenCode => FenConversions.GetPiecesFen(_fenCode, false, true);
+            public string GetFenBytes => _fenCode;
 
             public BoardDump(bool playWithWhite)
             {
@@ -133,12 +131,10 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                 _boardBytes.Add(moveByte);
                 if (_boardBytes.Count > 2)
                 {
-
-                    if (_pieceByte2FenCode.ContainsKey(moveByte))
-                    {
-                        fenCode += _pieceByte2FenCode[moveByte];
+                    if (_pieceByte2FenCode.TryGetValue(moveByte, out var value))
+                    {   
+                        _fenCode += value;
                     }
-
                 }
             }
 
@@ -204,10 +200,7 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
             {
                 if (!_useClock)
                 {
-                    while (_clockQueue.TryDequeue(out _))
-                    {
-
-                    }
+                    while (_clockQueue.TryDequeue(out _)) { }
                     Thread.Sleep(100);
                     continue;
 
@@ -216,7 +209,7 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                 {
                     _waitingForClockMessage = true;
                     counter = 0;
-                    if (_clockQueue.TryDequeue(out List<byte> sendList))
+                    if (_clockQueue.TryDequeue(out var sendList))
                     {
                         _logger?.LogDebug($"DGT: Handle clock: {ConvertFromRead(sendList.ToArray())}");
                         try
@@ -256,7 +249,13 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
         public override void Reset()
         {
             SendClockToNormal();
-            SendDisplayToClock("Bear");
+            SendDisplayToClock("* Bear *");
+            SendClockRequestVersion();
+        }
+        
+        public override void BuzzerOnInvalid()
+        {
+            SendClockBeep();
         }
 
         public override bool CheckComPort(string portName)
@@ -285,8 +284,8 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
             {
                 return;
             }
-            List<byte> allBytes = new List<byte>();
-            string sendFields = string.Join(" ", ledsParameter.FieldNames);
+            var allBytes = new List<byte>();
+            var sendFields = string.Join(" ", ledsParameter.FieldNames);
             if (sendFields.Equals(_lastSendFields))
             {
                 return;
@@ -294,17 +293,11 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
 
             _lastSendFields = sendFields;
             _logger?.LogDebug($"DGT: Set LED for fields: {_lastSendFields} IsThinking: {ledsParameter.IsThinking}");
-
-            //if (thinking && fieldNamesLength > 1)
-            //{
-            //    SetLedForFields(new string[] { fieldNames[0], fieldNames[0] }, thinking, isMove, displayString);
-            //    SetLedForFields(new string[] { fieldNames[1], fieldNames[1] }, thinking, isMove, displayString);
-            //    return;
-            //}
+            
             allBytes.Add(0x60);
             allBytes.Add(0x04);
             allBytes.Add(0x01);
-            string fieldName = ledsParameter.FieldNames[0];
+            var fieldName = ledsParameter.FieldNames[0];
             if (_fieldName2FieldByte.ContainsKey(fieldName.ToUpper()))
             {
                 allBytes.Add(_fieldName2FieldByte[fieldName.ToUpper()]);
@@ -323,7 +316,7 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
             {
                 _serialCommunication.Send(allBytes.ToArray());
             }
-
+            
             if ((ledsParameter.IsMove || ledsParameter.IsThinking) && ledsParameter.FieldNames.Length == 2)
             {
                 if (!_lastDisplayString.Equals(ledsParameter.DisplayString))
@@ -350,7 +343,6 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
 
         public override void SetAllLEDsOff(bool forceOff)
         {
-            
             if (_sendLEDCommands)
             {
                 _serialCommunication.Send(_allLEDsOff);
@@ -366,13 +358,11 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
             }
             SetLedForFields(new SetLEDsParameter()
                             {
-                                FieldNames = new string[] { "A1", "H8" },
-
+                                FieldNames = new[] { "A1", "H8" },
                             });
             SetLedForFields(new SetLEDsParameter()
                             {
-                                FieldNames = new string[] { "A8", "H1" },
-
+                                FieldNames = new[] { "A8", "H1" },
                             });
         }
 
@@ -433,13 +423,10 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
 
         public override DataFromBoard GetPiecesFen()
         {
-            
             if (!EnsureConnection())
             {
                 return new DataFromBoard(string.Empty);
             }
-
-
             DataFromBoard dataFromBoard = null;
             while (true)
             {
@@ -449,7 +436,6 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                     break;
 
                 }
-
                 Thread.Sleep(5);
             }
             if (!string.IsNullOrWhiteSpace(dataFromBoard.FromBoard))
@@ -478,14 +464,13 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
 
                         continue;
                     }
+
                     if (strings[i] == "146")
                     {
                         _readingTrademark = true;
                         continue;
                     }
-
-                  
-
+                    
                     if (strings[i] == "134")
                     {
                         _readingTrademark = false;
@@ -508,9 +493,10 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                         _readingBlackTime = true;
                         continue;
                     }
+                    
                     if (_readingTrademark)
                     {
-                        if (int.TryParse(strings[i], out int number))
+                        if (int.TryParse(strings[i], out var number))
                         {
                             if (number >= 10)
                             {
@@ -557,9 +543,9 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                         {
                             if (_clockHH == null)
                             {
-                                if (int.TryParse(strings[i], out int hh))
+                                if (int.TryParse(strings[i], out var hh))
                                 {
-                                    if (int.TryParse($"{hh:X}", result: out int hh2))
+                                    if (int.TryParse($"{hh:X}", result: out var hh2))
                                     {
                                         _clockHH = hh2;
                                     }
@@ -568,9 +554,9 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                             }
                             if (_clockMM == null)
                             {
-                                if (int.TryParse(strings[i], out int mm))
+                                if (int.TryParse(strings[i], out var mm))
                                 {
-                                    if (int.TryParse($"{mm:X}", result: out int mm2))
+                                    if (int.TryParse($"{mm:X}", result: out var mm2))
                                     {
                                         _clockMM = mm2;
                                     }
@@ -580,9 +566,9 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                             }
                             if (_clockSS == null)
                             {
-                                if (int.TryParse(strings[i], out int ss))
+                                if (int.TryParse(strings[i], out var ss))
                                 {
-                                    if (int.TryParse($"{ss:X}", result: out int ss2))
+                                    if (int.TryParse($"{ss:X}", result: out var ss2))
                                     {
                                         _clockSS = ss2;
                                     }
@@ -640,66 +626,68 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                     {
                         var boardMove = _boardDumps[_boardDumps.Count - 1];
                         boardMove.AddBoardByte(strings[i]);
-                        if (boardMove.Complete)
+                        if (!boardMove.Complete)
                         {
-                            _boardMoves.Clear();
-                            if (boardMove.GetFenBytes.StartsWith(
-                                    "srnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR"))
-                            {
-                                _playWithWhite = true;
-
-                            }
-
-                            if (boardMove.GetFenBytes.StartsWith(
-                                    "sRNBKQBNRPPPPPPPP................................pppppppprnbkqbnr"))
-                            {
-                                _playWithWhite = false;
-                            }
-                            
-                            //result = FenConversions.GetPiecesFen(dataFromBoard.FromBoard, true, _playWithWhite);
-                            try
-                            {
-                                _currentFen = FenConversions.GetPiecesFen(boardMove.GetFenBytes, false, _playWithWhite);
-                                if (!_currentFen.Contains("k") || !_currentFen.Contains("K"))
-                                {
-                                    return new DataFromBoard(_currentFen,3);
-                                }
-                                if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(_currentFen) && !_inDemoMode)
-                                {
-
-                                    var fastChessBoard = new FastChessBoard();
-                                    fastChessBoard.Init(_currentFen, Array.Empty<string>());
-                                    if (_whiteKingOnBasePosition)
-                                    {
-                                        if (fastChessBoard.WhiteKingOnCastleMove())
-                                        {
-                                            return new DataFromBoard(
-                                                _prevFenLine.Contains(UnknownPieceCode) ? string.Empty : _prevFenLine,
-                                                3);
-                                        }
-                                    }
-                                    if (_blackKingOnBasePosition)
-                                    {
-                                        if (fastChessBoard.BlackKingOnCastleMove())
-                                        {
-                                            return new DataFromBoard(
-                                                _prevFenLine.Contains(UnknownPieceCode) ? string.Empty : _prevFenLine,
-                                                3);
-                                        }
-                                    }
-                                    _whiteKingOnBasePosition = fastChessBoard.WhiteKingOnBasePosition();
-                                    _blackKingOnBasePosition = fastChessBoard.BlackKingOnBasePosition();
-                                }
-                                //_currentFen = boardMove.GetFenCode;
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger?.LogError($"{ex.Message}: Fen: {boardMove.GetFenBytes}");
-                                _currentFen = string.Empty;
-                            }
-                            _prevFenLine = _currentFen;
-                            return new DataFromBoard(_currentFen, 3);
+                            continue;
                         }
+
+                        _boardMoves.Clear();
+                        if (boardMove.GetFenBytes.StartsWith(
+                                "srnbqkbnrpppppppp................................PPPPPPPPRNBQKBNR"))
+                        {
+                            _playWithWhite = true;
+
+                        }
+
+                        if (boardMove.GetFenBytes.StartsWith(
+                                "sRNBKQBNRPPPPPPPP................................pppppppprnbkqbnr"))
+                        {
+                            _playWithWhite = false;
+                        }
+                            
+                        //result = FenConversions.GetPiecesFen(dataFromBoard.FromBoard, true, _playWithWhite);
+                        try
+                        {
+                            _currentFen = FenConversions.GetPiecesFen(boardMove.GetFenBytes, false, _playWithWhite);
+                            if (!_currentFen.Contains("k") || !_currentFen.Contains("K"))
+                            {
+                                return new DataFromBoard(_currentFen,3);
+                            }
+                            if (!string.IsNullOrWhiteSpace(_prevFenLine) && !_prevFenLine.Equals(_currentFen) && !_inDemoMode)
+                            {
+
+                                var fastChessBoard = new FastChessBoard();
+                                fastChessBoard.Init(_currentFen, Array.Empty<string>());
+                                if (_whiteKingOnBasePosition)
+                                {
+                                    if (fastChessBoard.WhiteKingOnCastleMove())
+                                    {
+                                        return new DataFromBoard(
+                                            _prevFenLine.Contains(UnknownPieceCode) ? string.Empty : _prevFenLine,
+                                            3);
+                                    }
+                                }
+                                if (_blackKingOnBasePosition)
+                                {
+                                    if (fastChessBoard.BlackKingOnCastleMove())
+                                    {
+                                        return new DataFromBoard(
+                                            _prevFenLine.Contains(UnknownPieceCode) ? string.Empty : _prevFenLine,
+                                            3);
+                                    }
+                                }
+                                _whiteKingOnBasePosition = fastChessBoard.WhiteKingOnBasePosition();
+                                _blackKingOnBasePosition = fastChessBoard.BlackKingOnBasePosition();
+                            }
+                            //_currentFen = boardMove.GetFenCode;
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger?.LogError($"{ex.Message}: Fen: {boardMove.GetFenBytes}");
+                            _currentFen = string.Empty;
+                        }
+                        _prevFenLine = _currentFen;
+                        return new DataFromBoard(_currentFen, 3);
 
                     }
 
@@ -737,7 +725,7 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                 return;
             }
             _logger?.LogDebug("DGT: Stop clock");
-            List<byte> tmpSend = new List<byte>(new byte[]
+            var tmpSend = new List<byte>(new byte[]
                                                 {
                                                     DGT_CLOCK_MESSAGE,
                                                     0x0a,
@@ -762,7 +750,7 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                 return;
             }
             _logger?.LogDebug($"DGT: Start clock for white: {white} ");
-            List<byte> tmpSend = new List<byte>(new byte[]
+            var tmpSend = new List<byte>(new byte[]
                                                 {
                                                     DGT_CLOCK_MESSAGE,
                                                     0x0a,
@@ -790,7 +778,7 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
 
         public override void DisplayOnClock(string display)
         {
-            SendDisplayToClock(display);
+            SendDisplayToClock(_clockUpperCase ? display.ToUpper() : display);
         }
 
         public override void SetCurrentColor(int currentColor)
@@ -841,8 +829,13 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
 
         private void SendClockToNormal()
         {
+            if (_lastDisplayString.Equals("SendClockToNormal"))
+            {
+                return;
+            };
+            _lastDisplayString = "SendClockToNormal";
             _logger?.LogDebug("DGT: Clock to normal");
-            List<byte> allBytes = new List<byte>
+            var allBytes = new List<byte>
                                   {
                                       DGT_CLOCK_MESSAGE,
                                       0x03,
@@ -851,14 +844,13 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                                       DGT_CMD_CLOCK_END_MESSAGE
                                   };
             _clockQueue.Enqueue(allBytes);
-            
         }
 
         private void SendClockBeep()
         {
             if (_boardConfiguration.ClockBeep)
             {
-                List<byte> allBytes = new List<byte>
+                var allBytes = new List<byte>
                 {
                     DGT_CLOCK_MESSAGE,
                     0x04,
@@ -870,10 +862,12 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                 _clockQueue.Enqueue(allBytes);
             }
         }
+        
+      
 
         private void SendClockRequestVersion()
         {
-            List<byte> allBytes = new List<byte>
+            var allBytes = new List<byte>
                                   {
                                       DGT_CLOCK_MESSAGE,
                                       0x03,
@@ -890,13 +884,19 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
             {
                 return;
             }
-
+            displayString = displayString.Replace("ö", "oe").Replace("ä", "ae").Replace("ü", "ue").Replace("Ö", "OE").Replace("Ä", "AE").Replace("Ü", "UE");
             if (displayString.Length > 8)
             {
                 displayString = displayString.Substring(0, 8);
             }
-            _logger?.LogDebug($"DGT: Display: {displayString}");
-            List<byte> allBytes = new List<byte>
+
+            if (_lastDisplayString.Equals(displayString))
+            {
+                return;
+            }
+            _lastDisplayString = displayString;
+            _logger?.LogDebug($"DGT: Display on clock: {displayString}");
+            var allBytes = new List<byte>
                                   {
                                       DGT_CLOCK_MESSAGE,
                                       DGT_CLOCK_3000,
@@ -905,11 +905,7 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
                                   };
 
             var bytes = Encoding.ASCII.GetBytes(displayString.PadRight(8));
-            foreach (var b in bytes)
-            {
-                allBytes.Add(b);
-            }
-
+            allBytes.AddRange(bytes);
             allBytes.Add(0);
             allBytes.Add(DGT_CMD_CLOCK_END_MESSAGE);
             _clockQueue.Enqueue(allBytes);
@@ -921,12 +917,11 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
 
         private string ConvertFromRead(byte[] bArray)
         {
-            string r = string.Empty;
+            var r = string.Empty;
             foreach (var b in bArray)
             {
                 r = r + b + " ";
             }
-
             return r;
         }
     }

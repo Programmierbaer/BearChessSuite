@@ -6,6 +6,7 @@ using System.Resources;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Navigation;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Implementations.pgn;
@@ -23,10 +24,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
     public partial class PuzzleWindow : Window
     {
 
-        public event EventHandler<PuzzleSource> NextPuzzle;
-        public event EventHandler<PuzzleSource> NextPuzzleRandom;
+        public event EventHandler<NewPuzzleRequest> NextPuzzle;
+
         public event EventHandler<PuzzleSource> ResetDatabase;
-        public event EventHandler<PuzzleSource> PuzzleOfToday;
+
         public event EventHandler<PuzzleSource> SolutionRequested;
         public event EventHandler<PuzzleSource> HintRequested;
 
@@ -40,6 +41,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
         private readonly ILogging _logger;
         private Timer _timer = null;
         private bool _lastRequestWasRandom = false;
+        private bool _lastRequestWasByDate = false;
+        private bool _ignoreChangeDate = true;
+        private DateTime _lastChessComDailyPuzzle;
     
         public PuzzleWindow(Configuration configuration, string dbPath, ILogging logger)
         {
@@ -49,6 +53,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _dbPath = dbPath;
             _logger = logger;
             _puzzleSource = (PuzzleSource) _configuration.GetIntValue("puzzleSource", (int)PuzzleSource.ChessCom);
+            _lastChessComDailyPuzzle = _configuration.GetDateValue("lastChessComDailyPuzzle", new DateTime(2007, 05, 07));
+            _lastRequestWasByDate = _configuration.GetBoolValue("lastRequestWasByDate", true);
             Top = _configuration.GetWinDoubleValue("PuzzleWindowTop", Configuration.WinScreenInfo.Top,
                 SystemParameters.VirtualScreenHeight, SystemParameters.VirtualScreenWidth);
             Left = _configuration.GetWinDoubleValue("PuzzleWindowLeft", Configuration.WinScreenInfo.Left,
@@ -60,6 +66,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _timer = new Timer(1000);
             _timer.AutoReset = true;
             _timer.Elapsed += TimerOnElapsed;
+            // if (_puzzleSource == PuzzleSource.ChessCom)
+            {
+                datePicker.SelectedDate = _lastChessComDailyPuzzle;
+                datePicker.DisplayDateStart = new DateTime(2007, 5, 6);
+                datePicker.DisplayDateEnd = DateTime.Today;
+                datePicker.SelectedDateFormat = DatePickerFormat.Short;
+                datePicker.FirstDayOfWeek = DayOfWeek.Monday;
+                buttonNextDayPuzzle.ToolTip = $"{_rm.GetString("PuzzleRequestForDay")} {_lastChessComDailyPuzzle.AddDays(1):d}";
+            }
             UpdateSourceSelection();
         }
 
@@ -79,11 +94,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     if (_lastRequestWasRandom)
                     {
 
-                        NextPuzzleRandom?.Invoke(this, _puzzleSource);
+                        NextPuzzle?.Invoke(this, new NewPuzzleRequest() {PuzzleSource =  _puzzleSource, Random = true, ByDate = _lastRequestWasByDate,SelectedDate =  datePicker.SelectedDate});
                     }
                     else
                     {
-                        NextPuzzle?.Invoke(this, _puzzleSource);
+                        NextPuzzle?.Invoke(this, new NewPuzzleRequest() {PuzzleSource =  _puzzleSource, Random = false, ByDate = _lastRequestWasByDate,SelectedDate =  datePicker.SelectedDate});
                     }
                 }
             });
@@ -118,6 +133,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
         public void SetPuzzle(PgnGame pgnGame, int moveCount, DateTime dateTime, string url, int totalCount, int solvedCount)
         {
             _timer.Enabled = false;
+            _ignoreChangeDate = true;
             progressBarSeconds.Value = 0;
             _tries = 0;
             _totalCount = totalCount;
@@ -139,7 +155,22 @@ namespace www.SoLaNoSoft.com.BearChessWin
             buttonHint.IsEnabled = true;
             buttonResign.IsEnabled = true;
             imageSolved.Visibility = Visibility.Hidden;
+            if (_lastRequestWasByDate)
+            {
+                _lastChessComDailyPuzzle = dateTime;
+            }
+            buttonNextDayPuzzle.ToolTip = $"{_rm.GetString("PuzzleRequestForDay")} {_lastChessComDailyPuzzle.AddDays(1):d}";
+            if (_lastRequestWasByDate )
+            {
+                datePicker.SelectedDate = _lastChessComDailyPuzzle;
+                datePicker.DisplayDateStart = new DateTime(2007, 5, 6);
+                datePicker.DisplayDateEnd = DateTime.Today;
+                datePicker.SelectedDateFormat = DatePickerFormat.Short;
+                datePicker.FirstDayOfWeek = DayOfWeek.Monday;
+                
+            }
             UpdateSourceSelection();
+            _ignoreChangeDate = false;
         }
 
         public void ShowMissingPuzzles()
@@ -157,6 +188,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _configuration.SetDoubleValue("PuzzleWindowLeft", Left);
             _configuration.SetDoubleValue("PuzzleWindowWidth", Width);
             _configuration.SetDoubleValue("PuzzleWindowHeight", Height);
+            _configuration.SetBoolValue("lastRequestWasByDate", _lastRequestWasByDate);
             _timer.Enabled = false;
             _timer.Close();
         }
@@ -170,7 +202,15 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 return;
             }
             _lastRequestWasRandom = false;
-            NextPuzzle?.Invoke(this, _puzzleSource);
+            _lastRequestWasByDate = _puzzleSource == PuzzleSource.ChessCom;
+          
+            {
+                NextPuzzle?.Invoke(this, new NewPuzzleRequest()
+                {
+                    PuzzleSource = _puzzleSource, Random = false, ByDate = _puzzleSource == PuzzleSource.ChessCom,
+                    SelectedDate = _lastChessComDailyPuzzle
+                });
+            }
         }
 
         private void ButtonHint_OnClick(object sender, RoutedEventArgs e)
@@ -203,7 +243,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 return;
             }
             _lastRequestWasRandom = false;
-            PuzzleOfToday?.Invoke(this, _puzzleSource);
+            _lastRequestWasByDate = false;
+            NextPuzzle?.Invoke(this,new NewPuzzleRequest() {PuzzleSource =  _puzzleSource, Random = false, ByDate = false});
         }
 
         private void MenuItemChessCom_OnClick(object sender, RoutedEventArgs e)
@@ -277,15 +318,20 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     _puzzleSource = PuzzleSource.None;
                 }
             }
-            buttonNextPuzzle.IsEnabled = _puzzleSource == PuzzleSource.BearChess || _puzzleSource == PuzzleSource.Database;
-            buttonNextPuzzle.Visibility = _puzzleSource == PuzzleSource.BearChess || _puzzleSource == PuzzleSource.Database ? Visibility.Visible : Visibility.Hidden;
-            buttonDatabaseReset.IsEnabled = _puzzleSource == PuzzleSource.BearChess || _puzzleSource == PuzzleSource.Database;
-            buttonDatabaseReset.Visibility = _puzzleSource == PuzzleSource.BearChess || _puzzleSource == PuzzleSource.Database ? Visibility.Visible : Visibility.Hidden;
-            buttonToday.IsEnabled = _puzzleSource == PuzzleSource.ChessCom;
-            buttonToday.Visibility = _puzzleSource == PuzzleSource.ChessCom ? Visibility.Visible : Visibility.Hidden;
+            buttonNextPuzzle.IsEnabled = _puzzleSource is PuzzleSource.BearChess or PuzzleSource.Database;
+            buttonNextPuzzle.Visibility = _puzzleSource is PuzzleSource.BearChess or PuzzleSource.Database ? Visibility.Collapsed : Visibility.Hidden;
+            buttonNextDayPuzzle.IsEnabled =  _puzzleSource == PuzzleSource.ChessCom;             
+            buttonNextDayPuzzle.Visibility = _puzzleSource == PuzzleSource.ChessCom ? Visibility.Visible : Visibility.Hidden;
+            buttonDatabaseReset.IsEnabled = _puzzleSource is PuzzleSource.BearChess or PuzzleSource.Database;
+            buttonDatabaseReset.Visibility = _puzzleSource is PuzzleSource.BearChess or PuzzleSource.Database ? Visibility.Visible : Visibility.Hidden;
+            buttonToday.IsEnabled = _puzzleSource is PuzzleSource.ChessCom or PuzzleSource.LichessOnline;
+            buttonToday.Visibility = _puzzleSource is PuzzleSource.ChessCom or PuzzleSource.LichessOnline ? Visibility.Visible : Visibility.Hidden;
+            datePicker.IsEnabled =  _puzzleSource == PuzzleSource.ChessCom;
+            datePicker.Visibility = _puzzleSource == PuzzleSource.ChessCom ? Visibility.Collapsed : Visibility.Hidden;
             imageBearChess.Visibility = _puzzleSource == PuzzleSource.BearChess ? Visibility.Visible : Visibility.Hidden;
             imageChessCom.Visibility = _puzzleSource == PuzzleSource.ChessCom ? Visibility.Visible : Visibility.Hidden;
             imageLichess.Visibility = _puzzleSource == PuzzleSource.Lichess ? Visibility.Visible : Visibility.Hidden;
+            imageLichessOnline.Visibility = _puzzleSource == PuzzleSource.LichessOnline ? Visibility.Visible : Visibility.Hidden;
             imageDatabase.Visibility = _puzzleSource == PuzzleSource.Database ? Visibility.Visible : Visibility.Hidden;
             switch (_puzzleSource)
             {
@@ -297,6 +343,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     break;
                 case PuzzleSource.Lichess:
                     textBlocktSources.Text = "lichess.org";
+                    break;
+                case PuzzleSource.LichessOnline:
+                    textBlocktSources.Text = "lichess.org online";
                     break;
                 case PuzzleSource.BearChess:
                     textBlocktSources.Text = _totalCount > 0 ? $"{_rm.GetString("MateInByBearChess")} ({_rm.GetString("Solved")} {_solvedCount} {_rm.GetString("From")} {_totalCount})" : _rm.GetString("MateInByBearChess");
@@ -466,7 +515,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
 
             _lastRequestWasRandom = true;
-            NextPuzzleRandom?.Invoke(this, _puzzleSource);
+            _lastRequestWasByDate = false;
+            NextPuzzle?.Invoke(this, new NewPuzzleRequest() {PuzzleSource =  _puzzleSource, Random = true, ByDate = false});
         }
 
         private void ButtonDatabaseReset_OnClick(object sender, RoutedEventArgs e)
@@ -477,6 +527,35 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 ResetDatabase?.Invoke(this, _puzzleSource);
             }
+        }
+
+        private void DatePicker_OnSelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_ignoreChangeDate)
+            {
+                return;
+            }
+            
+            _lastRequestWasRandom = false;
+            _lastRequestWasByDate = _puzzleSource == PuzzleSource.ChessCom;
+            if (datePicker.SelectedDate != null)
+            {
+                NextPuzzle?.Invoke(this, new NewPuzzleRequest()
+                {
+                    PuzzleSource = _puzzleSource, Random = false, ByDate = _puzzleSource == PuzzleSource.ChessCom,
+                    SelectedDate = datePicker.SelectedDate.Value.AddDays(-1)
+                });
+            }
+        }
+
+        private void MenuItemLichessOnline_OnClick(object sender, RoutedEventArgs e)
+        {
+            _solvedCount = 0;
+            _totalCount = 0;
+            _puzzleSource = PuzzleSource.LichessOnline;
+            _lastRequestWasRandom = true;
+            ClearInfos();
+            UpdateSourceSelection();
         }
     }
 }

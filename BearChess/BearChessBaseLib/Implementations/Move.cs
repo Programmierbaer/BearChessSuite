@@ -356,9 +356,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             get;
             set;
         }
-
-
-
+        
         [XmlIgnore]
         public string PGNMove
         {
@@ -372,7 +370,9 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             get;
             set;
         }
+        
 
+ 
         public Move()
         {
         }
@@ -518,6 +518,66 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             return MemberwiseClone();
         }
 
+        public string GetMoveString(bool longFormat = true, DisplayCountryType countryType=DisplayCountryType.GB)
+        {
+            var result = FigureId.FigureIdToFenCharacter[Figure].ToUpper();
+            result = result.Equals("P") ? " " : DisplayCountryHelper.CountryLetter(result, countryType);
+
+            if (longFormat)
+            {
+                result += FromFieldName.ToLower();
+            }
+            else
+            {
+                result += ShortMoveIdentifier;
+            }
+
+            if (CapturedFigure == FigureId.NO_PIECE)
+            {
+                if (longFormat)
+                {
+                    result += "-";
+                }
+            }
+            else
+            {
+                result += "x";
+            }
+
+            if (Figure.Equals(FigureId.WHITE_KING) || Figure.Equals(FigureId.BLACK_KING))
+            {
+                if (FromField == Fields.FE1)
+                {
+                    if (ToField == Fields.FG1)
+                    {
+                        return "   0-0 " + CheckOrMateSign;
+                    }
+                    if (ToField == Fields.FC1)
+                    {
+                        return " 0-0-0 " + CheckOrMateSign;
+                    }
+                }
+                if (FromField == Fields.FE8)
+                {
+                    if (ToField == Fields.FG8)
+                    {
+                        return "   0-0 " + CheckOrMateSign;
+                    }
+                    if (ToField == Fields.FC8)
+                    {
+                        return " 0-0-0 " + CheckOrMateSign;
+                    }
+                }
+            }
+            var p = string.Empty;
+            if (PromotedFigure != FigureId.NO_PIECE)
+            {
+                p = DisplayCountryHelper.CountryLetter(FigureId.FigureIdToFenCharacter[PromotedFigure].ToUpper(), countryType);
+            }
+
+            result += ToFieldName.ToLower() + p + CheckOrMateSign;
+            return result;
+        }
         public override string ToString()
         {
             return $"{FromFieldName}-{ToFieldName} ({Value})";

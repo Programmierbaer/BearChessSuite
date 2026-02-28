@@ -300,6 +300,7 @@
                             <Image Source="Assets/Icons/clipboard_sign.png" Stretch="UniformToFill" />
                         </MenuItem.Icon>
                     </MenuItem>
+                    <!-- <MenuItem Name="menuItemGetCurrentGames" Header="lichess games" Click="MenuItemGetCurrentGames_OnClick"/> -->
                     <MenuItem Header="{x:Static p:Resources.Settings}">
                         <MenuItem.Icon>
                             <Image Source="Assets/Icons/cog.png" />
@@ -469,20 +470,6 @@
                             <Image Name="imageLoadLastOrDefaultBook" Source="Assets/Icons/tick.png" Visibility="Hidden" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="{x:Static p:Resources.BestMove}">
-                        <MenuItem Name="menuItemShowBestBookMove" Header="{x:Static p:Resources.ShowBestBookMove}"
-                                  Click="MenuItemShowBestBookMove_OnClick">
-                            <MenuItem.Icon>
-                                <Image Name="imageShowBestBookMove" Source="Assets/Icons/tick.png" Visibility="Hidden" />
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        <MenuItem Header="{x:Static p:Resources.Color}" ToolTip="{x:Static p:Resources.ColorForTheArrow}"
-                                  Click="MenuItemBestBookMoveArrowColor_OnClick">
-                            <MenuItem.Icon>
-                                <TextBlock Name="textBlockBookMoveArrowColor" Text=" " />
-                            </MenuItem.Icon>
-                        </MenuItem>
-                    </MenuItem>
                 </MenuItem>
                 <MenuItem Header="{x:Static p:Resources.Settings}">
                     <MenuItem Tag="SettingsBearChess" Name="menuItemConfigBearChess" Header="BearChess"
@@ -501,41 +488,14 @@
                                 <Image Source="Assets/Icons/Board2DPieces32.png" />
                             </MenuItem.Icon>
                         </MenuItem>
-
-                        <MenuItem Name="menuItemShowLastMove" Header="{x:Static p:Resources.ShowLastMove}"
-                                  ToolTip="{x:Static p:Resources.ShowLastMoveTip}"
-                                  Click="MenuItemShowLast_OnClick">
+                        <MenuItem Name="menuItemConfigureArrows" Header="{x:Static p:Resources.ConfigureArrowColors}"
+                                  Click="MenuItemConfigureArrows_OnClick">
                             <MenuItem.Icon>
-                                <Image Name="imageShowLastMove" Source="Assets/Icons/tick.png" Visibility="Hidden" />
+                                <Image Source="Assets/Icons/fill_color.png" />
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Name="menuItemShowBestMove" Header="{x:Static p:Resources.ShowBestMove}"
-                                  ToolTip="{x:Static p:Resources.ShowBestMoveTip}"
-                                  Click="MenuItemShowBest_OnClick">
-                            <MenuItem.Icon>
-                                <Image Name="imageShowBestMove" Source="Assets/Icons/tick.png" Visibility="Hidden" />
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        <MenuItem Name="menuItemPossibleMoves"  Header="{x:Static p:Resources.PossibleMoves}">
-                            <MenuItem Name="menuItemShowPossibleMoves"
-                                      Header="{x:Static p:Resources.ShowPossibleMoves}"
-                                      ToolTip="{x:Static p:Resources.ShowPossibleMovesTip}"
-                                      Click="MenuItemShowPossibleMoves_OnClick">
-                                <MenuItem.Icon>
-                                    <Image Name="imageShowPossibleMoves" Source="Assets/Icons/tick.png"
-                                           Visibility="Hidden" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Header="{x:Static p:Resources.Color}" ToolTip="{x:Static p:Resources.ColorForTheArrow}"
-                                      Click="MenuItemPossibleMoveArrowColor_OnClick">
-                                <MenuItem.Icon>
-                                    <TextBlock Name="textBlockHintArrowColor" Text=" " />
-                                </MenuItem.Icon>
-                            </MenuItem>
 
-                        </MenuItem>
-
-                        <MenuItem Name="menuItemFastMoveInput" Header="{x:Static p:Resources.FastMoveInput}"
+                      <MenuItem Name="menuItemFastMoveInput" Header="{x:Static p:Resources.FastMoveInput}"
                                   ToolTip="{x:Static p:Resources.FastMoveInputTip}"
                                   Click="MenuItemFastMoveInput_OnClick">
                             <MenuItem.Icon>
@@ -677,6 +637,14 @@
                             <Image Source="Assets/Icons/chesscom.png" />
                         </MenuItem.Icon>
                     </MenuItem>
+                    <!--
+                    <MenuItem Name="menuItemLichess" Header="{x:Static p:Resources.lichess}" Click="MenuItemLichess_OnClick"
+                              ToolTip="{x:Static p:Resources.lichessTip}">
+                        <MenuItem.Icon>
+                            <Image Source="Assets/Icons/Lichess_Logo_2019.svg.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    -->
                     <MenuItem Name="menuItemBCServer" Header="{x:Static p:Resources.ConfigureBCSandFTP}" Click="MenuItemBCServer_OnClick"
            ToolTip="{x:Static p:Resources.BearChessServerTip}" Visibility="Visible">
                         <MenuItem.Icon>

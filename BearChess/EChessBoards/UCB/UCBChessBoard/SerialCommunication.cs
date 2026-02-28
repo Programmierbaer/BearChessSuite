@@ -162,7 +162,7 @@ namespace www.SoLaNoSoft.com.BearChess.UCBChessBoard
                         {
                             continue;
                         }
-
+                        _logger?.LogDebug($"SC: Read {readLine.Length} bytes from board: {readLine}");
                         if (readLine.StartsWith("T"))
                         {
                             readLine = "Take Back";
@@ -171,7 +171,6 @@ namespace www.SoLaNoSoft.com.BearChess.UCBChessBoard
                         {
                             readLine = "New Game";
                         }
-                        _logger?.LogDebug($"SC: Read {readLine.Length} bytes from board: {readLine}");
                         _dataFromBoard.Enqueue(readLine);
 
                     }

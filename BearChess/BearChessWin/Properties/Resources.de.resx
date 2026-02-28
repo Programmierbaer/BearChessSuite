@@ -2901,4 +2901,7 @@
   <data name="BoardNotSuitableForPuzzle" xml:space="preserve">
     <value>Dieses Schachbrett ist für das Lösen von Puzzles nicht geeignet.</value>
   </data>
+  <data name="PuzzleRequestForDay" xml:space="preserve">
+    <value>Anfrage für ein Rätsel vom</value>
+  </data>
 </root>

@@ -1,8 +1,4 @@
-﻿using System.IO;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using www.SoLaNoSoft.com.BearChessBase.Implementations;
-using www.SoLaNoSoft.com.BearChessBase.Implementations.pgn;
+﻿using www.SoLaNoSoft.com.BearChessBase.Implementations.pgn;
 
 namespace www.SoLaNoSoft.com.BearChessDatabase
 {

@@ -3,6 +3,7 @@ using System.Data.Entity;
 using System.Windows;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChess.BearChessCommunication.ChessCom;
+using www.SoLaNoSoft.com.BearChess.BearChessCommunication.lichess;
 using www.SoLaNoSoft.com.BearChessWpfCustomControlLib;
 
 namespace www.SoLaNoSoft.com.BearChessWin
@@ -20,8 +21,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
             textBlockUserName.Text = _configuration.GetConfigValue("chessComUserName", string.Empty);
         }
 
-        private void ButtonOk_OnClick(object sender, RoutedEventArgs e)
+        private async void ButtonOk_OnClick(object sender, RoutedEventArgs e)
         {
+          
             _configuration.SetConfigValue("chessComUserName", textBlockUserName.Text);
             DialogResult = true;
         }

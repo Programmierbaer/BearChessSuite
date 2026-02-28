@@ -37,6 +37,7 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -224,6 +225,9 @@
     <Compile Include="Windows\IEngineWindow.cs" />
     <Compile Include="Windows\INewGameWindow.cs" />
     <Compile Include="Windows\ITournamentInfoWindow.cs" />
+    <Compile Include="Windows\LichessConfigureWindow.xaml.cs">
+      <DependentUpon>LichessConfigureWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\MoveListPlainWindow.xaml.cs">
       <DependentUpon>MoveListPlainWindow.xaml</DependentUpon>
     </Compile>
@@ -512,6 +516,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\LichessConfigureWindow.xaml" />
     <Page Include="Windows\MoveListPlainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1745,6 +1750,16 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Icons\dice.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\date_edit.png" />
+    <Resource Include="Assets\Icons\date_go.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\Lichess_Logo_2019.svg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\fill_color.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

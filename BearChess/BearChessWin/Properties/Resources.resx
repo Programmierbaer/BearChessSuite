@@ -2906,4 +2906,7 @@
   <data name="BoardNotSuitableForPuzzle" xml:space="preserve">
     <value>This board is not suitable for puzzles</value>
   </data>
+  <data name="PuzzleRequestForDay" xml:space="preserve">
+    <value>Request puzzle from</value>
+  </data>
 </root>

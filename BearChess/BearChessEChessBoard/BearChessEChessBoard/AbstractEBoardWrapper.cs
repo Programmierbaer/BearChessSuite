@@ -417,7 +417,13 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             _fileLogger?.LogDebug($"AB: Wait for: {position}");
             _waitForFen.Enqueue(position);
             _board?.SetLedForFields(setLEDsParameter);
-            _board?.SetFen(position);
+            var information = _board?.Information;
+            if (!string.IsNullOrWhiteSpace(information) 
+                && !information.Contains(Constants.UCB) && !information.Contains(Constants.Citrine))
+            {
+                _board?.SetFen(position);
+            }
+
             _stop = false;
         }
 
@@ -432,7 +438,13 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             _alternateMoveList.AddRange(alternateMoves);
             _waitForFen.Enqueue(position);
             _board?.SetLedForFields(setLEDsParameter);
-            _board?.SetFen(position);
+            var information = _board?.Information;
+            if (!string.IsNullOrWhiteSpace(information) 
+                && !information.Contains(Constants.UCB) && !information.Contains(Constants.Citrine))
+            {
+                _board?.SetFen(position);
+            }
+
             _stop = false;
         }
 
@@ -512,6 +524,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
 
         public void SetFen(string fen)
         {
+            _fileLogger?.LogDebug($"AB: Set fen position: {fen}");
             SetAllLedsOff(false);
             _board?.SetFen(fen);
             _internalChessBoard = new InternalChessBoard();
@@ -980,7 +993,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                     return null;
                 }
 
-                if (_board.SelfControlled)
+                if (_board!= null &&  _board.SelfControlled)
                 {
                     return null;
                 }

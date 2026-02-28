@@ -1315,14 +1315,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 EngineEvent?.Invoke(
                     this,
-                    new EngineEventArgs(e.Name, e.FromEngine, _loadedEngine.Color,true, false, false,e.ValidForAnalysis));
+                    new EngineEventArgs(e.Name, e.FromEngine, _loadedEngine.Color,true, false, false,e.ValidForAnalysis,1));
             }
 
             if (e.FromEngine.Contains(" pv "))
             {
                 EngineEvent?.Invoke(
                     this,
-                    new EngineEventArgs(e.Name, e.FromEngine, _loadedEngine.Color, true, false, false,e.ValidForAnalysis));
+                    new EngineEventArgs(e.Name, e.FromEngine, _loadedEngine.Color, true, false, false,e.ValidForAnalysis,1));
             }
         }
 

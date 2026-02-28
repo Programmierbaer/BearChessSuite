@@ -49,7 +49,6 @@
         {
             CurrentValue = 0;
         }
-
-
+        
     }
 }

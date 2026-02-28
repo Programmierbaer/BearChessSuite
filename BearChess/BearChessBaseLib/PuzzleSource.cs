@@ -6,6 +6,9 @@
         ChessCom,
         Lichess,
         BearChess,
-        Database
+        Database,
+        LichessOnline,
     }
+    
+    
 }

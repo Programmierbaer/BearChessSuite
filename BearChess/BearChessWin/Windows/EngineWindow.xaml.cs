@@ -1002,7 +1002,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     this,
                     new EngineEventArgs(e.Name, e.FromEngine, _loadedEngines[e.Name].Color,
                                         e.Name.Equals(_firstEngineName), _loadedEngines[e.Name].UciEngine.IsBuddy, _loadedEngines[e.Name].UciEngine.IsProbing,
-                                        _loadedEngines[e.Name].UciEngine.ValidForAnalysis));
+                                        _loadedEngines[e.Name].UciEngine.ValidForAnalysis,_loadedEngines.Keys.ToList().IndexOf(e.Name)));
                 return;
             }
 
@@ -1017,7 +1017,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     this,
                     new EngineEventArgs(e.Name, e.FromEngine, _loadedEngines[e.Name].Color,
                                         e.Name.Equals(_firstEngineName), _loadedEngines[e.Name].UciEngine.IsBuddy, _loadedEngines[e.Name].UciEngine.IsProbing,
-                                        _loadedEngines[e.Name].UciEngine.ValidForAnalysis));
+                                        _loadedEngines[e.Name].UciEngine.ValidForAnalysis,_loadedEngines.Keys.ToList().IndexOf(e.Name)));
             }
 
             if (e.FromEngine.Contains(" pv "))
@@ -1030,7 +1030,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     this,
                     new EngineEventArgs(e.Name, e.FromEngine, _loadedEngines[e.Name].Color,
                                         e.Name.Equals(_firstEngineName), _loadedEngines[e.Name].UciEngine.IsBuddy, _loadedEngines[e.Name].UciEngine.IsProbing,
-                                        _loadedEngines[e.Name].UciEngine.ValidForAnalysis));
+                                        _loadedEngines[e.Name].UciEngine.ValidForAnalysis,_loadedEngines.Keys.ToList().IndexOf(e.Name)));
             }
 
             var scoreString = string.Empty;
@@ -1108,7 +1108,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     this,
                     new EngineEventArgs(e.Name, scoreString, _loadedEngines[e.Name].Color,
                                         e.Name.Equals(_firstEngineName), _loadedEngines[e.Name].UciEngine.IsBuddy, _loadedEngines[e.Name].UciEngine.IsProbing,
-                                        _loadedEngines[e.Name].UciEngine.ValidForAnalysis));
+                                        _loadedEngines[e.Name].UciEngine.ValidForAnalysis,_loadedEngines.Keys.ToList().IndexOf(e.Name)));
                 _fileLogger?.LogInfo($"Score from engine {e.Name}: {scoreString}");
             }
         }

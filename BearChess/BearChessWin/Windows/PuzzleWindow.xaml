@@ -7,7 +7,7 @@
         xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib"
         xmlns:bearChessWpfCustomControlLib="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib;assembly=BearChessWpfCustomControlLib"
         mc:Ignorable="d" Closing="PuzzleWindow_OnClosing" SizeToContent="Height"
-        Title="{x:Static p:Resources.Puzzle}" Height="370" Width="450">
+        Title="{x:Static p:Resources.Puzzle}" Height="370" Width="460">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -22,7 +22,12 @@
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem Header="{x:Static p:Resources.lichess}">
-                    <MenuItem Header="{x:Static p:Resources.lichess}" Click="MenuItemLichess_OnClick">
+                    <MenuItem Header="{x:Static p:Resources.lichessOnline}" Click="MenuItemLichessOnline_OnClick">
+                        <MenuItem.Icon>
+                            <Image Name="imageLichessOnline" Source="../Assets/Icons/tick.png" Visibility="Hidden" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{x:Static p:Resources.lichessFilebased}" Click="MenuItemLichess_OnClick">
                         <MenuItem.Icon>
                             <Image Name="imageLichess" Source="../Assets/Icons/tick.png" Visibility="Hidden" />
                         </MenuItem.Icon>
@@ -140,7 +145,13 @@
                         ToolTip="{x:Static p:Resources.PuzzleRequestNext}">
                     <Image Source="../Assets/Icons/Board2DPieces32.png"></Image>
                 </Button>
-                
+                <Button Name="buttonNextDayPuzzle" Margin="5,5,5,5" DockPanel.Dock="Left" Width="30" Height="30"
+                        Background="Transparent" BorderBrush="Transparent" Click="ButtonNextPuzzle_OnClick"
+                        ToolTip="{x:Static p:Resources.PuzzleRequestNext}">
+                    <Image Source="../Assets/Icons/date_go.png"></Image>
+                </Button>
+                <DatePicker Width="100"  Name="datePicker" Margin="5,5,5,5"  SelectedDateChanged="DatePicker_OnSelectedDateChanged"
+                            DockPanel.Dock="Left" ToolTip="{x:Static p:Resources.PuzzleChangeDate}"/>
                 <Button Name="buttonToday" Margin="5,5,5,5" DockPanel.Dock="Left" Width="30" Height="30"
                         Background="Transparent" BorderBrush="Transparent" Click="ButtonToday_OnClick"
                         ToolTip="{x:Static p:Resources.PuzzleRequestToday}">

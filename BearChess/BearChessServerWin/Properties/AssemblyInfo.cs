@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("SoLaNoSoft")]
 [assembly: AssemblyProduct("BearChess Server")]
-[assembly: AssemblyCopyright("Copyright ©  2025")]
+[assembly: AssemblyCopyright("Copyright © 2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -48,6 +48,6 @@ using System.Windows;
 //      Buildnummer
 //      Revision
 //
-[assembly: AssemblyVersion("1.7.1.1")]
-[assembly: AssemblyFileVersion("1.7.1.1")]
-[assembly: AssemblyInformationalVersion("Release")]
+[assembly: AssemblyVersion("1.7.2.1")]
+[assembly: AssemblyFileVersion("1.7.2.1")]
+[assembly: AssemblyInformationalVersion("Development")]

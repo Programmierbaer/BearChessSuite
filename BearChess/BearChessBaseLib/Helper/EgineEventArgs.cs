@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace www.SoLaNoSoft.com.BearChessWin
+namespace www.SoLaNoSoft.com.BearChessBase
 {
     public class EngineEventArgs : EventArgs
     {
@@ -11,8 +11,9 @@ namespace www.SoLaNoSoft.com.BearChessWin
         public bool BuddyEngine { get; }
         public bool ValidForAnalysis { get; }
         public bool ProbingEngine { get; }
+        public int EngineIndex {get; }
 
-        public EngineEventArgs(string name, string fromEngine, int color, bool firstEngine, bool buddyEngine, bool probingEngine, bool validForAnalysis)
+        public EngineEventArgs(string name, string fromEngine, int color, bool firstEngine, bool buddyEngine, bool probingEngine, bool validForAnalysis, int engineIndex)
         {
 
             Name = name;
@@ -22,6 +23,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             BuddyEngine = buddyEngine;
             ProbingEngine = probingEngine;
             ValidForAnalysis = validForAnalysis;
+            EngineIndex = engineIndex;
         }
 
         public override string ToString()

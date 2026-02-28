@@ -61,7 +61,10 @@ namespace www.SoLaNoSoft.com.BearChess.DGTEBoardWrapper
             // throw new NotImplementedException();
         }
 
-     
+        public override void BuzzerOnInvalid()
+        {
+            _board.BuzzerOnInvalid();
+        }
 
         protected override IEBoard GetEBoard()
         {

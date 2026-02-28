@@ -15,6 +15,7 @@
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -72,6 +73,8 @@
     <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.6.1\lib\net462\System.Numerics.Vectors.dll</HintPath>
@@ -89,6 +92,7 @@
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.6.3\lib\net462\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -107,6 +111,10 @@
     <Compile Include="BearChessSFtpClient.cs" />
     <Compile Include="BearChessTestFtpClient.cs" />
     <Compile Include="chesscom\ChessComReader.cs" />
+    <Compile Include="lichess\AccountResponse.cs" />
+    <Compile Include="lichess\GamesApi.cs" />
+    <Compile Include="lichess\ILichessApiClient.cs" />
+    <Compile Include="lichess\LichessApiClient.cs" />
     <Compile Include="lichess\lichessPuzzleReader.cs" />
     <Compile Include="ClientPipe.cs" />
     <Compile Include="CRCConversions.cs" />
@@ -118,6 +126,16 @@
     <Compile Include="IBearChessComServer.cs" />
     <Compile Include="IComPort.cs" />
     <Compile Include="lichess.cs" />
+    <Compile Include="lichess\OngoingGame.cs" />
+    <Compile Include="lichess\OngoingGamesResponse.cs" />
+    <Compile Include="lichess\PermissionJsonConverter.cs" />
+    <Compile Include="lichess\Puzzle.cs" />
+    <Compile Include="lichess\PuzzleApi.cs" />
+    <Compile Include="lichess\PuzzleGame.cs" />
+    <Compile Include="lichess\PuzzleResponse.cs" />
+    <Compile Include="lichess\TokenInfo.cs" />
+    <Compile Include="lichess\TokenPermission.cs" />
+    <Compile Include="lichess\UserApi.cs" />
     <Compile Include="PipeEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerialComPort.cs" />

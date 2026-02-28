@@ -148,7 +148,7 @@ namespace www.SoLaNoSoft.com.BearChess.UCBChessBoard
 
         public override void Calibrate()
         {
-           
+           // 
         }
 
         public override void SendInformation(string message)
