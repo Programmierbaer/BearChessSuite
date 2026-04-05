@@ -852,6 +852,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This board is not suitable for opening training.
+        /// </summary>
+        public static string BoardNotSuitableForOpening {
+            get {
+                return ResourceManager.GetString("BoardNotSuitableForOpening", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This board is not suitable for puzzles.
         /// </summary>
         public static string BoardNotSuitableForPuzzle {
@@ -2715,6 +2724,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delete all selected puzzle?.
+        /// </summary>
+        public static string DeleteAllSelectedPuzzle {
+            get {
+                return ResourceManager.GetString("DeleteAllSelectedPuzzle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delete all selected tournaments?.
         /// </summary>
         public static string DeleteAllSelectedTournaments {
@@ -2850,6 +2868,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delete Puzzle.
+        /// </summary>
+        public static string DeletePuzzle {
+            get {
+                return ResourceManager.GetString("DeletePuzzle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delete selected duel?.
         /// </summary>
         public static string DeleteSelectedDuel {
@@ -2864,6 +2891,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         public static string DeleteSelectedGame {
             get {
                 return ResourceManager.GetString("DeleteSelectedGame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete selected puzzle?.
+        /// </summary>
+        public static string DeleteSelectedPuzzle {
+            get {
+                return ResourceManager.GetString("DeleteSelectedPuzzle", resourceCulture);
             }
         }
         
@@ -3683,6 +3719,24 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         public static string Exit {
             get {
                 return ResourceManager.GetString("Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export as PGN.
+        /// </summary>
+        public static string ExportAsPGN {
+            get {
+                return ResourceManager.GetString("ExportAsPGN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export as repertoire database.
+        /// </summary>
+        public static string ExportAsRepertoire {
+            get {
+                return ResourceManager.GetString("ExportAsRepertoire", resourceCulture);
             }
         }
         
@@ -6027,6 +6081,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Puzzle database.
+        /// </summary>
+        public static string PuzzleDatabase {
+            get {
+                return ResourceManager.GetString("PuzzleDatabase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your puzzle database does not yet contain any puzzles..
         /// </summary>
         public static string PuzzleDatabaseEmpty {
@@ -7346,6 +7409,15 @@ namespace www.SoLaNoSoft.com.BearChessWin.Properties {
         public static string SpeechSoundConfiguration {
             get {
                 return ResourceManager.GetString("SpeechSoundConfiguration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stalemate.
+        /// </summary>
+        public static string Stalemate {
+            get {
+                return ResourceManager.GetString("Stalemate", resourceCulture);
             }
         }
         

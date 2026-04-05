@@ -75,6 +75,7 @@ namespace www.SoLaNoSoft.com.BearChess.HoSChessBoard
             Information = Constants.Zmartfun;
             _acceptProbingMoves = false;
             ValidForAnalyse = true;
+            ValidForTraining = true;
             PieceRecognition = true;
             _switchClockSide = _boardConfiguration.ClockSwitchSide;
             var handleLedThread = new Thread(LedClockThreadHandle) { IsBackground = true };

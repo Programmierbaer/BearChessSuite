@@ -1,8 +1,7 @@
-﻿namespace www.SoLaNoSoft.com.BearChessBase.Definitions
+﻿namespace www.SoLaNoSoft.com.BearChessBase.Definitions;
+
+public enum CastlingEnum
 {
-    public enum CastlingEnum
-    {
-        Short,
-        Long
-    }
+    Short,
+    Long
 }

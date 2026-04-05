@@ -1,8 +1,7 @@
-﻿namespace www.SoLaNoSoft.com.BearChessBase.Definitions
+﻿namespace www.SoLaNoSoft.com.BearChessBase.Definitions;
+
+public enum DisplayMoveType
 {
-    public enum DisplayMoveType
-    {
-        FromToField,
-        ToField
-    }
+    FromToField,
+    ToField
 }

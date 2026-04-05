@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Resources;
 using System.Threading.Tasks;
 using System.Timers;
@@ -33,18 +34,18 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private readonly Configuration _configuration;
         private readonly string _dbPath;
-        private int _tries = 0;
-        private int _totalCount = 0;
-        private int _solvedCount = 0;
+        private int _tries;
+        private int _totalCount;
+        private int _solvedCount;
         private PuzzleSource _puzzleSource;
         private ResourceManager _rm;
         private readonly ILogging _logger;
-        private Timer _timer = null;
-        private bool _lastRequestWasRandom = false;
-        private bool _lastRequestWasByDate = false;
+        private Timer _timer;
+        private bool _lastRequestWasRandom;
+        private bool _lastRequestWasByDate;
         private bool _ignoreChangeDate = true;
         private DateTime _lastChessComDailyPuzzle;
-    
+
         public PuzzleWindow(Configuration configuration, string dbPath, ILogging logger)
         {
             InitializeComponent();
@@ -52,29 +53,28 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _configuration = configuration;
             _dbPath = dbPath;
             _logger = logger;
-            _puzzleSource = (PuzzleSource) _configuration.GetIntValue("puzzleSource", (int)PuzzleSource.ChessCom);
-            _lastChessComDailyPuzzle = _configuration.GetDateValue("lastChessComDailyPuzzle", new DateTime(2007, 05, 07));
+            _puzzleSource = (PuzzleSource)_configuration.GetIntValue("puzzleSource", (int)PuzzleSource.ChessCom);
+            _lastChessComDailyPuzzle =
+                _configuration.GetDateValue("lastChessComDailyPuzzle", new DateTime(2007, 05, 07));
             _lastRequestWasByDate = _configuration.GetBoolValue("lastRequestWasByDate", true);
             Top = _configuration.GetWinDoubleValue("PuzzleWindowTop", Configuration.WinScreenInfo.Top,
                 SystemParameters.VirtualScreenHeight, SystemParameters.VirtualScreenWidth);
             Left = _configuration.GetWinDoubleValue("PuzzleWindowLeft", Configuration.WinScreenInfo.Left,
                 SystemParameters.VirtualScreenHeight, SystemParameters.VirtualScreenWidth);
-            Width =  _configuration.GetDoubleValue("PuzzleWindowWidth", 450);
+            Width = _configuration.GetDoubleValue("PuzzleWindowWidth", 450);
             Height = _configuration.GetDoubleValue("PuzzleWindowHeight", 320);
             buttonHint.IsEnabled = false;
             buttonResign.IsEnabled = false;
             _timer = new Timer(1000);
             _timer.AutoReset = true;
             _timer.Elapsed += TimerOnElapsed;
-            // if (_puzzleSource == PuzzleSource.ChessCom)
-            {
-                datePicker.SelectedDate = _lastChessComDailyPuzzle;
-                datePicker.DisplayDateStart = new DateTime(2007, 5, 6);
-                datePicker.DisplayDateEnd = DateTime.Today;
-                datePicker.SelectedDateFormat = DatePickerFormat.Short;
-                datePicker.FirstDayOfWeek = DayOfWeek.Monday;
-                buttonNextDayPuzzle.ToolTip = $"{_rm.GetString("PuzzleRequestForDay")} {_lastChessComDailyPuzzle.AddDays(1):d}";
-            }
+            datePicker.SelectedDate = _lastChessComDailyPuzzle;
+            datePicker.DisplayDateStart = new DateTime(2007, 5, 6);
+            datePicker.DisplayDateEnd = DateTime.Today;
+            datePicker.SelectedDateFormat = DatePickerFormat.Short;
+            datePicker.FirstDayOfWeek = DayOfWeek.Monday;
+            buttonNextDayPuzzle.ToolTip =
+                $"{_rm.GetString("PuzzleRequestForDay")} {_lastChessComDailyPuzzle.AddDays(1):d}";
             UpdateSourceSelection();
         }
 
@@ -93,7 +93,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     progressBarSeconds.Value = 0;
                     if (_lastRequestWasRandom)
                     {
-
                         NextPuzzle?.Invoke(this, new NewPuzzleRequest() {PuzzleSource =  _puzzleSource, Random = true, ByDate = _lastRequestWasByDate,SelectedDate =  datePicker.SelectedDate});
                     }
                     else
@@ -203,7 +202,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
             _lastRequestWasRandom = false;
             _lastRequestWasByDate = _puzzleSource == PuzzleSource.ChessCom;
-          
             {
                 NextPuzzle?.Invoke(this, new NewPuzzleRequest()
                 {
@@ -309,7 +307,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void UpdateSourceSelection()
         {
-            
+            var ownPuzzleDatabase = _configuration.GetConfigValue("PuzzleDatabaseFileName", PuzzleDatabase.ImportDBFileName);
             if (_puzzleSource == PuzzleSource.Lichess)
             {
                 var currentFile = Configuration.Instance.GetConfigValue("lichessPuzzleFile", string.Empty);
@@ -319,7 +317,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 }
             }
             buttonNextPuzzle.IsEnabled = _puzzleSource is PuzzleSource.BearChess or PuzzleSource.Database;
-            buttonNextPuzzle.Visibility = _puzzleSource is PuzzleSource.BearChess or PuzzleSource.Database ? Visibility.Collapsed : Visibility.Hidden;
+            buttonNextPuzzle.Visibility = _puzzleSource is PuzzleSource.BearChess or PuzzleSource.Database ? Visibility.Visible : Visibility.Hidden;
             buttonNextDayPuzzle.IsEnabled =  _puzzleSource == PuzzleSource.ChessCom;             
             buttonNextDayPuzzle.Visibility = _puzzleSource == PuzzleSource.ChessCom ? Visibility.Visible : Visibility.Hidden;
             buttonDatabaseReset.IsEnabled = _puzzleSource is PuzzleSource.BearChess or PuzzleSource.Database;
@@ -327,12 +325,13 @@ namespace www.SoLaNoSoft.com.BearChessWin
             buttonToday.IsEnabled = _puzzleSource is PuzzleSource.ChessCom or PuzzleSource.LichessOnline;
             buttonToday.Visibility = _puzzleSource is PuzzleSource.ChessCom or PuzzleSource.LichessOnline ? Visibility.Visible : Visibility.Hidden;
             datePicker.IsEnabled =  _puzzleSource == PuzzleSource.ChessCom;
-            datePicker.Visibility = _puzzleSource == PuzzleSource.ChessCom ? Visibility.Collapsed : Visibility.Hidden;
+            datePicker.Visibility = _puzzleSource == PuzzleSource.ChessCom ? Visibility.Visible : Visibility.Hidden;
             imageBearChess.Visibility = _puzzleSource == PuzzleSource.BearChess ? Visibility.Visible : Visibility.Hidden;
             imageChessCom.Visibility = _puzzleSource == PuzzleSource.ChessCom ? Visibility.Visible : Visibility.Hidden;
             imageLichess.Visibility = _puzzleSource == PuzzleSource.Lichess ? Visibility.Visible : Visibility.Hidden;
             imageLichessOnline.Visibility = _puzzleSource == PuzzleSource.LichessOnline ? Visibility.Visible : Visibility.Hidden;
             imageDatabase.Visibility = _puzzleSource == PuzzleSource.Database ? Visibility.Visible : Visibility.Hidden;
+            menuItemDatabase.ToolTip = _configuration.GetConfigValue("PuzzleDatabaseFileName", PuzzleDatabase.ImportDBFileName);
             switch (_puzzleSource)
             {
                 case PuzzleSource.None:
@@ -351,7 +350,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     textBlocktSources.Text = _totalCount > 0 ? $"{_rm.GetString("MateInByBearChess")} ({_rm.GetString("Solved")} {_solvedCount} {_rm.GetString("From")} {_totalCount})" : _rm.GetString("MateInByBearChess");
                     break;
                 case PuzzleSource.Database:
-                    textBlocktSources.Text = _totalCount > 0 ? $"{_rm.GetString("OwnPuzzles")} ({_rm.GetString("Solved")} {_solvedCount} {_rm.GetString("From")} {_totalCount})" : _rm.GetString("OwnPuzzles");
+                    textBlocktSources.Text = _totalCount > 0 ? $"{_rm.GetString("OwnPuzzles")} ({ownPuzzleDatabase}) ({_rm.GetString("Solved")} {_solvedCount} {_rm.GetString("From")} {_totalCount})" : $"{_rm.GetString("OwnPuzzles")} ({ownPuzzleDatabase})";
                     break;
                 default:
                     textBlocktSources.Text = "?";
@@ -371,7 +370,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     if (File.Exists(currentFile))
                     {
-                        openFileDialog.InitialDirectory = new FileInfo(currentFile).DirectoryName;
+                        var initialDirectory = new FileInfo(currentFile).DirectoryName;
+                        if (initialDirectory != null)
+                        {
+                            openFileDialog.InitialDirectory = initialDirectory;
+                        }
                     }
                 }
                 catch
@@ -405,80 +408,30 @@ namespace www.SoLaNoSoft.com.BearChessWin
             helpWindow.ShowDialog();
         }
 
-        private async Task ImportFile(string fileName)
+        private  void MenuItemSelectPuzzleDB_OnClick(object sender, RoutedEventArgs e)
         {
-            _logger?.LogDebug($"Import file started.");
-            var count = 0;
-            var fi = new FileInfo(fileName);
-
-            ProgressWindow infoWindow = null;
-            Dispatcher.Invoke(() =>
-            {
-                infoWindow = new ProgressWindow
-                {
-                    Owner = this
-                };
-
-                infoWindow.IsIndeterminate(true);
-                infoWindow.SetTitle($"{_rm.GetString("Import")} {fi.Name}");
-                infoWindow.SetWait(_rm.GetString("PleaseWait"));
-                infoWindow.Show();
-            });
-      
-
-            await Task.Factory.StartNew(() =>
-            {
-                var startTime = DateTime.Now;
-                _logger?.LogDebug("Start import...");
-                var database = new PuzzleDatabase(_logger, Path.Combine(_dbPath, PuzzleDatabase.ImportDbFileName));
-                var pgnLoader = new PgnLoader();
-                foreach (var pgnGame in pgnLoader.Load(fileName))
-                {
-                    int moveCount = pgnGame.MoveCount;
-                    var plyCount = pgnGame.GetValue("PlyCount");
-                    if (!string.IsNullOrEmpty(plyCount) && int.TryParse(plyCount, out var plyCountValue))
-                    {
-                        moveCount = plyCountValue;
-                    }
-                    database.SavePuzzle("", pgnGame.GameEvent, pgnGame.GetGame(), moveCount);
-                    count++;
-                    if (count % 100 == 0)
-                    {
-                        infoWindow.SetInfo($"{count} {_rm.GetString("Puzzle")}...");
-                    }
-                }
-                database.Close();
-               
-                var diff = DateTime.Now - startTime;
-                _logger?.LogDebug($"... {count} puzzles imported in {diff.TotalSeconds} sec.");
-
-            });
-            infoWindow.Close();
-            _logger?.LogDebug("Import file finished.");
-            BearChessMessageBox.Show($"{count} {_rm.GetString("PuzzlesImported")} ", _rm.GetString("Information"), MessageBoxButton.OK,
-                MessageBoxImage.Information);
-            
-        }
-
-        private async void MenuItemImportPuzzle_OnClick(object sender, RoutedEventArgs e)
-        {
-            var openFileDialog = new OpenFileDialog { Filter = "Puzzle|*.pgn;" };
-            var showDialog = openFileDialog.ShowDialog(this);
-            if (!showDialog.Value || string.IsNullOrWhiteSpace(openFileDialog.FileName))
+            var dbFiles = Directory.GetFiles(_dbPath, "*.db");
+            if (dbFiles.Length == 0) 
             {
                 return;
             }
 
-            try
+            var queryWindows = new QuerySelectionWindow
             {
-                await ImportFile(openFileDialog.FileName);
-            }
-            catch (Exception ex)
+                Owner = this
+            };
+            queryWindows.SetTitle(_rm.GetString("PuzzleDatabase"));
+            queryWindows.SetComboBox(dbFiles.Select(file => Path.GetFileName(file)).ToArray());
+            var result = queryWindows.ShowDialog();
+            if (result.HasValue && result.Value)
             {
-                _logger.LogError(ex);
-                BearChessMessageBox.Show(ex.Message,
-                    _rm.GetString("Error"),
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                var ownPuzzleDatabase = queryWindows.GetSelectedItem as string;
+                _configuration.SetConfigValue("PuzzleDatabaseFileName", ownPuzzleDatabase);
+                menuItemDatabase.ToolTip = ownPuzzleDatabase;
+                if (_puzzleSource == PuzzleSource.Database)
+                {
+                    textBlocktSources.Text = _totalCount > 0 ? $"{_rm.GetString("OwnPuzzles")} ({ownPuzzleDatabase}) ({_rm.GetString("Solved")} {_solvedCount} {_rm.GetString("From")} {_totalCount})" : $"{_rm.GetString("OwnPuzzles")} ({ownPuzzleDatabase})";
+                }
             }
         }
 
@@ -556,6 +509,11 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _lastRequestWasRandom = true;
             ClearInfos();
             UpdateSourceSelection();
+        }
+
+        private void ButtonFen_OnClick(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(textBlockFen.Text);
         }
     }
 }

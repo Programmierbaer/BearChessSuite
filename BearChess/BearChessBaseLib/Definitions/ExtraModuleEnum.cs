@@ -1,9 +1,8 @@
-﻿namespace www.SoLaNoSoft.com.BearChessBase.Definitions
+﻿namespace www.SoLaNoSoft.com.BearChessBase.Definitions;
+
+public enum ExtraModuleEnum
 {
-    public enum ExtraModuleEnum
-    {
-        None,
-        Chesstimation,
-        Elfacun
-    }
+    None,
+    Chesstimation,
+    Elfacun
 }

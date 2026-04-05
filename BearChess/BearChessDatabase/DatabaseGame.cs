@@ -7,8 +7,6 @@ using www.SoLaNoSoft.com.BearChessBase.Implementations.pgn;
 
 namespace www.SoLaNoSoft.com.BearChessDatabase
 {
-
-
     [Serializable]
     public class DatabaseGame
     {

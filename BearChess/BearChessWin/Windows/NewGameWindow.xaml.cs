@@ -461,9 +461,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
             {
                 return;
             }
-            _bcsPlayerWhite = bcsPlayerWhite;
-            _bcsPlayerBlack = bcsPlayerBlack;
-            _bcsOwnColor = bcsOwnColor;
             if (!string.IsNullOrWhiteSpace(tournamentName))
             {
                 textBoxEvent.Text = tournamentName;

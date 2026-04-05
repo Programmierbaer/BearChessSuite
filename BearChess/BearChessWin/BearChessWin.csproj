@@ -126,7 +126,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Helper\ExportGames.cs" />
     <Compile Include="Helper\HandlingClocks.cs" />
     <Compile Include="Helper\ValueConverter.cs" />
     <Compile Include="Properties\Resources.de.Designer.cs">
@@ -1760,6 +1759,13 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Icons\fill_color.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\database_black.png" />
+    <Resource Include="Assets\Icons\database_blue.png" />
+    <Resource Include="Assets\Icons\database_green.png" />
+    <Resource Include="Assets\Icons\database_red.png" />
+    <Resource Include="Assets\Icons\database_yellow.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

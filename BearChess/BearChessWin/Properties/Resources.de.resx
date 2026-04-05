@@ -2890,7 +2890,7 @@
     <value>Aufgaben importiert</value>
   </data>
   <data name="Puzzle" xml:space="preserve">
-    <value>Aufgaben</value>
+    <value>Puzzle</value>
   </data>
   <data name="ClickToCancel" xml:space="preserve">
     <value>Klicken um abzubrechen</value>
@@ -2903,5 +2903,29 @@
   </data>
   <data name="PuzzleRequestForDay" xml:space="preserve">
     <value>Anfrage für ein Rätsel vom</value>
+  </data>
+  <data name="BoardNotSuitableForOpening" xml:space="preserve">
+    <value>Dieses Schachbrett ist für das Eröffnungstraining nicht geeignet</value>
+  </data>
+  <data name="ExportAsPGN" xml:space="preserve">
+    <value>Partien als PGN exportieren</value>
+  </data>
+  <data name="ExportAsRepertoire" xml:space="preserve">
+    <value>Als Repertoire-Datenbank exportieren</value>
+  </data>
+  <data name="Stalemate" xml:space="preserve">
+    <value>Patt</value>
+  </data>
+  <data name="PuzzleDatabase" xml:space="preserve">
+    <value>Puzzle-Datenbank</value>
+  </data>
+  <data name="DeleteAllSelectedPuzzle" xml:space="preserve">
+    <value>Alle ausgewählten Puzzle löschen?</value>
+  </data>
+  <data name="DeletePuzzle" xml:space="preserve">
+    <value>Puzzle löschen</value>
+  </data>
+  <data name="DeleteSelectedPuzzle" xml:space="preserve">
+    <value>Ausgewähltes Puzzle löschen?</value>
   </data>
 </root>

@@ -251,9 +251,9 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         /// <summary>
         ///   Looks up a localized string similar to already installed.
         /// </summary>
-        public static string AlReadyInstalled {
+        public static string AlreadyInstalled {
             get {
-                return ResourceManager.GetString("AlReadyInstalled", resourceCulture);
+                return ResourceManager.GetString("AlreadyInstalled", resourceCulture);
             }
         }
         
@@ -2904,6 +2904,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delete all selected puzzle?.
+        /// </summary>
+        public static string DeleteAllSelectedPuzzle {
+            get {
+                return ResourceManager.GetString("DeleteAllSelectedPuzzle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delete all selected tournaments?.
         /// </summary>
         public static string DeleteAllSelectedTournaments {
@@ -3039,6 +3048,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delete puzzle.
+        /// </summary>
+        public static string DeletePuzzle {
+            get {
+                return ResourceManager.GetString("DeletePuzzle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delete selected duel?.
         /// </summary>
         public static string DeleteSelectedDuel {
@@ -3053,6 +3071,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string DeleteSelectedGame {
             get {
                 return ResourceManager.GetString("DeleteSelectedGame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deleted selected puzzle?.
+        /// </summary>
+        public static string DeleteSelectedPuzzle {
+            get {
+                return ResourceManager.GetString("DeleteSelectedPuzzle", resourceCulture);
             }
         }
         
@@ -3912,6 +3939,33 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Export as PGN file.
+        /// </summary>
+        public static string ExportAsPGN {
+            get {
+                return ResourceManager.GetString("ExportAsPGN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export as puzzle database.
+        /// </summary>
+        public static string ExportAsPuzzle {
+            get {
+                return ResourceManager.GetString("ExportAsPuzzle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export as repertoire database.
+        /// </summary>
+        public static string ExportAsRepertoire {
+            get {
+                return ResourceManager.GetString("ExportAsRepertoire", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Export duel games.
         /// </summary>
         public static string ExportDuelGames {
@@ -3926,6 +3980,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string ExportSelectedGames {
             get {
                 return ResourceManager.GetString("ExportSelectedGames", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export selected puzzles.
+        /// </summary>
+        public static string ExportSelectedPuzzle {
+            get {
+                return ResourceManager.GetString("ExportSelectedPuzzle", resourceCulture);
             }
         }
         
@@ -3971,6 +4034,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string Fen {
             get {
                 return ResourceManager.GetString("Fen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FEN.
+        /// </summary>
+        public static string FenCol {
+            get {
+                return ResourceManager.GetString("FenCol", resourceCulture);
             }
         }
         
@@ -4601,6 +4673,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string ImportGames {
             get {
                 return ResourceManager.GetString("ImportGames", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import puzzles.
+        /// </summary>
+        public static string ImportPuzzle {
+            get {
+                return ResourceManager.GetString("ImportPuzzle", resourceCulture);
             }
         }
         
@@ -6279,6 +6360,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Puzzle database.
+        /// </summary>
+        public static string PuzzleDatabase {
+            get {
+                return ResourceManager.GetString("PuzzleDatabase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Give a hint.
         /// </summary>
         public static string PuzzleHint {
@@ -6545,6 +6635,33 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string RepeatTournament {
             get {
                 return ResourceManager.GetString("RepeatTournament", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start repertoire training.
+        /// </summary>
+        public static string RepertoireStart {
+            get {
+                return ResourceManager.GetString("RepertoireStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stop repertoire training.
+        /// </summary>
+        public static string RepertoireStop {
+            get {
+                return ResourceManager.GetString("RepertoireStop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Repertoire Training.
+        /// </summary>
+        public static string RepertoireTraining {
+            get {
+                return ResourceManager.GetString("RepertoireTraining", resourceCulture);
             }
         }
         
@@ -7166,6 +7283,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string SelectPlayer {
             get {
                 return ResourceManager.GetString("SelectPlayer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select your puzzle database.
+        /// </summary>
+        public static string SelectPuzzleDatabase {
+            get {
+                return ResourceManager.GetString("SelectPuzzleDatabase", resourceCulture);
             }
         }
         
@@ -7832,6 +7958,15 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties {
         public static string SpeechSoundConfiguration {
             get {
                 return ResourceManager.GetString("SpeechSoundConfiguration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stalemate.
+        /// </summary>
+        public static string Stalemate {
+            get {
+                return ResourceManager.GetString("Stalemate", resourceCulture);
             }
         }
         

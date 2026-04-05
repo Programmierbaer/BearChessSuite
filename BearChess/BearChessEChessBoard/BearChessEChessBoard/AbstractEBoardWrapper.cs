@@ -235,6 +235,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
 
         public bool PieceRecognition => _board?.PieceRecognition ?? true;
         public bool SelfMoving => _board?.SelfMoving ?? false;
+        public bool SelfControlled => _board?.SelfControlled ?? false;
 
         public void Ignore(bool ignore)
         {
@@ -264,6 +265,8 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
 
         public bool MultiColorLEDs => _board?.MultiColorLEDs ?? false;
         public bool ValidForAnalyse => _board?.ValidForAnalyse ?? false;
+        public bool ValidForTraining => _board?.ValidForTraining ?? false;
+        
 
         public void AcceptProbingMoves(bool acceptProbingMoves)
         {
@@ -365,7 +368,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                 _internalChessBoard.SetPosition(startFenPosition);
             }
 
-            foreach (string move in moveList)
+            foreach (var move in moveList)
             {
                 if (move.Length < 4)
                 {
@@ -406,7 +409,32 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             _stop = false;
         }
 
+        private bool CanSendFen(string boardInformation)
+        {
+            if (string.IsNullOrWhiteSpace(boardInformation))
+            {
+                return true;
+            }
 
+            if (boardInformation.Contains(Constants.UCB))
+            {
+                return false;
+            }
+            if (boardInformation.Contains(Constants.Citrine))
+            {
+                return false;
+            }
+            if (boardInformation.Contains(Constants.ChessUp))
+            {
+                return false;
+            }
+            if (boardInformation.Contains(Constants.ChessUp2))
+            {
+                return false;
+            }
+
+            return true;
+        }
 
         public void ShowMove(SetLEDsParameter setLEDsParameter)
         {
@@ -418,8 +446,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             _waitForFen.Enqueue(position);
             _board?.SetLedForFields(setLEDsParameter);
             var information = _board?.Information;
-            if (!string.IsNullOrWhiteSpace(information) 
-                && !information.Contains(Constants.UCB) && !information.Contains(Constants.Citrine))
+            if (CanSendFen(information)) 
             {
                 _board?.SetFen(position);
             }
@@ -439,8 +466,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             _waitForFen.Enqueue(position);
             _board?.SetLedForFields(setLEDsParameter);
             var information = _board?.Information;
-            if (!string.IsNullOrWhiteSpace(information) 
-                && !information.Contains(Constants.UCB) && !information.Contains(Constants.Citrine))
+            if (CanSendFen(information))
             {
                 _board?.SetFen(position);
             }
@@ -560,8 +586,8 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
             }
 
             var moveList = allMoves.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            string promote = string.Empty;
-            foreach (string move in moveList)
+            var promote = string.Empty;
+            foreach (var move in moveList)
             {
                 _fileLogger?.LogError($"AB: move after fen: {move}");
                 if (move.Length < 4)
@@ -709,14 +735,14 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
 
         private void HandleBoard()
         {
-            string waitForFen = string.Empty;
-            string currentFen = string.Empty;
-            string prevFen = string.Empty;
-            string potentialMove = string.Empty;
-            string changedFenHelper = string.Empty;
-            string batteryLevel = string.Empty;
-            string batteryStatus = string.Empty;
-            bool alterMoveDetected = false;
+            var waitForFen = string.Empty;
+            var currentFen = string.Empty;
+            var prevFen = string.Empty;
+            var potentialMove = string.Empty;
+            var changedFenHelper = string.Empty;
+            var batteryLevel = string.Empty;
+            var batteryStatus = string.Empty;
+            var alterMoveDetected = false;
 
             _fileLogger?.LogDebug("AB: Handle board");
             while (!_stopCommunication)
@@ -962,7 +988,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         /// </summary>
         private void OnFenEvent(string fenPosition, string changedFigure)
         {
-            string c = changedFigure.ToLower().Equals(changedFigure) ? "w" : "b";
+            var c = changedFigure.ToLower().Equals(changedFigure) ? "w" : "b";
             if (_inReplayMode)
             {
                 if (_lastChangedFigure == changedFigure)
@@ -1016,9 +1042,9 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                 if (fenPosition.IsFieldDump && _board != null && !_board.UseFieldDumpForFEN)
                 {
                     var hashSet = new HashSet<string>(fenPosition.FromBoard.Split(",".ToCharArray()));
-                    for (int i = 0; i < Fields.BoardFields.Length; i++)
+                    for (var i = 0; i < Fields.BoardFields.Length; i++)
                     {
-                        int f = Fields.BoardFields[i];
+                        var f = Fields.BoardFields[i];
                         var figureOnField = _internalChessBoard.GetFigureOnField(f);
                         var fieldName = InternalChessBoard.GetFieldName(f);
                         if (string.IsNullOrWhiteSpace(figureOnField))
@@ -1317,7 +1343,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
                                 setLeDsParameter.IsMove = true;
                                 foreach (var invalidField in invalidFields)
                                 {
-                                    bool found = false;
+                                    var found = false;
                                     foreach (var checkMove in checkMoves)
                                     {
                                         if (checkMove.FromFieldName.Equals(invalidField) ||

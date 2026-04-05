@@ -207,6 +207,7 @@ namespace www.SoLaNoSoft.com.BearChess.MChessLinkChessBoard
 
             PieceRecognition = !_eOneBoard && !_useElfacun && !_useChesstimation;
             ValidForAnalyse = PieceRecognition;
+            ValidForTraining = PieceRecognition;
             SelfControlled = false;
             MultiColorLEDs = true;
             var probingThread = new Thread(ShowProbingMoves) { IsBackground = true };

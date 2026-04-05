@@ -5,22 +5,8 @@ using www.SoLaNoSoft.com.BearChessBase.Implementations.pgn;
 
 namespace www.SoLaNoSoft.com.BearChessDatabase
 {
-    public interface IDatabase : IDisposable
-    {
-        string FileName { get; }
-        void LoadDb(string fileName);
-        bool Open();
-        void CommitAndClose();
-        void Close();
-        void Compress();
-        string Backup();
-        string Restore(string backupFileName);
-        void Drop();
-    }
-
     public interface IGamesDatabase : IDatabase
     {
-    
         int[] GetGamesIds();
         int Save(DatabaseGame databaseGame, bool updateGame, bool commitTransaction = true, int twicId = 0, string uuid = "");        
         void DeleteGame(int id);

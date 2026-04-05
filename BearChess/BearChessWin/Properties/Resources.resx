@@ -2909,4 +2909,28 @@
   <data name="PuzzleRequestForDay" xml:space="preserve">
     <value>Request puzzle from</value>
   </data>
+  <data name="BoardNotSuitableForOpening" xml:space="preserve">
+    <value>This board is not suitable for opening training</value>
+  </data>
+  <data name="ExportAsPGN" xml:space="preserve">
+    <value>Export as PGN</value>
+  </data>
+  <data name="ExportAsRepertoire" xml:space="preserve">
+    <value>Export as repertoire database</value>
+  </data>
+  <data name="Stalemate" xml:space="preserve">
+    <value>Stalemate</value>
+  </data>
+  <data name="PuzzleDatabase" xml:space="preserve">
+    <value>Puzzle database</value>
+  </data>
+  <data name="DeleteAllSelectedPuzzle" xml:space="preserve">
+    <value>Delete all selected puzzle?</value>
+  </data>
+  <data name="DeletePuzzle" xml:space="preserve">
+    <value>Delete Puzzle</value>
+  </data>
+  <data name="DeleteSelectedPuzzle" xml:space="preserve">
+    <value>Delete selected puzzle?</value>
+  </data>
 </root>

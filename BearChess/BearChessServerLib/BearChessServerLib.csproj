@@ -43,9 +43,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BearChessController.cs" />
+    <Compile Include="GameLogger.cs" />
     <Compile Include="IBearChessController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerChessBoardConfiguration.cs" />
+    <Compile Include="Tournament.cs" />
+    <Compile Include="TournamentGame.cs" />
     <Compile Include="UciInstaller.cs" />
     <Compile Include="UciLoader.cs" />
   </ItemGroup>

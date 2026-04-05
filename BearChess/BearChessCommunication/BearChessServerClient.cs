@@ -196,7 +196,7 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
                         var success = client.ConnectAsync(_hostName, _portNumber).Wait(10000);
                         if (!success)
                         {
-                            throw new Exception("Failed to connect.");
+                            throw new Exception("BCC send: Failed to connect.");
                         }
                         using (var netStream = client.GetStream())
                         {
@@ -221,7 +221,7 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
 
                                 if (_messages.TryDequeue(out BearChessServerMessage message))
                                 {
-                                    _logging?.LogDebug($"BCC send: {message.ActionCode} {message.Message}");
+                                    _logging?.LogDebug($"BCC send: Reading {message.ActionCode} {message.Message}");
                                     if (message.ActionCode.Equals("DISCONNECT"))
                                     {
                                         _pauseSending = true;
@@ -229,15 +229,14 @@ namespace www.SoLaNoSoft.com.BearChess.BearChessCommunication
                                     }
 
                                     message.Address = _clientToken;
-                                    string jsonString = "|" + JsonSerializer.Serialize(message) + "|";
-                                    _logging?.LogDebug($"BCC send json: {jsonString}");
+                                    var jsonString = "|" + JsonSerializer.Serialize(message) + "|";
+                                    _logging?.LogDebug($"BCC send: json: {jsonString}");
                                     var buffer = Encoding.Default.GetBytes(jsonString);
-                                    _logging?.LogDebug($"BCC buffer length: {buffer.Length}");
+                                    _logging?.LogDebug($"BCC send: buffer length: {buffer.Length}");
                                     netStream.Write(buffer, 0, buffer.Length);
                                     netStream.Flush();
-                                    _logging?.LogDebug($"BCC send ok");
+                                    _logging?.LogDebug($"BCC send: ok");
                                 }
-
                             }
 
                             netStream.Close();

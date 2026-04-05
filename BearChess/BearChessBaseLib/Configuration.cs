@@ -74,6 +74,10 @@ namespace www.SoLaNoSoft.com.BearChessBase
         {
             get;
         }
+        private string RepertoireTrainingConfigFileName
+        {
+            get;
+        }
 
         private const string CLEARLOG_FILE = "clearlog.log";
         private const string CLEARALL_FILE = "clearall.log";
@@ -319,6 +323,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
             BTConfigFileName = "bearchess_bt.xml";
             DatabaseFilterFileName = Path.Combine(FolderPath, "bearchess_dbfilter.xml");
             OpeningTrainingConfigFileName = Path.Combine(FolderPath, "bearchess_opening_training.xml");
+            RepertoireTrainingConfigFileName = Path.Combine(FolderPath, "bearchess_repertoire_training.xml");
             try
             {
                 if (File.Exists(ConfigFileName))
@@ -591,6 +596,46 @@ namespace www.SoLaNoSoft.com.BearChessBase
             }
 
             return new OpeningTrainingConfig();
+        }
+        
+        public void SaveRepertoireTrainingConfig(RepertoireTrainingConfig trainingConfig)
+        {
+          
+            try
+            {
+                var serializer = new XmlSerializer(typeof(RepertoireTrainingConfig));
+                TextWriter textWriter = new StreamWriter(RepertoireTrainingConfigFileName, false);
+                serializer.Serialize(textWriter, trainingConfig);
+                textWriter.Close();
+            }
+            catch
+            {
+                //
+            }
+         
+        }
+
+        public RepertoireTrainingConfig LoadRepertoireTrainingConfig()
+        {
+            if (!File.Exists(RepertoireTrainingConfigFileName))
+            {
+                return new RepertoireTrainingConfig();
+            }
+
+            try
+            {
+                var serializer = new XmlSerializer(typeof(RepertoireTrainingConfig));
+                TextReader textReader = new StreamReader(RepertoireTrainingConfigFileName);
+                var config = (RepertoireTrainingConfig)serializer.Deserialize(textReader);
+                textReader.Close();
+                return config;
+            }
+            catch
+            {
+                //
+            }
+
+            return new RepertoireTrainingConfig();
         }
 
         public void SaveBTAddress(string boardName, BluetoothAddress btAddress, string identifier = "0")

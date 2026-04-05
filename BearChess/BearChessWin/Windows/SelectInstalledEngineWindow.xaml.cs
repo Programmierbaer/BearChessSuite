@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Resources;
@@ -14,7 +13,6 @@ using System.Xml.Serialization;
 using Microsoft.Win32;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Interfaces;
-using www.SoLaNoSoft.com.BearChessTools;
 using www.SoLaNoSoft.com.BearChessWpfCustomControlLib;
 
 namespace www.SoLaNoSoft.com.BearChessWin
@@ -333,61 +331,35 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 if (fileName.EndsWith("MessChess.exe", StringComparison.InvariantCultureIgnoreCase) && string.IsNullOrWhiteSpace(parameters))
                 {
                     var fileInfo = new FileInfo(fileName);
-                    var enginesList = Path.Combine(fileInfo.DirectoryName,"Hiarcs","MessChess.lst");
-                    var parameterSelectionWindow = new ParameterSelectionWindow() { Owner = this };
-                    if (!File.Exists(enginesList))
+                    if (fileInfo.DirectoryName != null)
                     {
-                        enginesList = Path.Combine(fileInfo.DirectoryName, "Shredder", "MessChess.lst");
-                    }
-                    if (!File.Exists(enginesList))
-                    {
-                        enginesList = Path.Combine(fileInfo.DirectoryName, "Engines.lst");
-                    }
-                    if (File.Exists(enginesList))
-                    {
-                        var readAllLines = File.ReadAllLines(enginesList,Encoding.Default);
-                        parameterSelectionWindow.ShowList(readAllLines);
-                    }
-                    parameterSelectionWindow.SetLabel("Engine:");
-                    parameterSelectionWindow.SetMultiSelectionMode();
-                    multiSelection = true;
-                    var showDialog = parameterSelectionWindow.ShowDialog();
-                    if (showDialog.HasValue && showDialog.Value)
-                    {
-                        multiParameters = parameterSelectionWindow.SelectedEngines;
-                        parameters = multiParameters.First().ParameterName;
-                        skipWarnings = parameterSelectionWindow.SkipWarnings;
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-                if (fileName.EndsWith("avatar.exe", StringComparison.InvariantCultureIgnoreCase) && string.IsNullOrWhiteSpace(parameters))
-                {
-                    var fileInfo = new FileInfo(fileName);
-                    var avatars = Path.Combine(fileInfo.DirectoryName, "avatar_weights");
-                    var parameterSelectionWindow = new ParameterSelectionWindow() { Owner = this };
-                    if (Directory.Exists(avatars))
-                    {
-                        var avatarList = Directory.GetFiles(avatars,"*.zip",SearchOption.TopDirectoryOnly);
-                        var avList = new List<string>();
-                        foreach (var s in avatarList)
+                        var enginesList = Path.Combine(fileInfo.DirectoryName,"BearChess","MessChess.lst");
+                        var parameterSelectionWindow = new ParameterSelectionWindow() { Owner = this };
+                        if (!File.Exists(enginesList))
                         {
-                            if (s.Contains(@"\"))
-                            {
-                                avList.Add(s.Substring(s.LastIndexOf(@"\")+1));
-                            }
+                            enginesList = Path.Combine(fileInfo.DirectoryName, "Hiarcs", "MessChess.lst");
                         }
-
-                        parameterSelectionWindow.ShowList(avList.ToArray());
-                        parameterSelectionWindow.SetLabel("Avatar:");
-                        parameterSelectionWindow.ShowParameterButton(true);
+                        if (!File.Exists(enginesList))
+                        {
+                            enginesList = Path.Combine(fileInfo.DirectoryName, "Shredder", "MessChess.lst");
+                        }
+                        if (!File.Exists(enginesList))
+                        {
+                            enginesList = Path.Combine(fileInfo.DirectoryName, "Engines.lst");
+                        }
+                        if (File.Exists(enginesList))
+                        {
+                            var readAllLines = File.ReadAllLines(enginesList,Encoding.Default);
+                            parameterSelectionWindow.ShowList(readAllLines);
+                        }
+                        parameterSelectionWindow.SetLabel("Engine:");
+                        parameterSelectionWindow.SetMultiSelectionMode();
+                        multiSelection = true;
                         var showDialog = parameterSelectionWindow.ShowDialog();
                         if (showDialog.HasValue && showDialog.Value)
                         {
-                            avatarName = parameterSelectionWindow.SelectedEngine.ParameterName;
-                            parameters = $"--weights \"{Path.Combine(avatars, avatarName)}\"";
+                            multiParameters = parameterSelectionWindow.SelectedEngines;
+                            parameters = multiParameters.First().ParameterName;
                             skipWarnings = parameterSelectionWindow.SkipWarnings;
                         }
                         else
@@ -395,15 +367,51 @@ namespace www.SoLaNoSoft.com.BearChessWin
                             return;
                         }
                     }
-                    else
+                }
+                if (fileName.EndsWith("avatar.exe", StringComparison.InvariantCultureIgnoreCase) && string.IsNullOrWhiteSpace(parameters))
+                {
+                    var fileInfo = new FileInfo(fileName);
+                    if (fileInfo.DirectoryName != null)
                     {
-                        var openFileDialog = new OpenFileDialog { Filter = "Avatar Engine|*.zip|All Files|*.*" };
-                        var showDialogAvatar = openFileDialog.ShowDialog(this);
-                        if (showDialogAvatar.Value && !string.IsNullOrWhiteSpace(openFileDialog.FileName))
+                        var avatars = Path.Combine(fileInfo.DirectoryName, "avatar_weights");
+                        var parameterSelectionWindow = new ParameterSelectionWindow() { Owner = this };
+                        if (Directory.Exists(avatars))
                         {
-                            var info = new FileInfo(openFileDialog.FileName);
-                            avatarName = info.Name;
-                            parameters = $"--weights \"{info.FullName}\"";
+                            var avatarList = Directory.GetFiles(avatars,"*.zip",SearchOption.TopDirectoryOnly);
+                            var avList = new List<string>();
+                            foreach (var s in avatarList)
+                            {
+                                if (s.Contains(@"\"))
+                                {
+                                    avList.Add(s.Substring(s.LastIndexOf(@"\")+1));
+                                }
+                            }
+
+                            parameterSelectionWindow.ShowList(avList.ToArray());
+                            parameterSelectionWindow.SetLabel("Avatar:");
+                            parameterSelectionWindow.ShowParameterButton(true);
+                            var showDialog = parameterSelectionWindow.ShowDialog();
+                            if (showDialog.HasValue && showDialog.Value)
+                            {
+                                avatarName = parameterSelectionWindow.SelectedEngine.ParameterName;
+                                parameters = $"--weights \"{Path.Combine(avatars, avatarName)}\"";
+                                skipWarnings = parameterSelectionWindow.SkipWarnings;
+                            }
+                            else
+                            {
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            var openFileDialog = new OpenFileDialog { Filter = "Avatar Engine|*.zip|All Files|*.*" };
+                            var showDialogAvatar = openFileDialog.ShowDialog(this);
+                            if (showDialogAvatar.Value && !string.IsNullOrWhiteSpace(openFileDialog.FileName))
+                            {
+                                var info = new FileInfo(openFileDialog.FileName);
+                                avatarName = info.Name;
+                                parameters = $"--weights \"{info.FullName}\"";
+                            }
                         }
                     }
                 }
@@ -448,7 +456,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                         TextWriter textWriter = new StreamWriter(Path.Combine(uciPath, uciInfo.Id + ".uci"), false);
                         serializer.Serialize(textWriter, uciInfo);
                         textWriter.Close();
-                        for (int i = 0; i < _uciInfos.Count; i++)
+                        for (var i = 0; i < _uciInfos.Count; i++)
                         {
                             if (_uciInfos[i].Name.CompareTo(uciInfo.Name) < 0)
                             {
@@ -520,7 +528,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     if (dialog.HasValue && dialog.Value)
                     {
                         var info = uciConfigWindow.GetUciInfo();
-                        for (int i = 0; i < _uciInfos.Count; i++)
+                        for (var i = 0; i < _uciInfos.Count; i++)
                         {
                             if (_uciInfos[i].Name.CompareTo(info.Name) < 0)
                             {
@@ -546,7 +554,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     }
                     else
                     {
-                        for (int i = 0; i < _uciInfos.Count; i++)
+                        for (var i = 0; i < _uciInfos.Count; i++)
                         {
                             if (_uciInfos[i].Name.CompareTo(uciInfo.Name) < 0)
                             {

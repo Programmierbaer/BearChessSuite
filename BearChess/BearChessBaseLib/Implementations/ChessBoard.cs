@@ -49,7 +49,9 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
 
         public bool DrawByMaterial { get; private set; }
 
-        public bool IsDraw => DrawBy50Moves || DrawByMaterial || DrawByRepetition;
+        public bool DrawByStalemate { get; private set; }
+
+        public bool IsDraw => DrawBy50Moves || DrawByMaterial || DrawByRepetition || DrawByStalemate;
 
         public ChessBoard()
         {
@@ -1396,6 +1398,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
                 EnemyMoveList.Clear();
                 //
             }
+            DrawByStalemate = CurrentMoveList.Count == 0;
             return CurrentMoveList;
         }
 

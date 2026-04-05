@@ -127,11 +127,13 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
         public string GetPositionHashCode()
         {
           
-            string result = string.Empty;
-            foreach (string k in  _allFields.Keys.OrderBy(k => k) )
+            var result = string.Empty;
+            foreach (var k in  _allFields.Keys.OrderBy(k => k) )
             {
                 if (!string.IsNullOrEmpty(_allFields[k]))
+                {
                     result += k + _allFields[k];
+                }
             }
             return result;
         }

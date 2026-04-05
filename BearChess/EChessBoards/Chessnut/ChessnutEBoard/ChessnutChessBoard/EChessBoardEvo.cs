@@ -109,6 +109,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
             MultiColorLEDs = true;
             PieceRecognition = true;
             ValidForAnalyse = true;
+            ValidForTraining = true;
             BatteryLevel = "---";
             BatteryStatus = "Full";
             _extendedConfiguration = configuration.ExtendedConfig.First(e => e.IsCurrent);
@@ -130,6 +131,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
             MultiColorLEDs = true;
             PieceRecognition = true;
             ValidForAnalyse = true;
+            ValidForTraining = true;
         }
 
         public override void Reset()

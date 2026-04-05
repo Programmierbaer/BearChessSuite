@@ -176,6 +176,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessnutChessBoard
             PieceRecognition = true;
             SelfMoving = _extendedBoardConfiguration.AutoMoveFigures;
             ValidForAnalyse = true;
+            ValidForTraining = true;
             BatteryLevel = "---";
             BatteryStatus = "Full";
             _serialCommunication = new SerialCommunication(logger, configuration.PortName, _useBluetooth, Constants.ChessnutMove);

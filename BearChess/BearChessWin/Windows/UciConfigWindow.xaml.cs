@@ -5,11 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Xml.Linq;
 using Microsoft.Win32;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
-using www.SoLaNoSoft.com.BearChessTools;
 
 namespace www.SoLaNoSoft.com.BearChessWin
 {
@@ -105,12 +103,12 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
 
 
-            int optionsLength = uciInfo.Options.Length / 2;
-            int count = 0;
-            int rowIndex = 0;
-            int colIndex = 0;
-            int prevColIndex = 0;
-            int inputWidth = 0;
+            var optionsLength = uciInfo.Options.Length / 2;
+            var count = 0;
+            var rowIndex = 0;
+            var colIndex = 0;
+            var prevColIndex = 0;
+            var inputWidth = 0;
             if ((uciInfo.Options.Length % 2) != 0)
             {
                 optionsLength++;
@@ -145,7 +143,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     }
 
                     var oName = string.Empty;
-                    for (int i = 2; i < optionSplit.Length - 2; i++)
+                    for (var i = 2; i < optionSplit.Length - 2; i++)
                     {
                         oName = oName + optionSplit[i] + " ";
                     }
@@ -280,7 +278,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                     }
                 }
 
-                for (int i = 0; i < uciInfo.MessChessLevels.Length; i = i + 2)
+                for (var i = 0; i < uciInfo.MessChessLevels.Length; i = i + 2)
                 {
                     if (currentValue.Equals(uciInfo.MessChessLevels[i]))
                     {
@@ -587,7 +585,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 return;
             }
 
-            for (int i = 0; i < _uciInfo.MessChessLevels.Length; i = i + 2)
+            for (var i = 0; i < _uciInfo.MessChessLevels.Length; i = i + 2)
             {
                 if (e.StartsWith(_uciInfo.MessChessLevels[i]))
                 {
@@ -784,7 +782,10 @@ namespace www.SoLaNoSoft.com.BearChessWin
             if (!string.IsNullOrWhiteSpace(checkFilename))
             {
                 var fileInfo = new FileInfo(checkFilename);
-                openFileDialog.InitialDirectory = fileInfo.DirectoryName;
+                if (fileInfo.DirectoryName != null)
+                {
+                    openFileDialog.InitialDirectory = fileInfo.DirectoryName;
+                }
             }
 
             var showDialog = openFileDialog.ShowDialog(this);
@@ -811,74 +812,84 @@ namespace www.SoLaNoSoft.com.BearChessWin
             if (textBlockFileName.Text.EndsWith("MessChess.exe",StringComparison.OrdinalIgnoreCase))
             {
                 var fileInfo = new FileInfo(textBlockFileName.Text);
-                var enginesList = Path.Combine(fileInfo.DirectoryName, "Hiarcs", "MessChess.lst");
-                if (!File.Exists(enginesList))
+                if (fileInfo.DirectoryName != null)
                 {
-                    enginesList = Path.Combine(fileInfo.DirectoryName, "Shredder", "MessChess.lst");
-                }
-                if (!File.Exists(enginesList))
-                {
-                    enginesList = Path.Combine(fileInfo.DirectoryName, "Engines.lst");
-                }
-                var parameterSelectionWindow = new ParameterSelectionWindow() { Owner = this };
-                if (File.Exists(enginesList))
-                {
-                    var readAllLines = File.ReadAllLines(enginesList);
-                    parameterSelectionWindow.ShowList(readAllLines);
-                }
+                    var enginesList = Path.Combine(fileInfo.DirectoryName, "BearChess", "MessChess.lst");
+                    if (!File.Exists(enginesList))
+                    {
+                        enginesList = Path.Combine(fileInfo.DirectoryName, "Hiarcs", "MessChess.lst");
+                    }
+                    if (!File.Exists(enginesList))
+                    {
+                        enginesList = Path.Combine(fileInfo.DirectoryName, "Shredder", "MessChess.lst");
+                    }
+                    if (!File.Exists(enginesList))
+                    {
+                        enginesList = Path.Combine(fileInfo.DirectoryName, "Engines.lst");
+                    }
+                    var parameterSelectionWindow = new ParameterSelectionWindow() { Owner = this };
+                    if (File.Exists(enginesList))
+                    {
+                        var readAllLines = File.ReadAllLines(enginesList);
+                        parameterSelectionWindow.ShowList(readAllLines);
+                    }
 
-                parameterSelectionWindow.SetLabel("Engine:");
-                var showDialog = parameterSelectionWindow.ShowDialog();
-                if (showDialog.HasValue && showDialog.Value)
-                {
-                    textBlockFileParameter.Text = parameterSelectionWindow.SelectedEngine.ParameterName;
+                    parameterSelectionWindow.SetLabel("Engine:");
+                    var showDialog = parameterSelectionWindow.ShowDialog();
+                    if (showDialog.HasValue && showDialog.Value)
+                    {
+                        textBlockFileParameter.Text = parameterSelectionWindow.SelectedEngine.ParameterName;
+                    }
                 }
             }
             if (textBlockFileName.Text.EndsWith("avatar.exe",StringComparison.OrdinalIgnoreCase))
             {
                 
                 var fileInfo = new FileInfo(textBlockFileName.Text);
-                var avatars = Path.Combine(fileInfo.DirectoryName, "avatar_weights");
-                var parameterSelectionWindow = new ParameterSelectionWindow() { Owner = this };
-                if (Directory.Exists(avatars))
+                if (fileInfo.DirectoryName != null)
                 {
-                    var avatarList = Directory.GetFiles(avatars, "*.zip", SearchOption.TopDirectoryOnly);
-                    var avList = new List<string>();
-                    foreach (var s in avatarList)
+                    var avatars = Path.Combine(fileInfo.DirectoryName, "avatar_weights");
+                    var parameterSelectionWindow = new ParameterSelectionWindow() { Owner = this };
+                    if (Directory.Exists(avatars))
                     {
-                        if (s.Contains(@"\"))
+                        var avatarList = Directory.GetFiles(avatars, "*.zip", SearchOption.TopDirectoryOnly);
+                        var avList = new List<string>();
+                        foreach (var s in avatarList)
                         {
-                            avList.Add(s.Substring(s.LastIndexOf(@"\") + 1));
+                            if (s.Contains(@"\"))
+                            {
+                                avList.Add(s.Substring(s.LastIndexOf(@"\") + 1));
+                            }
                         }
-                    }
 
-                    parameterSelectionWindow.ShowList(avList.ToArray());
-                    parameterSelectionWindow.SetLabel("Avatar:");
-                    parameterSelectionWindow.ShowParameterButton(true);
-                    var showDialog = parameterSelectionWindow.ShowDialog();
-                    if (showDialog.HasValue && showDialog.Value)
-                    {
-                        
-                        if (string.IsNullOrWhiteSpace(parameterSelectionWindow.SelectedFile))
+                        parameterSelectionWindow.ShowList(avList.ToArray());
+                        parameterSelectionWindow.SetLabel("Avatar:");
+                        parameterSelectionWindow.ShowParameterButton(true);
+                        var showDialog = parameterSelectionWindow.ShowDialog();
+                        if (showDialog.HasValue && showDialog.Value)
                         {
-                            string avatarName = parameterSelectionWindow.SelectedEngine.ParameterName;
-                            textBlockFileParameter.Text = $"--weights \"{Path.Combine(avatars, avatarName)}\"";
-                        }
-                        else
-                        {
-                            textBlockFileParameter.Text = $"--weights \"{parameterSelectionWindow.SelectedFile}\"";
-                        }
                         
+                            if (string.IsNullOrWhiteSpace(parameterSelectionWindow.SelectedFile))
+                            {
+                                var avatarName = parameterSelectionWindow.SelectedEngine.ParameterName;
+                                textBlockFileParameter.Text = $"--weights \"{Path.Combine(avatars, avatarName)}\"";
+                            }
+                            else
+                            {
+                                textBlockFileParameter.Text = $"--weights \"{parameterSelectionWindow.SelectedFile}\"";
+                            }
+                        
+                        }
                     }
-                }
-                else
-                {
-                    var openFileDialog = new OpenFileDialog { Filter = "Avatar Engine|*.zip|All Files|*.*" };
-                    var showDialogAvatar = openFileDialog.ShowDialog(this);
-                    if (showDialogAvatar.Value && !string.IsNullOrWhiteSpace(openFileDialog.FileName))
+                    else
                     {
-                        var info = new FileInfo(openFileDialog.FileName);
-                        textBlockFileParameter.Text =  $"--weights \"{info.FullName}\"";
+                        var openFileDialog = new OpenFileDialog { Filter = "Avatar Engine|*.zip|All Files|*.*" };
+                        var showDialogAvatar = openFileDialog.ShowDialog(this);
+                        if (showDialogAvatar.Value && !string.IsNullOrWhiteSpace(openFileDialog.FileName))
+                        {
+                            var info = new FileInfo(openFileDialog.FileName);
+                            textBlockFileParameter.Text =  $"--weights \"{info.FullName}\"";
+                        }
                     }
                 }
             }

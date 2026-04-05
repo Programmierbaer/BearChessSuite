@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWin" Loaded="BearChessMainWindow_OnLoaded"
-        Activated="BearChessMainWindow_OnActivated"
+        Activated="BearChessMainWindow_OnActivated" 
         mc:Ignorable="d" Closing="BearChessMainWindow_OnClosing"  Background="WhiteSmoke"
         LocationChanged="BearChessMainWindow_OnLocationChanged" KeyDown="BearChessMainWindow_OnKeyDown"
         xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties;assembly=BearChessWpfCustomControlLib" 
@@ -151,9 +151,19 @@
                                 <Image Source="Assets/Icons/book.png" />
                             </MenuItem.Icon>
                         </MenuItem>
-                        
-                        
-                            <MenuItem Name="menuItemStartPuzzle" Click="MenuItemStartPuzzle_OnClick" Header="{x:Static p:Resources.Puzzle}">
+                        <MenuItem Visibility="Collapsed" Name="menuItemTrainStartRepertoire" Click="MenuItemTrainRepertoire_OnClick" Header="{x:Static p:Resources.RepertoireStart}">
+                            <MenuItem.Icon>
+                                <Image Source="Assets/Icons/books_stack.png" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Visibility="Collapsed" Name="menuItemTrainStopRepertoire" Click="MenuItemTrainRepertoire_OnClick" Header="{x:Static p:Resources.RepertoireStop}">
+                            <MenuItem.Icon>
+                                <Image Source="Assets/Icons/books_stack.png" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+
+
+                        <MenuItem Name="menuItemStartPuzzle" Click="MenuItemStartPuzzle_OnClick" Header="{x:Static p:Resources.Puzzle}">
                                 <MenuItem.Icon>
                                     <Image Source="Assets/Icons/setpieces.png" />
                                 </MenuItem.Icon>
@@ -282,12 +292,7 @@
                             <Image Source="Assets/Icons/diskette.png" Stretch="UniformToFill" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Tag="GamesManager" Name="menuItemGamesLoad" Header="{x:Static p:Resources.GamesManager}"
-                              Click="MenuItemGamesLoad_OnClick">
-                        <MenuItem.Icon>
-                            <Image Source="Assets/Icons/database.png" Stretch="UniformToFill" />
-                        </MenuItem.Icon>
-                    </MenuItem>
+                
                     <MenuItem Tag="GamesCopy" Name="menuItemGamesCopy" Command="Copy"
                               Header="{x:Static p:Resources.GamesCopy}">
                         <MenuItem.Icon>
@@ -300,20 +305,7 @@
                             <Image Source="Assets/Icons/clipboard_sign.png" Stretch="UniformToFill" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <!-- <MenuItem Name="menuItemGetCurrentGames" Header="lichess games" Click="MenuItemGetCurrentGames_OnClick"/> -->
-                    <MenuItem Header="{x:Static p:Resources.Settings}">
-                        <MenuItem.Icon>
-                            <Image Source="Assets/Icons/cog.png" />
-                        </MenuItem.Icon>
-                        <MenuItem Name="menuItemGamesShowDuplicates" Header="{x:Static p:Resources.ShowDuplicates}"
-                                  KeyDown="MenuItemGamesShowDuplicates_OnKeyDown"
-                                  Click="MenuItemGamesShowDuplicates_OnClick"
-                                  AutomationProperties.HelpText="{x:Static p:Resources.IsUnSelected}">
-                            <MenuItem.Icon>
-                                <Image Name="imageGamesShowDuplicates" Source="Assets/Icons/tick.png"
-                                       Visibility="Visible" />
-                            </MenuItem.Icon>
-                        </MenuItem>
+                  
                         <MenuItem Name="menuItemGamesPurePGNExport" Header="{x:Static p:Resources.ConfigurePGN}"
                                   Click="MenuItemGamesPurePGNExport_OnClick"
                                   KeyDown="MenuItemGamesPurePGNExport_OnKeyDown">
@@ -321,6 +313,20 @@
                                 <Image Name="imageGamesPurePGNExport" Source="Assets/Icons/script_gear.png" />
                             </MenuItem.Icon>
                         </MenuItem>
+                    
+                </MenuItem>
+                <MenuItem Header="{x:Static p:Resources.DatabaseMenu}" Name="menuItemDatabases">
+                    <MenuItem Tag="GamesManager" Name="menuItemGamesLoad" Header="{x:Static p:Resources.GamesManager}"
+                              Click="MenuItemGamesLoad_OnClick">
+                            <MenuItem.Icon>
+                                <Image Source="Assets/Icons/database_blue.png" Stretch="UniformToFill" />
+                            </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Tag="GamesManager" Header="{x:Static p:Resources.Puzzle}"
+                              Click="MenuItemPuzzleGamesLoad_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="Assets/Icons/database_green.png" Stretch="UniformToFill" />
+                        </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
                 <MenuItem Name="menuItemEngines"  Header="{x:Static p:Resources.Engines}">
@@ -1420,7 +1426,7 @@
                 <TextBlock Name="textBlockEBoard" Text="{x:Static p:Resources.Disconnected}" />
             </StatusBarItem>
             <StatusBarItem>
-                <Image Name="imageBT" Width="32" Height="32" Source="Assets/Icons/bluetooth.png" Visibility="Hidden" />
+                <Image Name="imageBT" Width="24" Height="24" Source="Assets/Icons/bluetooth.png" Visibility="Hidden" />
             </StatusBarItem>
             <Separator />
             <StatusBarItem>

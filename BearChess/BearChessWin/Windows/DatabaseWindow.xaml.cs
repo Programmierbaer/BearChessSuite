@@ -30,7 +30,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
     /// </summary>
     public partial class DatabaseWindow : Window
     {
-
         private readonly Configuration _configuration;
         private readonly Database _database;
         private string _lastSyncFen = string.Empty;
@@ -55,7 +54,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
             InitializeComponent();
             _configuration = configuration;
             _rm = SpeechTranslator.ResourceManager;
-            ShowGamesDuplicates = bool.Parse(_configuration.GetConfigValue("showGamesDuplicates", "true"));
+            ShowGamesDuplicates = _configuration.GetBoolValue("showGamesDuplicates", true);
             _twicUrl = _configuration.GetConfigValue("twicUrl", "https://theweekinchess.com/zips/");
             bool.TryParse(_configuration.GetConfigValue("deleteAfterDownload", "true"), out _deleteAfterDownload);
             int.TryParse(_configuration.GetConfigValue("initialTwicNumber", "1499"), out _initialTwicNumber);
@@ -66,7 +65,8 @@ namespace www.SoLaNoSoft.com.BearChessWin
             _lastSyncFen = fen;
             _readOnly = readOnly;
             _logger = logger;
-            _gamesFilter = _configuration.LoadGamesFilter();
+            _gamesFilter = _configuration.LoadGamesFilter();            
+            imageGamesShowDuplicates.Visibility = ShowGamesDuplicates ? Visibility.Visible : Visibility.Hidden;
             SetItemsSource();
             imageTableFilterActive.Visibility = _gamesFilter.FilterIsActive ? Visibility.Visible : Visibility.Hidden;
             SetReadOnly(readOnly);
@@ -75,8 +75,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
 
         private void SetItemsSource(bool deleteDuplicates = false)
         {
-
-            bool.TryParse(_configuration.GetConfigValue("duplicatedByMoves", "false"), out bool duplicatedByMoves);
+           bool duplicatedByMoves =  _configuration.GetBoolValue("duplicatedByMoves", false);
             var duplicatesId = new List<ulong>();
             var pgnHashCounter = new Dictionary<ulong, ulong>();
             var pgnHashCounterFirst = new Dictionary<ulong, List<int>>();
@@ -102,8 +101,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     duplicatesId.Add(idCounterKey);
                     foreach (var game in pgnHashCounterFirst[idCounterKey])
-                    {
-                      //  duplicatesId.Add(game);
+                    {                      
                         if (deleteDuplicates)
                         {
                             if (_database.IsDuelGame(game) ||
@@ -215,10 +213,16 @@ namespace www.SoLaNoSoft.com.BearChessWin
             var showDialog = openFileDialog.ShowDialog(this);
             if (showDialog.Value && !string.IsNullOrWhiteSpace(openFileDialog.FileName))
             {
-                _database.LoadDb(openFileDialog.FileName);
-                SetItemsSource();
-                _configuration.SetConfigValue("DatabaseFile", openFileDialog.FileName);
-                UpdateTitle();
+                if (_database.LoadDb(openFileDialog.FileName) && !_database.InError)
+                {
+                    SetItemsSource();
+                    _configuration.SetConfigValue("DatabaseFile", openFileDialog.FileName);
+                    UpdateTitle();
+                }
+                else
+                {
+                    MessageBox.Show(this, _database.ErrorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
@@ -357,10 +361,7 @@ namespace www.SoLaNoSoft.com.BearChessWin
                await ImportFile(openFileDialog.FileName, 0);
             }
         }
-
-    
-
-
+        
         private async Task ImportFile(string fileName, int twicId)
         {
             _logger?.LogDebug($"Import file started.");
@@ -486,7 +487,6 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 {
                     _database.SetNumberOfTWICGames(twicId, _database.NumberOfTWICInGames(twicId));
                     Dispatcher.Invoke(() => { infoWindow.Close(); });
-                    //infoWindow.Close();
                     SetItemsSource();
                     UpdateTitle();
                 }, System.Threading.CancellationToken.None, TaskContinuationOptions.None,
@@ -594,6 +594,38 @@ namespace www.SoLaNoSoft.com.BearChessWin
             }
 
             ExportGames.Export(selectedItems, _database, _configuration.GetPgnConfiguration(), this);
+        }
+        
+        private void ButtonExportRepertoire_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (dataGridGames.Items.Count == 0)
+            {
+                return;
+            }
+
+            var selectedItems = dataGridGames.SelectedItems;
+            if (selectedItems.Count == 0)
+            {
+                selectedItems = dataGridGames.Items;
+            }
+
+            ExportGames.ExportAsRepertoire(_logger, selectedItems, _database, _configuration.GetPgnConfiguration(), this);
+        }
+        
+        private void ButtonExportPuzzle_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (dataGridGames.Items.Count == 0)
+            {
+                return;
+            }
+
+            var selectedItems = dataGridGames.SelectedItems;
+            if (selectedItems.Count == 0)
+            {
+                selectedItems = dataGridGames.Items;
+            }
+
+            ExportGames.ExportAsPuzzle(_logger, selectedItems, _database, _configuration.GetPgnConfiguration(), this);
         }
 
         private void ButtonSaveDb_OnClick(object sender, RoutedEventArgs e)
@@ -946,6 +978,14 @@ namespace www.SoLaNoSoft.com.BearChessWin
                 _logger?.LogError(ex);
                 MessageBox.Show(ex.Message, "Error");
             }
+        }
+
+        private void MenuItemGamesShowDuplicates_OnClick(object sender, RoutedEventArgs e)
+        {
+            ShowGamesDuplicates = !ShowGamesDuplicates;
+            _configuration.SetBoolValue("showGamesDuplicates", ShowGamesDuplicates);
+            imageGamesShowDuplicates.Visibility = ShowGamesDuplicates ? Visibility.Visible : Visibility.Hidden;
+            SetItemsSource();
         }
     }
 

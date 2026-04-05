@@ -48,6 +48,6 @@ using System.Windows;
 //      Buildnummer
 //      Revision
 //
-[assembly: AssemblyVersion("1.7.2.1")]
-[assembly: AssemblyFileVersion("1.7.2.1")]
+[assembly: AssemblyVersion("1.8.0.0")]
+[assembly: AssemblyFileVersion("1.8.0.0")]
 [assembly: AssemblyInformationalVersion("Development")]

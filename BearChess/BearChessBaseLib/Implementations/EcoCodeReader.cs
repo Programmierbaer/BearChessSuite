@@ -70,7 +70,12 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
 
         public EcoCode[] Load(CultureInfo info)
         {
-            string fileName = info.Name.Contains("en") ? _fileName_EN :_fileName_DE;
+            var configValueLanguage = Configuration.Instance.GetConfigValue("Language", "default");
+            if (configValueLanguage.Equals("default"))
+            {
+                configValueLanguage = info.Name;
+            }
+            string fileName = configValueLanguage.Contains("de") ? _fileName_DE :_fileName_EN;
             if (File.Exists(fileName))
             {
                 try
@@ -92,7 +97,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
 
         public void Save(EcoCode[] ecoCodes, CultureInfo info)
         {
-            string fileName = info.Name.Contains("en") ? _fileName_EN : _fileName_DE;
+            string fileName = info.Name.ToLower().Contains("en") ? _fileName_EN : _fileName_DE;
             try
             {
                 var serializer = new XmlSerializer(typeof(EcoCode[]));
@@ -111,7 +116,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
         {
             if (!File.Exists(fileName))
             {
-                return new EcoCode[0];
+                return [];
             }
 
             var result = new List<EcoCode>();

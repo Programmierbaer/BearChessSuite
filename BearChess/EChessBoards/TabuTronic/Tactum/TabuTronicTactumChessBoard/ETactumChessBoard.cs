@@ -81,6 +81,7 @@ namespace www.SoLaNoSoft.com.BearChess.TabuTronic.Tactum.ChessBoard
             BatteryStatus = _rm.GetString("Full");
             PieceRecognition = false;
             ValidForAnalyse = true;
+            ValidForTraining = true;
             MultiColorLEDs = true;
             UseFieldDumpForFEN = true;
             IsConnected = EnsureConnection();
@@ -106,6 +107,7 @@ namespace www.SoLaNoSoft.com.BearChess.TabuTronic.Tactum.ChessBoard
             Information = Constants.TabutronicTactum;
             PieceRecognition = false;
             ValidForAnalyse = true;
+            ValidForTraining = true;
         }
 
         public override void Reset()

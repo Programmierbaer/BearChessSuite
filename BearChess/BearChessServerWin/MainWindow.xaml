@@ -46,32 +46,36 @@
                 <MenuItem Header="{x:Static p:Resources.LoadAndManageEngines}" Click="MenuItemSelectEngine_Click"></MenuItem>
             </MenuItem>
         </Menu>
-        <ListBox Name="listBoxLog" Grid.Row="1" Margin="5"></ListBox>
-        
-
+        <TabControl Grid.Row="1" Margin="5">
+            <TabItem Name="TabItemLog" Header="Log">
+                <ListBox Name="ListBoxLog" Grid.Row="1" Margin="5"></ListBox>           
+            </TabItem>
+            <TabItem Name="TabItemTournaments" Header="{x:Static p:Resources.Tournaments}">
+                <TreeView>
+                    <TreeViewItem Name="TreeViewItemTournaments" Header="{x:Static p:Resources.Tournaments}">
+                    </TreeViewItem>
+                </TreeView>
+            </TabItem>
+        </TabControl>
         <StatusBar Grid.Row="2" VerticalAlignment="Bottom"  Background="AliceBlue" BorderThickness="1" BorderBrush="Gray">
-           
-
             <StatusBarItem>
-                <Image Name="imageServer" Width="16" Height="16" Source="Assets/BearChessServer.ico"  />
+                <Image Name="ImageServer" Width="16" Height="16" Source="Assets/BearChessServer.ico"  />
             </StatusBarItem>
             <StatusBarItem>
-                <TextBlock Name="textBlockServer" Text="{x:Static p:Resources.Closed}" />
+                <TextBlock Name="TextBlockServer" Text="{x:Static p:Resources.Closed}" />
             </StatusBarItem>
             <Separator />
-
-
             <StatusBarItem>
-                <Image Name="imageWebServer" Width="16" Height="16" Source="Assets/world_go.png"  />
+                <Image Name="ImageWebServer" Width="16" Height="16" Source="Assets/world_go.png"  />
             </StatusBarItem>
             <StatusBarItem>
-                <TextBlock Name="textBlockWebServer" Text="{x:Static p:Resources.Closed}" />
+                <TextBlock Name="TextBlockWebServer" Text="{x:Static p:Resources.Closed}" />
             </StatusBarItem>
             <StatusBarItem>
-                <Image Name="imageFTP" Width="16" Height="16" Source="Assets/ftp.png"  />
+                <Image Name="ImageFtp" Width="16" Height="16" Source="Assets/ftp.png"  />
             </StatusBarItem>
             <StatusBarItem>
-                <TextBlock Name="textBlockPublish" Text="{x:Static p:Resources.Closed}" />
+                <TextBlock Name="TextBlockPublish" Text="{x:Static p:Resources.Closed}" />
             </StatusBarItem>
         </StatusBar>
     </Grid>

@@ -29,14 +29,13 @@ namespace www.SoLaNoSoft.com.BearChessServerWin
     /// </summary>
     public partial class MainWindow : Window
     {
-
-
-
+        
         private readonly IBearChessController _bearChessController;
         private readonly List<BearChessClientInformation> _tokenList = new List<BearChessClientInformation>();
         private readonly List<TournamentWindow> _tournamentWindowsList = new List<TournamentWindow>();
         private readonly ResourceManager _rm;
         private readonly ILogging _logging;
+        private readonly List<Tournament> _tournaments = new List<Tournament>();
 
         public MainWindow()
         {
@@ -90,47 +89,47 @@ namespace www.SoLaNoSoft.com.BearChessServerWin
         {
             Dispatcher?.Invoke(() =>
             {
-                listBoxLog.Items.Add($"{DateTime.Now:G}: {e}");
-                listBoxLog.ScrollIntoView(listBoxLog.Items[listBoxLog.Items.Count - 1]);
+                ListBoxLog.Items.Add($"{DateTime.Now:G}: {e}");
+                ListBoxLog.ScrollIntoView(ListBoxLog.Items[ListBoxLog.Items.Count - 1]);
             });
         }
 
         private void _bearChessController_WebServerStopped(object sender, EventArgs e)
         {
-            Dispatcher?.Invoke(() => { textBlockWebServer.Text = _rm.GetString("Closed"); });
+            Dispatcher?.Invoke(() => { TextBlockWebServer.Text = _rm.GetString("Closed"); });
         }
 
         private void _bearChessController_WebServerStarted(object sender, EventArgs e)
         {
-            Dispatcher?.Invoke(() => { textBlockWebServer.Text = _rm.GetString("IsRunning"); });
+            Dispatcher?.Invoke(() => { TextBlockWebServer.Text = _rm.GetString("IsRunning"); });
         }
 
         private void _bearChessController_ServerStopped(object sender, EventArgs e)
         {
-            Dispatcher?.Invoke(() => { textBlockServer.Text = _rm.GetString("Closed"); });
+            Dispatcher?.Invoke(() => { TextBlockServer.Text = _rm.GetString("Closed"); });
         }
 
         private void _bearChessController_ServerStarted(object sender, EventArgs e)
         {
-            Dispatcher?.Invoke(() => { textBlockServer.Text = _rm.GetString("IsRunning"); });
+            Dispatcher?.Invoke(() => { TextBlockServer.Text = _rm.GetString("IsRunning"); });
         }
 
         private void _bearChessController_ClientMessage(object sender, BearChessServerMessage e)
         {
-            if (e.ActionCode.Equals("CONNECT"))
+            if (e.ActionCode.Equals(BCServerConstants.ActionConnect))
             {
                 _logging?.LogDebug($"Main: Connect: {e.Message}: {e.Address} ");
                 _tokenList.Add(new BearChessClientInformation() { Address = e.Address, Name = e.Message });
                 Dispatcher?.Invoke(() =>
                 {
-                    listBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("Connected")} {e.Message} / {e.Address}");
-                    listBoxLog.ScrollIntoView(listBoxLog.Items[listBoxLog.Items.Count - 1]);
+                    ListBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("Connected")} {e.Message} / {e.Address}");
+                    ListBoxLog.ScrollIntoView(ListBoxLog.Items[ListBoxLog.Items.Count - 1]);
                 });
 
                 return;
             }
 
-            if (e.ActionCode.Equals("DISCONNECT"))
+            if (e.ActionCode.Equals(BCServerConstants.ActionDisConnect))
             {
                 _logging?.LogDebug($"Main: Disconnect: {e.Message}: {e.Address} ");
                 var clientInfo = _tokenList.FirstOrDefault(t => t.Address.Equals(e.Address));
@@ -140,35 +139,35 @@ namespace www.SoLaNoSoft.com.BearChessServerWin
                 }
                 Dispatcher?.Invoke(() =>
                 {
-                    listBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("Disconnected")} {e.Message} / {e.Address}");
-                    listBoxLog.ScrollIntoView(listBoxLog.Items[listBoxLog.Items.Count - 1]);
+                    ListBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("Disconnected")} {e.Message} / {e.Address}");
+                    ListBoxLog.ScrollIntoView(ListBoxLog.Items[ListBoxLog.Items.Count - 1]);
                 });
 
                 return;
             }
 
-            if (e.ActionCode.Equals("NEWGAME"))
+            if (e.ActionCode.Equals(BCServerConstants.ActionNewGame))
             {
                 Dispatcher?.Invoke(() =>
                 {
-                    listBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("NewGame")}  {e.Address}");
-                    listBoxLog.ScrollIntoView(listBoxLog.Items[listBoxLog.Items.Count - 1]);
+                    ListBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("NewGame")}  {e.Address}");
+                    ListBoxLog.ScrollIntoView(ListBoxLog.Items[ListBoxLog.Items.Count - 1]);
                 });
             }
-            if (e.ActionCode.Equals("WHITEPLAYER"))
+            if (e.ActionCode.Equals(BCServerConstants.ActionPlayerWhite))
             {
                 Dispatcher?.Invoke(() =>
                 {
-                    listBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("White")}: {e.Message}  {e.Address}");
-                    listBoxLog.ScrollIntoView(listBoxLog.Items[listBoxLog.Items.Count - 1]);
+                    ListBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("White")}: {e.Message}  {e.Address}");
+                    ListBoxLog.ScrollIntoView(ListBoxLog.Items[ListBoxLog.Items.Count - 1]);
                 });
             }
-            if (e.ActionCode.Equals("BLACKPLAYER"))
+            if (e.ActionCode.Equals(BCServerConstants.ActionPlayerBlack))
             {
                 Dispatcher?.Invoke(() =>
                 {
-                    listBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("Black")}: {e.Message}  {e.Address}");
-                    listBoxLog.ScrollIntoView(listBoxLog.Items[listBoxLog.Items.Count - 1]);
+                    ListBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("Black")}: {e.Message}  {e.Address}");
+                    ListBoxLog.ScrollIntoView(ListBoxLog.Items[ListBoxLog.Items.Count - 1]);
                 });
             }
         }
@@ -217,21 +216,21 @@ namespace www.SoLaNoSoft.com.BearChessServerWin
                     return;
                 }
 
-                listBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("ServerStopped")}");
-                listBoxLog.ScrollIntoView(listBoxLog.Items[listBoxLog.Items.Count - 1]);
+                ListBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("ServerStopped")}");
+                ListBoxLog.ScrollIntoView(ListBoxLog.Items[ListBoxLog.Items.Count - 1]);
                 MenuItemOpenWebServer.IsEnabled = false;
                 MenuItemStartPublish.IsEnabled = false;
                 if (_bearChessController.WebServerIsOpen)
                 {
-                    listBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("WebServerStopped")}");
+                    ListBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("WebServerStopped")}");
                     _bearChessController?.StartStopWebServer();
                 }
             }
             else
             {
 
-                listBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("ServerStarted")}");
-                listBoxLog.ScrollIntoView(listBoxLog.Items[listBoxLog.Items.Count - 1]);
+                ListBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("ServerStarted")}");
+                ListBoxLog.ScrollIntoView(ListBoxLog.Items[ListBoxLog.Items.Count - 1]);
                 MenuItemOpenWebServer.IsEnabled = true;
                 MenuItemStartPublish.IsEnabled = true;
             }
@@ -248,14 +247,14 @@ namespace www.SoLaNoSoft.com.BearChessServerWin
                 {
                     return;
                 }
-                listBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("WebServerStopped")}");
-                listBoxLog.ScrollIntoView(listBoxLog.Items[listBoxLog.Items.Count - 1]);
+                ListBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("WebServerStopped")}");
+                ListBoxLog.ScrollIntoView(ListBoxLog.Items[ListBoxLog.Items.Count - 1]);
 
             }
             else
             {
-                listBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("WebServerStarted")}");
-                listBoxLog.ScrollIntoView(listBoxLog.Items[listBoxLog.Items.Count - 1]);
+                ListBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("WebServerStarted")}");
+                ListBoxLog.ScrollIntoView(ListBoxLog.Items[ListBoxLog.Items.Count - 1]);
             }
 
             _bearChessController?.StartStopWebServer();
@@ -268,16 +267,58 @@ namespace www.SoLaNoSoft.com.BearChessServerWin
             var result = queryWindows.ShowDialog();
             if (result.HasValue && result.Value)
             {
+                var ident = Guid.NewGuid();
+                var tournament = new Tournament(ident,queryWindows.TournamentName, queryWindows.BoardsCount,
+                    queryWindows.PublishTournament);
+                _tournaments.Add(tournament);
                 _logging?.LogDebug($"Main: New tournament named: {queryWindows.TournamentName}");
-                var tWindow = new TournamentWindow(queryWindows.TournamentName, queryWindows.BoardsCount,
-                    queryWindows.PublishTournament, _bearChessController, _logging)
+                var tWindow = new TournamentWindow(tournament, _bearChessController, _logging)
                 {
                     Owner = this
                 };
                 tWindow.Show();
                 tWindow.Closed += TournamentWindow_Closed;
-                tWindow.Tag = Guid.NewGuid();
+                tWindow.Tag = ident;
+                tWindow.TournamentChanged += TWindowOnTournamentChanged;
                 _tournamentWindowsList.Add(tWindow);
+                var tTreeView = new TreeViewItem();
+                tTreeView.Header = tWindow.TournamentName;
+                tTreeView.Tag = tWindow.Tag;
+                TreeViewItemTournaments.Items.Add(tTreeView);
+            }
+        }
+
+        private void TWindowOnTournamentChanged(object sender, EventArgs e)
+        {
+            var aWindow = (TournamentWindow)sender;
+            if (aWindow == null)
+            {
+                return;
+            }
+
+            var tournament = _tournaments.FirstOrDefault(t => t.Identifier.Equals(aWindow.Tag));
+            if (tournament == null)
+            {
+                return;
+            }
+            
+            foreach (var item in TreeViewItemTournaments.Items)
+            {
+                var tItem = (TreeViewItem)item; 
+                if (tItem is { Tag: not null } && tItem.Tag.Equals(tournament.Identifier))
+                {
+                    var tournamentGames = tournament.GetGames();
+                    tItem.Items.Clear();
+                    foreach (var g in tournamentGames)
+                    {
+                        var tTreeView = new TreeViewItem();
+                        tTreeView.Header = $"White: {g.PlayerWhite}";
+                        tItem.Items.Add(tTreeView);
+                        tTreeView = new TreeViewItem();
+                        tTreeView.Header = $"Black: {g.PlayerBlack}";
+                        tItem.Items.Add(tTreeView);
+                    }
+                }
             }
         }
 
@@ -339,16 +380,16 @@ namespace www.SoLaNoSoft.com.BearChessServerWin
                 {
                     return;
                 }
-                listBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("PublishingStopped")}");
-                listBoxLog.ScrollIntoView(listBoxLog.Items[listBoxLog.Items.Count - 1]);
-                textBlockPublish.Text = _rm.GetString("Closed");
+                ListBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("PublishingStopped")}");
+                ListBoxLog.ScrollIntoView(ListBoxLog.Items[ListBoxLog.Items.Count - 1]);
+                TextBlockPublish.Text = _rm.GetString("Closed");
 
             }
             else
             {
-                listBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("PublishingStarted")}");
-                listBoxLog.ScrollIntoView(listBoxLog.Items[listBoxLog.Items.Count - 1]);
-                textBlockPublish.Text = _rm.GetString("IsRunning");
+                ListBoxLog.Items.Add($"{DateTime.Now:G}: {_rm.GetString("PublishingStarted")}");
+                ListBoxLog.ScrollIntoView(ListBoxLog.Items[ListBoxLog.Items.Count - 1]);
+                TextBlockPublish.Text = _rm.GetString("IsRunning");
             }
 
             _bearChessController?.StartStopPublishing();

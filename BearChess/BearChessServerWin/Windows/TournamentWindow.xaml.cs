@@ -27,22 +27,27 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
         private readonly List<BearChessClientInformation> _tokenList = new List<BearChessClientInformation>();
         private readonly IBearChessController _bearChessController;
         private readonly bool _publishTournament;
+        private readonly Tournament _tournament;
         private readonly ILogging _serverLogging;
         private readonly ILogging _localLogging;
-
+        
+        public event EventHandler TournamentChanged;
+        
         public string TournamentName { get; private set; }
         public string UniqueName { get; private set; }
 
-        public TournamentWindow(string name, int gamesCount, bool publishTournament, IBearChessController bearChessController,
+        public TournamentWindow(Tournament tournament, IBearChessController bearChessController,
             ILogging serverLogging)
         {
             InitializeComponent();
-            Title = $"{Title} {name}";
-            TournamentName = name;
-            _publishTournament = publishTournament;
+            var gamesCount = tournament.BoardsCount;
+            Title = $"{Title} {tournament.Name}";
+            TournamentName = tournament.Name;
+            _publishTournament = tournament.PublishTournament;
+            _tournament = tournament;
             _serverLogging = serverLogging;
             _bearChessController = bearChessController;
-            _bearChessController.ClientMessage += _bearChessController_ClientMessage;
+            _bearChessController.ClientMessage += bearChessController_ClientMessage;
             UniqueName = $"T_{Guid.NewGuid():N}";
             try
             {
@@ -62,9 +67,9 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
                 // ignore
             }
 
-            _localLogging?.LogInfo($"Tournament: {name}");
+            _localLogging?.LogInfo($"Tournament: {tournament.Name}");
 
-            var colsCount = gamesCount > 3 ? 4 : gamesCount;
+            var colsCount = tournament.BoardsCount > 3 ? 4 : gamesCount;
             var rowsCount = Math.Ceiling((decimal)((decimal)gamesCount / (decimal)colsCount));
             for (var i = 0; i < colsCount; i++)
             {
@@ -99,7 +104,7 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
                         Margin = new Thickness(5),
                     };
                     view1.SetLogging(_localLogging);
-                    view1.ConfigurationRequested += Board_ConfigurationRequested;
+                    view1.ConfigurationRequested += board_ConfigurationRequested;
                     _chessBoardList.Add(view1);
                     view1.SetBearChessController(_bearChessController);
                     view1.SetPublishGame(_publishTournament);
@@ -115,16 +120,16 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
             _tokenList.AddRange(_bearChessController.GetCurrentConnectionList());
         }
 
-        private void _bearChessController_ClientMessage(object sender, BearChessServerMessage e)
+        private void bearChessController_ClientMessage(object sender, BearChessServerMessage e)
         {
-            if (e.ActionCode.Equals("CONNECT"))
+            if (e.ActionCode.Equals(BCServerConstants.ActionConnect))
             {
                 _serverLogging?.LogDebug($"Main: Connect: {e.Message}: {e.Address} ");
                 _tokenList.Add(new BearChessClientInformation() { Address = e.Address, Name = e.Message });
                 return;
             }
 
-            if (e.ActionCode.Equals("DISCONNECT"))
+            if (e.ActionCode.Equals(BCServerConstants.ActionDisConnect))
             {
                 _serverLogging?.LogDebug($"Main: Disconnect: {e.Message}: {e.Address} ");
                 var clientInfo = _tokenList.FirstOrDefault(t => t.Address.Equals(e.Address));
@@ -135,7 +140,7 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
             }
         }
 
-        private void Board_ConfigurationRequested(object sender, string boardId)
+        private void board_ConfigurationRequested(object sender, string boardId)
         {
             var configBoard = _chessBoardList.FirstOrDefault(f => f.BoardId.Equals(boardId));
             if (configBoard == null)
@@ -179,19 +184,23 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
                 _bearChessController.AddBlackEBoard(configServerBoard.BlackEBoard);
                 _bearChessController.AssignToken(boardId, configServerBoard.WhiteConnectionId);
                 _bearChessController.AssignToken(boardId, configServerBoard.BlackConnectionId);
+                var tournamentGame = new TournamentGame();
                 if (!string.IsNullOrWhiteSpace(configServerBoard.WhiteConnectionId))
                 {
+                    tournamentGame.PlayerWhite = configServerBoard.WhitePlayerName;
+                    tournamentGame.PlayerBlack = configServerBoard.BlackPlayerName;
+                    _tournament.AddGame(tournamentGame);
                     _bearChessController.SendToClient(configServerBoard.WhiteConnectionId,
                         new BearChessServerMessage()
                         {
-                            ActionCode = "TOURNAMENT",
+                            ActionCode = BCServerConstants.ActionTournament,
                             Message = TournamentName,
                             Address = configServerBoard.WhiteConnectionId
                         });
                     _bearChessController.SendToClient(configServerBoard.WhiteConnectionId,
                         new BearChessServerMessage()
                         {
-                            ActionCode = "PLAYER_WHITE",
+                            ActionCode = BCServerConstants.ActionPlayerWhite,
                             Message = configServerBoard.WhitePlayerName,
                             Color = configServerBoard.SameConnection ? string.Empty : configServerBoard.WhiteConnectionId,
                             Address = configServerBoard.WhiteConnectionId
@@ -199,7 +208,7 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
                     _bearChessController.SendToClient(configServerBoard.WhiteConnectionId,
                         new BearChessServerMessage()
                         {
-                            ActionCode = "PLAYER_BLACK",
+                            ActionCode = BCServerConstants.ActionPlayerBlack,
                             Message = configServerBoard.BlackPlayerName,
                             Color = configServerBoard.SameConnection ? string.Empty : configServerBoard.BlackConnectionId,
                             Address = configServerBoard.WhiteConnectionId
@@ -211,14 +220,14 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
                     _bearChessController.SendToClient(configServerBoard.BlackConnectionId,
                         new BearChessServerMessage()
                         {
-                            ActionCode = "TOURNAMENT",
+                            ActionCode = BCServerConstants.ActionTournament,
                             Message = TournamentName,
                             Address = configServerBoard.BlackConnectionId
                         });
                     _bearChessController.SendToClient(configServerBoard.BlackConnectionId,
                         new BearChessServerMessage()
                         {
-                            ActionCode = "PLAYER_WHITE",
+                            ActionCode = BCServerConstants.ActionPlayerWhite,
                             Message = configServerBoard.WhitePlayerName,
                             Color = configServerBoard.WhiteConnectionId,
                             Address = configServerBoard.BlackConnectionId
@@ -226,18 +235,19 @@ namespace www.SoLaNoSoft.com.BearChessServerWin.Windows
                     _bearChessController.SendToClient(configServerBoard.BlackConnectionId,
                         new BearChessServerMessage()
                         {
-                            ActionCode = "PLAYER_BLACK",
+                            ActionCode = BCServerConstants.ActionPlayerBlack,
                             Message = configServerBoard.BlackPlayerName,
                             Color = configServerBoard.BlackConnectionId,
                             Address = configServerBoard.BlackConnectionId
                         });
                 }
+                TournamentChanged?.Invoke(this, null);
             }
         }
 
         private void TournamentWindow_OnClosing(object sender, CancelEventArgs e)
         {
-            _bearChessController.ClientMessage -= _bearChessController_ClientMessage;
+            _bearChessController.ClientMessage -= bearChessController_ClientMessage;
         }
 
         private void MenuItemSave_OnClick(object sender, RoutedEventArgs e)

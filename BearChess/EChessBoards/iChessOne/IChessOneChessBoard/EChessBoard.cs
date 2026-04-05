@@ -110,6 +110,7 @@ namespace www.SoLaNoSoft.com.BearChess.IChessOneChessBoard
             _logger = logger;
             PieceRecognition = true;
             ValidForAnalyse = true;
+            ValidForTraining = true;
             MultiColorLEDs = true;
             BatteryLevel = "---";
             BatteryStatus = "Full";
@@ -132,6 +133,7 @@ namespace www.SoLaNoSoft.com.BearChess.IChessOneChessBoard
             MultiColorLEDs = true;
             PieceRecognition = true;
             ValidForAnalyse = true;
+            ValidForTraining = true;
         }
 
         public override void SetCurrentColor(int currentColor)

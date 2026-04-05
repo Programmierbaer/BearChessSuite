@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C5C146BA-7979-4B21-9ADF-E5BEA8EF7F20}</ProjectGuid>
+    <OutputType>library</OutputType>
+    <RootNamespace>www.SoLaNoSoft.com.BearChessWpfLibrary</RootNamespace>
+    <AssemblyName>BearChessWpfLibrary</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="ProgressWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ProgressWindow.xaml.cs">
+      <DependentUpon>ProgressWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\6-2-chess-png.png" />
+    <Resource Include="Assets\Icons\accept_button.png" />
+    <Resource Include="Assets\Icons\Array.ico" />
+    <Resource Include="Assets\Icons\arrow_down.png" />
+    <Resource Include="Assets\Icons\arrow_refresh.png" />
+    <Resource Include="Assets\Icons\arrow_right.png" />
+    <Resource Include="Assets\Icons\arrow_rotate_anticlockwise.png" />
+    <Resource Include="Assets\Icons\arrow_up.png" />
+    <Resource Include="Assets\Icons\balance_unbalance.png" />
+    <Resource Include="Assets\Icons\BearChess.ico" />
+    <Resource Include="Assets\Icons\bin.png" />
+    <Resource Include="Assets\Icons\Black B.ico" />
+    <Resource Include="Assets\Icons\Black K.ico" />
+    <Resource Include="Assets\Icons\Black N.ico" />
+    <Resource Include="Assets\Icons\Black P.ico" />
+    <Resource Include="Assets\Icons\Black Q.ico" />
+    <Resource Include="Assets\Icons\Black R.ico" />
+    <Resource Include="Assets\Icons\bluetooth.png" />
+    <Resource Include="Assets\Icons\Board2DPieces32.png" />
+    <Resource Include="Assets\Icons\Board64 black.ico" />
+    <Resource Include="Assets\Icons\book.png" />
+    <Resource Include="Assets\Icons\bookmark.png" />
+    <Resource Include="Assets\Icons\books_stack.png" />
+    <Resource Include="Assets\Icons\book_add.png" />
+    <Resource Include="Assets\Icons\book_open.png" />
+    <Resource Include="Assets\Icons\bullet_blue.png" />
+    <Resource Include="Assets\Icons\bullet_go.png" />
+    <Resource Include="Assets\Icons\bullet_green.png" />
+    <Resource Include="Assets\Icons\bullet_red.png" />
+    <Resource Include="Assets\Icons\bullet_toggle_plus.png" />
+    <Resource Include="Assets\Icons\calendar_view_day.png" />
+    <Resource Include="Assets\Icons\cancel.png" />
+    <Resource Include="Assets\Icons\chart_line.png" />
+    <Resource Include="Assets\Icons\checkerboard.png" />
+    <Resource Include="Assets\Icons\chess-clock.png" />
+    <Resource Include="Assets\Icons\chess-clock_5077244.png" />
+    <Resource Include="Assets\Icons\chessboard_base.png" />
+    <Resource Include="Assets\Icons\chessboard_base_small.png" />
+    <Resource Include="Assets\Icons\clear_formatting.png" />
+    <Resource Include="Assets\Icons\clipboard_sign.png" />
+    <Resource Include="Assets\Icons\clipboard_sign_out.png" />
+    <Resource Include="Assets\Icons\clock_pause.png" />
+    <Resource Include="Assets\Icons\clock_play.png" />
+    <Resource Include="Assets\Icons\cog.png" />
+    <Resource Include="Assets\Icons\cog_add.png" />
+    <Resource Include="Assets\Icons\cog_edit.png" />
+    <Resource Include="Assets\Icons\comments.png" />
+    <Resource Include="Assets\Icons\connect.png" />
+    <Resource Include="Assets\Icons\control_pause_blue.png" />
+    <Resource Include="Assets\Icons\control_play_blue.png" />
+    <Resource Include="Assets\Icons\control_power_blue.png" />
+    <Resource Include="Assets\Icons\control_repeat_blue.png" />
+    <Resource Include="Assets\Icons\control_stop.png" />
+    <Resource Include="Assets\Icons\control_stop_blue.png" />
+    <Resource Include="Assets\Icons\cup_gold.png" />
+    <Resource Include="Assets\Icons\database.png" />
+    <Resource Include="Assets\Icons\database_add.png" />
+    <Resource Include="Assets\Icons\database_cleanup.png" />
+    <Resource Include="Assets\Icons\database_delete.png" />
+    <Resource Include="Assets\Icons\database_refresh.png" />
+    <Resource Include="Assets\Icons\database_repeat_delete.png" />
+    <Resource Include="Assets\Icons\database_save.png" />
+    <Resource Include="Assets\Icons\delete.png" />
+    <Resource Include="Assets\Icons\dice.png" />
+    <Resource Include="Assets\Icons\digit_separator.png" />
+    <Resource Include="Assets\Icons\disconnect.png" />
+    <Resource Include="Assets\Icons\diskette.png" />
+    <Resource Include="Assets\Icons\door_out.png" />
+    <Resource Include="Assets\Icons\download.png" />
+    <Resource Include="Assets\Icons\emotion_question.png" />
+    <Resource Include="Assets\Icons\Empty.png" />
+    <Resource Include="Assets\Icons\eye.png" />
+    <Resource Include="Assets\Icons\eye_close.png" />
+    <Resource Include="Assets\Icons\eye_half.png" />
+    <Resource Include="Assets\Icons\file_extension_exe.png" />
+    <Resource Include="Assets\Icons\file_extension_html.png" />
+    <Resource Include="Assets\Icons\file_extension_log.png" />
+    <Resource Include="Assets\Icons\file_extension_wav.png" />
+    <Resource Include="Assets\Icons\file_manager.png" />
+    <Resource Include="Assets\Icons\file_save_as.png" />
+    <Resource Include="Assets\Icons\fill_color.png" />
+    <Resource Include="Assets\Icons\filter.png" />
+    <Resource Include="Assets\Icons\filter_advanced.png" />
+    <Resource Include="Assets\Icons\filter_clear.png" />
+    <Resource Include="Assets\Icons\filter_reapply.png" />
+    <Resource Include="Assets\Icons\flag_denmark.png" />
+    <Resource Include="Assets\Icons\flag_france.png" />
+    <Resource Include="Assets\Icons\flag_germany.png" />
+    <Resource Include="Assets\Icons\flag_great_britain.png" />
+    <Resource Include="Assets\Icons\flag_iceland.png" />
+    <Resource Include="Assets\Icons\flag_italy.png" />
+    <Resource Include="Assets\Icons\flag_poland.png" />
+    <Resource Include="Assets\Icons\flag_spain.png" />
+    <Resource Include="Assets\Icons\folder.png" />
+    <Resource Include="Assets\Icons\folder_add.png" />
+    <Resource Include="Assets\Icons\folder_database.png" />
+    <Resource Include="Assets\Icons\font_size_decrease.png" />
+    <Resource Include="Assets\Icons\font_size_increase.png" />
+    <Resource Include="Assets\Icons\ftp.png" />
+    <Resource Include="Assets\Icons\globe_model.png" />
+    <Resource Include="Assets\Icons\GreenBorder.png" />
+    <Resource Include="Assets\Icons\handshake.png" />
+    <Resource Include="Assets\Icons\help.png" />
+    <Resource Include="Assets\Icons\hide_detail.png" />
+    <Resource Include="Assets\Icons\highlighter_text.png" />
+    <Resource Include="Assets\Icons\image.png" />
+    <Resource Include="Assets\Icons\images_flickr - 2.png" />
+    <Resource Include="Assets\Icons\images_flickr.png" />
+    <Resource Include="Assets\Icons\information.png" />
+    <Resource Include="Assets\Icons\layer_open.png" />
+    <Resource Include="Assets\Icons\layer_save.png" />
+    <Resource Include="Assets\Icons\lightbulb.png" />
+    <Resource Include="Assets\Icons\lightbulb_add.png" />
+    <Resource Include="Assets\Icons\lightbulb_delete.png" />
+    <Resource Include="Assets\Icons\lightbulb_off.png" />
+    <Resource Include="Assets\Icons\lightning.png" />
+    <Resource Include="Assets\Icons\lightning_go.png" />
+    <Resource Include="Assets\Icons\link.png" />
+    <Resource Include="Assets\Icons\link_break.png" />
+    <Resource Include="Assets\Icons\mark_to_download.png" />
+    <Resource Include="Assets\Icons\new_window.png" />
+    <Resource Include="Assets\Icons\outlook_calendar_week.png" />
+    <Resource Include="Assets\Icons\plus_light_blue.png" />
+    <Resource Include="Assets\Icons\RedBorder.png" />
+    <Resource Include="Assets\Icons\robot.png" />
+    <Resource Include="Assets\Icons\robotPause.png" />
+    <Resource Include="Assets\Icons\saved_imports.png" />
+    <Resource Include="Assets\Icons\save_as.png" />
+    <Resource Include="Assets\Icons\script_add.png" />
+    <Resource Include="Assets\Icons\script_delete.png" />
+    <Resource Include="Assets\Icons\script_gear.png" />
+    <Resource Include="Assets\Icons\setpieces.png" />
+    <Resource Include="Assets\Icons\show_detail.png" />
+    <Resource Include="Assets\Icons\slideshow_volume.png" />
+    <Resource Include="Assets\Icons\sound.png" />
+    <Resource Include="Assets\Icons\sound_add.png" />
+    <Resource Include="Assets\Icons\sound_delete.png" />
+    <Resource Include="Assets\Icons\sound_mute.png" />
+    <Resource Include="Assets\Icons\stopwatch_pause.png" />
+    <Resource Include="Assets\Icons\stopwatch_start.png" />
+    <Resource Include="Assets\Icons\switch_windows.png" />
+    <Resource Include="Assets\Icons\table_filter.png" />
+    <Resource Include="Assets\Icons\table_link.png" />
+    <Resource Include="Assets\Icons\table_refresh.png" />
+    <Resource Include="Assets\Icons\text_exports.png" />
+    <Resource Include="Assets\Icons\text_list_numbers.png" />
+    <Resource Include="Assets\Icons\text_replace.png" />
+    <Resource Include="Assets\Icons\text_smallcaps.png" />
+    <Resource Include="Assets\Icons\tick.png" />
+    <Resource Include="Assets\Icons\time.png" />
+    <Resource Include="Assets\Icons\time_add.png" />
+    <Resource Include="Assets\Icons\time_delete.png" />
+    <Resource Include="Assets\Icons\time_go.png" />
+    <Resource Include="Assets\Icons\toggle.png" />
+    <Resource Include="Assets\Icons\toggle_expand.png" />
+    <Resource Include="Assets\Icons\undo.png" />
+    <Resource Include="Assets\Icons\users_3.png" />
+    <Resource Include="Assets\Icons\user_comment.png" />
+    <Resource Include="Assets\Icons\user_silhouette.png" />
+    <Resource Include="Assets\Icons\White B.ico" />
+    <Resource Include="Assets\Icons\White K.ico" />
+    <Resource Include="Assets\Icons\White N.ico" />
+    <Resource Include="Assets\Icons\White P.ico" />
+    <Resource Include="Assets\Icons\White Q.ico" />
+    <Resource Include="Assets\Icons\White R.ico" />
+    <Resource Include="Assets\Icons\world_edit.png" />
+    <Resource Include="Assets\Icons\world_go.png" />
+    <Resource Include="Assets\Icons\YellowBorder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Themes\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

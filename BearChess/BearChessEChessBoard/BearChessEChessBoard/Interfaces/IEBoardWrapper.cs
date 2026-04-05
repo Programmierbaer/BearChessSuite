@@ -208,6 +208,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         void AllowTakeBack(bool allowTakeBack);
         bool PieceRecognition { get; }
         bool SelfMoving { get; }
+        bool SelfControlled { get; }
         void Ignore(bool ignore);
 
         void SetClock(int hourWhite, int minuteWhite, int secondWhite, int hourBlack, int minuteBlack, int secondBlack, int increments);
@@ -221,6 +222,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         bool MultiColorLEDs { get; }
 
         bool ValidForAnalyse { get; }
+        bool ValidForTraining { get; }
 
         void AcceptProbingMoves(bool acceptProbingMoves);
 

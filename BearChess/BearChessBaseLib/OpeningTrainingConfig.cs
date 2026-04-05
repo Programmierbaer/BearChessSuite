@@ -18,7 +18,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
         public bool ExecuteMoveAutomatically { get; set; }
         public int ExecuteForColor { get; set; }
         public OpeningBook.VariationsEnum Variations { get; set; }
-        public bool AllowChangeEcodeCode { get; set; }
+        public bool AllowChangeEcoCode { get; set; }
 
         public OpeningTrainingConfig()
         {
@@ -29,7 +29,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
             ExecuteMoveAutomatically = false;
             ExecuteForColor = Fields.COLOR_WHITE;
             Variations = OpeningBook.VariationsEnum.Flexible;
-            AllowChangeEcodeCode = false;
+            AllowChangeEcoCode = false;
         }
     }
 }

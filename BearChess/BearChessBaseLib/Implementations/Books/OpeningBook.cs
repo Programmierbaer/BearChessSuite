@@ -28,7 +28,6 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
         private readonly IBookMoveBase _emptyMove = new PolyglotBookMove(string.Empty, string.Empty, 0);
         private static readonly Random LineRandomness = new Random();
 
-
         public string FileName { get; private set; }
 
         public bool Available { get; private set; }
@@ -419,7 +418,7 @@ namespace www.SoLaNoSoft.com.BearChessBase.Implementations
             var candidates = new List<IBookMoveBase>();
             if (variation == VariationsEnum.BestMove || moves.Length == 1)
             {
-                return new IBookMoveBase[] { moves[0] };
+                return [moves[0]];
             }
             float sumWeights = moves.Sum(w => w.Weight);
             if (sumWeights == 0)

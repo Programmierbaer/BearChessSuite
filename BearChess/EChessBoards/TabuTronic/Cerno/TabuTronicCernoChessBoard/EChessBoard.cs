@@ -80,6 +80,7 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Cerno.ChessBoard
             BatteryStatus = "Full";
             PieceRecognition = true;
             ValidForAnalyse = true;
+            ValidForTraining = true;
             SelfControlled = false;
             MultiColorLEDs = true;
             var calibrationData = _calibrateStorage.GetCalibrationData();

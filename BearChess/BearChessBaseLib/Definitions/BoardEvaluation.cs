@@ -2,37 +2,36 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace www.SoLaNoSoft.com.BearChessBase.Definitions
+namespace www.SoLaNoSoft.com.BearChessBase.Definitions;
+
+[Serializable]
+public class BoardEvaluation
 {
-    [Serializable]
-    public class BoardEvaluation
+    public int Material { get; set; }
+    public Dictionary<int, List<int>> FigurePositionValues { get; set; }
+    public int Mobility { get; set; }
+    public int Safety { get; set; }
+    public int Attacking { get; set; }
+
+    public BoardEvaluation()
     {
-        public int Material { get; set; }
-        public Dictionary<int, List<int>> FigurePositionValues { get; set; }
-        public int Mobility { get; set; }
-        public int Safety { get; set; }
-        public int Attacking { get; set; }
+        FigurePositionValues = new Dictionary<int, List<int>>();
+    }
 
-        public BoardEvaluation()
+    public int GetPositionSummary()
+    {
+        int sum = 0;
+        foreach (var key in FigurePositionValues.Keys)
         {
-            FigurePositionValues = new Dictionary<int, List<int>>();
+            sum += FigurePositionValues[key].Sum(s => s);
         }
 
-        public int GetPositionSummary()
-        {
-            int sum = 0;
-            foreach (var key in FigurePositionValues.Keys)
-            {
-                sum += FigurePositionValues[key].Sum(s => s);
-            }
+        return sum;
+    }
 
-            return sum;
-        }
-
-        public override string ToString()
-        {
-            return
-                $"Material: {Material} Mobility: {Mobility} Safety: {Safety} Attacking: {Attacking} ";
-        }
+    public override string ToString()
+    {
+        return
+            $"Material: {Material} Mobility: {Mobility} Safety: {Safety} Attacking: {Attacking} ";
     }
 }

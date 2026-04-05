@@ -94,6 +94,7 @@ namespace www.SoLaNoSoft.com.BearChess.SquareOffChessBoard
             BatteryStatus = "";
             PieceRecognition = false;
             ValidForAnalyse = false;
+            ValidForTraining = false;
             MultiColorLEDs = true;
             _dumpLoopWait = 250;
             IsConnected = EnsureConnection();
@@ -119,6 +120,7 @@ namespace www.SoLaNoSoft.com.BearChess.SquareOffChessBoard
             Information = Constants.SquareOffPro;
             PieceRecognition = false;
             ValidForAnalyse = false;
+            ValidForTraining = false;
         }
 
         private void LedThreadHandle()

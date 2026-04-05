@@ -64,6 +64,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessUpChessBoard
             SelfControlled = true;
             PieceRecognition = false;
             ValidForAnalyse = false;
+            ValidForTraining = false;
             IsConnected = EnsureConnection();
 
 
@@ -79,6 +80,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessUpChessBoard
             SelfControlled = true;
             PieceRecognition = false;
             ValidForAnalyse = false;
+            ValidForTraining = false;
             IsConnected = EnsureConnection();
         }
 
@@ -91,6 +93,7 @@ namespace www.SoLaNoSoft.com.BearChess.ChessUpChessBoard
             SelfControlled = true;
             PieceRecognition = false;
             ValidForAnalyse = false;
+            ValidForTraining = false;
             IsConnected = EnsureConnection();
         }
 

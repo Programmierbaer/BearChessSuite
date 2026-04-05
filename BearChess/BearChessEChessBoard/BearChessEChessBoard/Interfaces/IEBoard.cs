@@ -136,6 +136,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
 
         bool MultiColorLEDs { get; }
         bool ValidForAnalyse { get; }
+        bool ValidForTraining { get; }
 
         bool UseFieldDumpForFEN { get; }
 

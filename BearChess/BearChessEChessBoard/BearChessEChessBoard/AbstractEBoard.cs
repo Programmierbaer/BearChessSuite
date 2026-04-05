@@ -101,6 +101,7 @@ namespace www.SoLaNoSoft.com.BearChess.EChessBoard
         public bool SelfControlled { get; set; }
         public bool MultiColorLEDs { get; set; } = false;
         public bool ValidForAnalyse { get; set; }
+        public bool ValidForTraining { get; set; }
 
         public bool UseFieldDumpForFEN { get; set; } = false;
 

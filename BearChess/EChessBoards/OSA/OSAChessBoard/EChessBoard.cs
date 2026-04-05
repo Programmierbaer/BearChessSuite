@@ -38,6 +38,7 @@ namespace www.SoLaNoSoft.com.BearChess.OSAChessBoard
             BatteryStatus = "";
             PieceRecognition = false;
             ValidForAnalyse = false;
+            ValidForTraining = false;
             SelfControlled = true;
             _serialCommunication = new SerialCommunication(logger, portName, baud, false);
             IsConnected = EnsureConnection();
@@ -57,6 +58,7 @@ namespace www.SoLaNoSoft.com.BearChess.OSAChessBoard
             BatteryStatus = "";
             PieceRecognition = false;
             ValidForAnalyse = false;
+            ValidForTraining = false;
             SelfControlled = true;
             Information = Constants.OSA;
             _lastMove = string.Empty;

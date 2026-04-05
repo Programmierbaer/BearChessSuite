@@ -24,6 +24,12 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         
         public BookInfo SelectedBook => (BookInfo)dataGridBook.SelectedItem;
         public EcoCode SelectedCode => (EcoCode)dataGridEcoCodes.SelectedItem;
+        
+        public string SelectedDatabaseName
+        {
+            get;
+            private set;
+        }
 
         public OpeningTrainingStartWindow(BookInfo[] openingBooks, EcoCode[] ecoCodes, OpeningTrainingConfig config)
         {
@@ -65,7 +71,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
             radioButtonBest.IsChecked = config.Variations == OpeningBook.VariationsEnum.BestMove;
             radioButtonFlexible.IsChecked = config.Variations == OpeningBook.VariationsEnum.Flexible;
             radioButtonWide.IsChecked = config.Variations == OpeningBook.VariationsEnum.Wide;
-            checkBoxAllowEcoChange.IsChecked = config.AllowChangeEcodeCode;
+            checkBoxAllowEcoChange.IsChecked = config.AllowChangeEcoCode;
             Config = config;
         }
 
@@ -92,7 +98,7 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
                 : radioButtonFlexible.IsChecked.HasValue && radioButtonFlexible.IsChecked.Value
                     ? OpeningBook.VariationsEnum.Flexible
                     : OpeningBook.VariationsEnum.Wide;
-            Config.AllowChangeEcodeCode = checkBoxAllowEcoChange.IsChecked.HasValue && checkBoxAllowEcoChange.IsChecked.Value;
+            Config.AllowChangeEcoCode = checkBoxAllowEcoChange.IsChecked.HasValue && checkBoxAllowEcoChange.IsChecked.Value;
             DialogResult = true;
         }
 

@@ -17,17 +17,18 @@ namespace www.SoLaNoSoft.com.BearChessBase
         {
             get; set;
         }
-
         public string Ack
         {
             get; set;
         }
-
         public string Color
         {
             get; set;
         }
-
+        public string Tournament
+        {
+            get; set;
+        }
         public BCServerMove[] AllMoves { get; set; }
 
         public BearChessServerMessage()
@@ -37,6 +38,7 @@ namespace www.SoLaNoSoft.com.BearChessBase
             Message = string.Empty;
             Ack = string.Empty;
             Color = string.Empty;
+            Tournament = string.Empty;
             AllMoves = Array.Empty<BCServerMove>();
         }
     }

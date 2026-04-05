@@ -81,9 +81,30 @@
                     </MenuItem.Icon>
                 </MenuItem>
 
-                <MenuItem Header="{x:Static p:Resources.ExportSelectedGames}" Click="ButtonExport_OnClick">
+                <MenuItem Header="{x:Static p:Resources.ExportSelectedGames}" >
                     <MenuItem.Icon>
                         <Image Source="../Assets/Icons/text_exports.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                    <MenuItem Header="{x:Static p:Resources.ExportAsPGN}" Click="ButtonExport_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="../Assets/Icons/text_exports.png" Stretch="UniformToFill" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Visibility="Collapsed" Header="{x:Static p:Resources.ExportAsPuzzle}" Click="ButtonExportPuzzle_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="../Assets/Icons/database_save.png" Stretch="UniformToFill" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Visibility="Collapsed" Header="{x:Static p:Resources.ExportAsRepertoire}" Click="ButtonExportRepertoire_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="../Assets/Icons/database_save.png" Stretch="UniformToFill" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                   
+                </MenuItem>
+                <MenuItem Name="menuItemGamesShowDuplicates" Header="{x:Static p:Resources.ShowDuplicates}" Click="MenuItemGamesShowDuplicates_OnClick">
+                    <MenuItem.Icon>
+                        <Image Name="imageGamesShowDuplicates" Source="../Assets/Icons/tick.png" Visibility="Visible" />
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>

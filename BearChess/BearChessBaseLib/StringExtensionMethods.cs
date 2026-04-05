@@ -39,8 +39,6 @@ namespace www.SoLaNoSoft.com.BearChessBase
             }
         }
 
-
-
         public static UInt64 CalculateHash(this string read)
         {
             UInt64 hashedValue = 3074457345618258791ul;
@@ -52,6 +50,17 @@ namespace www.SoLaNoSoft.com.BearChessBase
             return hashedValue;
         }
 
-
+        public static bool Contains(this string source, string search, StringComparison comp)
+        {
+            return source.IndexOf(search, comp) > -1;
+            
+        }
+        
+        public static string ReplaceIgnoreCase(this string source, string search, string replace)
+        {
+          
+            return System.Text.RegularExpressions.Regex.Replace(source, search, replace, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            
+        }
     }
 }

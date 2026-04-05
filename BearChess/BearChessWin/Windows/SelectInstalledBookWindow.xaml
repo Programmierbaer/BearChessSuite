@@ -20,6 +20,7 @@
 
         <DataGrid Name="dataGridBook" ItemsSource="{Binding}" Grid.Row="0" Margin="5" AutoGenerateColumns="False"
                   MouseDoubleClick="DataGridBook_OnMouseDoubleClick" VerticalScrollBarVisibility="Auto"
+                  Drop="ButtonInstall_OnDrop" DragOver="ButtonInstall_OnDragOver" AllowDrop="True"                   
                   SelectionMode="Single" IsReadOnly="True">
             <DataGrid.Resources>
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"
@@ -90,6 +91,7 @@
                 <Image Source="../Assets/Icons/bin.png" Width="32" Height="32" />
             </Button>
             <Button Margin="5,5,20,5" DockPanel.Dock="Right" Name="buttonInstall" Click="ButtonInstall_OnClick"
+                    Drop="ButtonInstall_OnDrop" DragOver="ButtonInstall_OnDragOver" AllowDrop="True"
                     Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.InstallBook}">
                 <Image Source="../Assets/Icons/book_add.png" Width="32" Height="32" />
             </Button>

@@ -179,6 +179,7 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
             BatteryStatus = "";
             PieceRecognition = true;
             ValidForAnalyse = true;
+            ValidForTraining = true;
             SelfControlled = false;
             Information = string.Empty;
             DetailInformation = string.Empty;
@@ -237,6 +238,7 @@ namespace www.SoLaNoSoft.com.BearChess.DGTChessBoard
             BatteryStatus = "";
             PieceRecognition = true;
             ValidForAnalyse = true;
+            ValidForTraining = true;
             SelfControlled = false;
             Information = Constants.DGT;
         }

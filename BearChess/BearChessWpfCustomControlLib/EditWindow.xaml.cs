@@ -36,6 +36,12 @@ namespace www.SoLaNoSoft.com.BearChessWpfCustomControlLib
         {
             textBoxComment.Text = comment;
         }
+        
+        public void SetEditComment(string comment)
+        {
+            textBlockComment.Text = comment;
+            textBlockComment.Visibility = Visibility.Visible;
+        }
 
         private void ButtonOk_OnClick(object sender, RoutedEventArgs e)
         {

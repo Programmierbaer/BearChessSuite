@@ -1,0 +1,138 @@
+﻿<Window x:Class="www.SoLaNoSoft.com.BearChessWpfCustomControlLib.PuzzleDatabaseWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib"
+        xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties"
+        mc:Ignorable="d" WindowStyle="SingleBorderWindow" Closing="RepertoireDatabaseWindow_OnClosing"
+        Icon="/Assets/Icons/database.png"
+        Title="Repertoire Database" Height="450" Width="800">
+       <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0">
+            <MenuItem Tag="GamesManager"  Header="{x:Static p:Resources.DatabaseMenu}">
+                <MenuItem Header="{x:Static p:Resources.NewDatabase}" Click="ButtonNewDatabase_OnClick"
+                          Name="menuItemNewDatabase">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/database_add.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{x:Static p:Resources.OpenDatabase}" Click="ButtonOpenDatabase_OnClick"
+                          Name="menuItemOpenDatabase">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/folder_database.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{x:Static p:Resources.CompressDatabase}" Click="ButtonCompressDb_OnClick">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/database_cleanup.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+              
+                <MenuItem Header="{x:Static p:Resources.DeleteDatabase}" Click="ButtonDeleteDb_OnClick"
+                          Name="menuItemDeleteDatabase">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/database_delete.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+               
+            </MenuItem>
+            <MenuItem Header="{x:Static p:Resources.Puzzle}" Name="menuItemGames">
+                <MenuItem Header="{x:Static p:Resources.DeletePuzzle}" Click="ButtonDelete_OnClick" Name="menuItemDelete">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/bin.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{x:Static p:Resources.ImportPuzzle}" Click="ButtonImport_OnClick"
+                          Name="menuItemImport">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/saved_imports.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{x:Static p:Resources.CopyToClipboard}" Command="Copy">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/clipboard_sign_out.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+             
+                <MenuItem Header="{x:Static p:Resources.ExportSelectedPuzzle}" Click="ButtonExport_OnClick">
+                    <MenuItem.Icon>
+                        <Image Source="../Assets/Icons/text_exports.png" Stretch="UniformToFill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+        <DataGrid Name="dataGridGames" ItemsSource="{Binding}" Grid.Row="1" Margin="5" AutoGenerateColumns="False"
+                  VirtualizingStackPanel.IsVirtualizing="True"
+                  CopyingRowClipboardContent="DataGridGames_OnCopyingRowClipboardContent"
+                  VirtualizingStackPanel.VirtualizationMode="Recycling" 
+                  SelectionMode="Extended"  IsReadOnly="True">
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"
+                                 Color="CornflowerBlue" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White" />
+            </DataGrid.Resources>
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="{x:Static p:Resources.Delete}" Name="menuItemDeleteGame"
+                              Click="ButtonDelete_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="../Assets/Icons/bin.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Command="Copy" Header="{x:Static p:Resources.CopyToClipboard}" Name="menuItemCopy">
+                        <MenuItem.Icon>
+                            <Image Source="../Assets/Icons/clipboard_sign_out.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                 
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+          
+            <DataGrid.Columns>
+
+                <DataGridTextColumn Binding="{Binding GameEvent}" Width="Auto" FontSize="13">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="{x:Static p:Resources.Event}"></TextBlock>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+                
+                <DataGridTextColumn Binding="{Binding White}" Width="Auto" FontSize="13">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="{x:Static p:Resources.White}"></TextBlock>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+              
+                <DataGridTextColumn Binding="{Binding Black}" Width="Auto" FontSize="13">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="{x:Static p:Resources.Black}"></TextBlock>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+             
+             
+                <DataGridTextColumn Binding="{Binding FEN}" Width="Auto" FontSize="13">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="{x:Static p:Resources.FenCol}"></TextBlock>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+                <DataGridTextColumn Binding="{Binding MoveList}" Width="Auto" FontSize="13">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="{x:Static p:Resources.Moves}"></TextBlock>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+
+        </DataGrid>
+        <DockPanel Margin="5" Grid.Row="2" LastChildFill="False">
+            <Button Margin="5,5,15,5" DockPanel.Dock="Right" Name="buttonExit" Click="ButtonExit_OnClick"
+                    Background="Transparent" BorderBrush="Transparent" ToolTip="{x:Static p:Resources.Exit}">
+                <Image Source="../Assets/Icons/door_out.png" Width="32" Height="32" />
+            </Button>
+        </DockPanel>
+    </Grid>
+</Window>

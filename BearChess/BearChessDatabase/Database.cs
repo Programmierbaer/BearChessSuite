@@ -4,39 +4,43 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Windows;
 using System.Xml.Serialization;
 using www.SoLaNoSoft.com.BearChessBase;
 using www.SoLaNoSoft.com.BearChessBase.Implementations;
-using www.SoLaNoSoft.com.BearChessBase.Interfaces;
-using PgnCreator = www.SoLaNoSoft.com.BearChessBase.Implementations.pgn.PgnCreator;
-using System.Runtime.Serialization.Formatters.Binary;
-using www.SoLaNoSoft.com.BearChessWpfCustomControlLib;
-using System.Windows;
+using www.SoLaNoSoft.com.BearChessBase.Implementations.CTG;
 using www.SoLaNoSoft.com.BearChessBase.Implementations.pgn;
+using www.SoLaNoSoft.com.BearChessBase.Interfaces;
+using www.SoLaNoSoft.com.BearChessWpfLibrary;
+using PgnCreator = www.SoLaNoSoft.com.BearChessBase.Implementations.pgn.PgnCreator;
 
 namespace www.SoLaNoSoft.com.BearChessDatabase
 {
-    public class Database : IDisposable, IGamesDatabase
+    public class Database : IGamesDatabase
     {
 
         public string FileName { get; private set; }
         public bool InError => _inError;
-
-        private readonly Window _owner;
+        
+        public string ErrorMessage { get; private set; }
+        
         private readonly ILogging _logging;
-        private SQLiteConnection _connection;
+        protected SQLiteConnection _connection;
         private bool _dbExists;
-        private bool _inError = false;
+        private bool _inError;
         private int _storageVersion;
         private SQLiteTransaction _sqLiteTransaction;
+        private readonly Window _owner;
 
         public Database(Window owner, ILogging logging, string fileName)
         {
-            _owner = owner;
             _logging = logging;
             FileName = fileName;
+            _owner = owner;
         }
 
         public void Dispose()
@@ -44,20 +48,22 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             _connection?.Dispose();
         }
 
-        private void LoadDb()
+        public bool LoadDb()
         {
-            LoadDb(FileName);
+            return LoadDb(FileName);
         }
 
-        public void LoadDb(string fileName)
+        public bool LoadDb(string fileName)
         {
+            ErrorMessage = string.Empty;
             FileName = fileName;
             if (string.IsNullOrWhiteSpace(FileName))
             {
-                _logging?.LogError("Load with empty file name");
+                ErrorMessage = "Load with empty file name";
+                _logging?.LogError(ErrorMessage);
                 _inError = true;
             }
-
+            _inError = false;
             _dbExists = File.Exists(FileName);
             try
             {
@@ -65,16 +71,17 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 {
                     SQLiteConnection.CreateFile(FileName);
                 }
-
                 _connection = new SQLiteConnection($"Data Source = {FileName}; Version = 3;");
-                CreateTables();
-                _inError = false;
+                _inError = !CreateTables();
             }
             catch (Exception ex)
             {
-                _logging?.LogError(ex);
+                ErrorMessage  = ex.Message;
+                _logging?.LogError(ErrorMessage);
                 _inError = true;
             }
+
+            return !_inError;
         }
 
         public bool Open()
@@ -96,8 +103,9 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             }
             catch (Exception ex)
             {
+                ErrorMessage = ex.Message;
                 _inError = true;
-                _logging?.LogError(ex);
+                _logging?.LogError(ErrorMessage);
             }
 
             return false;
@@ -115,7 +123,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             {
                 return;
             }
-
             try
             {
                 _connection.Open();
@@ -199,6 +206,8 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             }
         }
 
+        
+
         private bool CreateTables()
         {
             if (_inError || !Open())
@@ -208,6 +217,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
             try
             {
+                SetDBPragmas();
                 _storageVersion = -1;
                 if (!TableExists("storageVersion"))
                 {
@@ -224,7 +234,11 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 {
                     _storageVersion = GetStorageVersion();
                 }
-
+                if (TableExists("puzzles"))
+                {
+                    _inError = true;
+                    throw new Exception("You cannot open a puzzle database!");
+                }
                 if (!TableExists("games"))
                 {
                     var sql = "CREATE TABLE games " +
@@ -472,14 +486,14 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     {
                         command.ExecuteNonQuery();
                     }
-                    sql = "UPDATE storageVersion SET version=7; ";
+                    sql = "UPDATE storageVersion SET version=8; ";
                     using (var command = new SQLiteCommand(sql, _connection))
                     {
                         command.ExecuteNonQuery();
 
                     }
-
-
+                    _storageVersion = 8; 
+                   
                 }
                 if (_storageVersion == 2)
                 {
@@ -501,6 +515,8 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                         command.ExecuteNonQuery();
 
                     }
+
+                    _storageVersion = 3;
                 }
                 if (_storageVersion == 3)
                 {
@@ -516,8 +532,8 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     using (var command = new SQLiteCommand(sql, _connection))
                     {
                         command.ExecuteNonQuery();
-
                     }
+                    _storageVersion = 4;
                 }
                 if (_storageVersion == 4)
                 {
@@ -573,11 +589,12 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     }
                     Close();
                     var databaseGameSimples = GetGames(new GamesFilter() { FilterIsActive = false });
+
                     var infoWindow = new ProgressWindow
                     {
                         Owner = _owner
                     };
-                    
+
                     infoWindow.SetTitle("Migrate database");
                     infoWindow.SetMaxValue(databaseGameSimples.Length);
                     _logging?.LogDebug($"Migrate database with {databaseGameSimples.Length} games");
@@ -587,7 +604,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     {
                         foreach (var databaseGameSimple in databaseGameSimples)
                         {
-                            Save(LoadOldGame(databaseGameSimple.Id, Configuration.Instance.GetPgnConfiguration()), true, true, 0);
+                            Save(LoadOldGame(databaseGameSimple.Id, Configuration.Instance.GetPgnConfiguration()), true);
                             i++;
                             if (i % 100 == 0)
                             {
@@ -600,12 +617,12 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                         CommitAndClose();
                     }
                     infoWindow.Close();
+
                     _logging?.LogDebug("Database migrated");
                     infoWindow = new ProgressWindow
                     {
                         Owner = _owner
                     };
-
                     _connection.Open();
                     sql = "CREATE TABLE twic " +
                             "(id INTEGER PRIMARY KEY," +
@@ -637,6 +654,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                         command.ExecuteNonQuery();
 
                     }
+
                     infoWindow.SetTitle("Reduce file size");
                     infoWindow.IsIndeterminate(true);
                     infoWindow.Show();
@@ -653,6 +671,8 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                         //
                     }
                     infoWindow.Close();
+                    _storageVersion = 5;
+
                 }
                 if (_storageVersion == 5)
                 {
@@ -674,7 +694,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                         command.ExecuteNonQuery();
 
                     }
-
+                    _storageVersion = 6;
                 }
                 if (_storageVersion == 6)
                 {
@@ -692,19 +712,106 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     using (var command = new SQLiteCommand(sql, _connection))
                     {
                         command.ExecuteNonQuery();
-
                     }
+                    _storageVersion = 7;
 
+                }
+                if (_storageVersion == 7)
+                {
+                    var i = 0;
+                    var gamesIds = GetGamesIds();
+                    var infoWindow = new ProgressWindow
+                    {
+                        Owner = _owner
+                    };
+                    try
+                    {
+                        infoWindow.SetTitle("Migrate database");
+                        infoWindow.SetMaxValue(gamesIds.Length);
+                        _logging?.LogDebug($"Migrate database with {gamesIds.Length} games");
+                        infoWindow.Show();
+                        foreach (var gameId in gamesIds)
+                        {
+                            var byteXml = GetByteXML(gameId);
+                            var bf = new BinaryFormatter();
+                            DatabaseGame databaseGame;
+                            using (var memoryStream = new MemoryStream(byteXml))
+                            {
+                                databaseGame = bf.Deserialize(memoryStream) as DatabaseGame;
+
+                            }
+
+                            var ms = new MemoryStream();
+                            var formatter = new BinaryFormatter();
+                            if (databaseGame != null)
+                            {
+                                formatter.Serialize(ms, databaseGame);
+                            }
+
+                            var tmpData = ms.ToArray();
+                            var outputStream = new MemoryStream();
+                            using (var gzipStream = new GZipStream(outputStream, CompressionMode.Compress))
+                            {
+                                gzipStream.Write(tmpData, 0, tmpData.Length);
+                                gzipStream.Flush();
+                            }
+
+                            var data = outputStream.ToArray();
+                            UpdateByteXML(data, gameId);
+                            i++;
+                            if (i % 100 == 0)
+                            {
+                                infoWindow.SetCurrentValue(i, $"{i} of {gamesIds.Length}");
+                            }
+                        }
+
+                        infoWindow.Close();
+                        CommitAndClose();
+                        _connection.Open();
+                        infoWindow = new ProgressWindow
+                        {
+                            Owner = _owner
+                        };
+                        infoWindow.SetTitle("Reduce file size");
+                        infoWindow.IsIndeterminate(true);
+                        infoWindow.Show();
+                        try
+                        {
+                            using (var command = new SQLiteCommand("VACUUM; ", _connection))
+                            {
+                                command.ExecuteNonQuery();
+                            }
+                        }
+                        catch
+                        {
+                            //
+                        }
+
+                        infoWindow.Close();
+                        var sql = "UPDATE storageVersion SET version=8; ";
+                        using (var command = new SQLiteCommand(sql, _connection))
+                        {
+                            command.ExecuteNonQuery();
+                        }
+
+                        _storageVersion = 8;
+                    }
+                    catch (Exception ex)
+                    {
+                        infoWindow.Close();
+                        throw;
+                    }
                 }
                 _dbExists = true;
                 Close();
-                _storageVersion = 7;
+                _storageVersion = 8;
                 return true;
             }
             catch (Exception ex)
             {
+                ErrorMessage = ex.Message;
                 _inError = true;
-                _logging?.LogError(ex);
+                _logging?.LogError(ErrorMessage);
             }
 
             return false;
@@ -735,21 +842,16 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
         public int[] GetGamesIds()
         {
             var allIds = new List<int>();
-            _connection.Open();
             using (var cmd = new SQLiteCommand("select id from games", _connection))
             {
                 using (var rdr = cmd.ExecuteReader())
                 {
                     while (rdr.Read())
                     {
-
                         allIds.Add(rdr.GetInt32(0));
-
                     }
                 }
             }
-
-            _connection.Close();
             return allIds.ToArray();
         }
 
@@ -762,9 +864,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     return null;
                 }
             }
-
             DatabaseGame databaseGame = null;
-
             try
             {
                 _connection.Open();
@@ -810,6 +910,30 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             return databaseGame;
         }
 
+        private void SetDBPragmas()
+        {
+            var pragma = "pragma journal_mode = memory;";
+            using (var command2 = new SQLiteCommand(pragma, _connection))
+            {
+                command2.ExecuteNonQuery();
+            }
+            pragma = "pragma synchronous = normal;";
+            using (var command2 = new SQLiteCommand(pragma, _connection))
+            {
+                command2.ExecuteNonQuery();
+            }
+            pragma = "pragma temp_store = memory;";
+            using (var command2 = new SQLiteCommand(pragma, _connection))
+            {
+                command2.ExecuteNonQuery();
+            }
+            pragma = "pragma mmap_size = 30000000000;";
+            using (var command2 = new SQLiteCommand(pragma, _connection))
+            {
+                command2.ExecuteNonQuery();
+            }
+        }
+        
         public int Save(DatabaseGame databaseGame, bool updateGame, bool commitTransaction = true, int twicId = 0, string uuid = "")
         {
             if (databaseGame.CurrentGame != null)
@@ -833,26 +957,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             if (_connection.State == ConnectionState.Closed)
             {
                 _connection.Open();
-                var pragma = "pragma journal_mode = memory;";
-                using (var command2 = new SQLiteCommand(pragma, _connection))
-                {
-                    command2.ExecuteNonQuery();
-                }
-                pragma = "pragma synchronous = normal;";
-                using (var command2 = new SQLiteCommand(pragma, _connection))
-                {
-                    command2.ExecuteNonQuery();
-                }
-                pragma = "pragma temp_store = memory;";
-                using (var command2 = new SQLiteCommand(pragma, _connection))
-                {
-                    command2.ExecuteNonQuery();
-                }
-                pragma = "pragma mmap_size = 30000000000;";
-                using (var command2 = new SQLiteCommand(pragma, _connection))
-                {
-                    command2.ExecuteNonQuery();
-                }
+                SetDBPragmas();
             }
             if (_sqLiteTransaction == null)
             {
@@ -875,11 +980,18 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 var ms = new MemoryStream();
                 var formatter = new BinaryFormatter();
                 formatter.Serialize(ms, databaseGame);
-                var data = ms.ToArray();
+                var tmpData = ms.ToArray();
+                var outputStream = new MemoryStream();
+                using (var gzipStream = new GZipStream(outputStream, CompressionMode.Compress))
+                {
+                    gzipStream.Write(tmpData, 0, tmpData.Length);
+                    gzipStream.Flush();
+                }
+                var data = outputStream.ToArray();
                 if (databaseGame.CurrentGame != null && (databaseGame.CurrentGame.RepeatedGame || updateGame))
                 {
 
-                    var sql = @"UPDATE games set event=@event, result=@result, gameDate=@gameDate, pgn=@pgn, pgnXML=@pgnXML, byteXML=@byteXML, pgnHash=@pgnHash, gameHash=@gameHash, twic_id=@twic_id 
+                    var sql = @"UPDATE games set event=@event, result=@result, gameDate=@gameDate, pgn=@pgn, pgnXML=@pgnXML, byteXML=@byteXML, pgnHash=@pgnHash, gameHash=@gameHash, twic_id=@twic_id, 
                           uuid=@uuid WHERE id=@id; ";
                     using (var command2 = new SQLiteCommand(sql, _connection))
                     {
@@ -939,15 +1051,14 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                         command2.Parameters.Add("@uuid", DbType.String).Value = uuid;
                         command2.ExecuteNonQuery();
                     }
-
-
+                    
                     using (var command2 = new SQLiteCommand("SELECT LAST_INSERT_ROWID();", _connection))
                     {
                         var executeScalar = command2.ExecuteScalar();
                         gameId = int.Parse(executeScalar.ToString());
                     }
                 }
-                var moveNumber = 1;
+                var moveNumber = 0;
                 var fastBoard = new FastChessBoard();
                 if (!string.IsNullOrEmpty(databaseGame.PgnGame.FENLine))
                 {
@@ -963,8 +1074,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     var shortFen = fastBoard.GetPositionHashCode();
                     // chessBoard.MakeMove(move);
                     //var fen = chessBoard.GetFenPosition();
-                    var fenId = 0;
-                    //var shortFen = fen.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[0];
+                    int fenId;
                     var sql = "SELECT id FROM fens WHERE shortFen=@shortFen;";
                     using (var command = new SQLiteCommand(sql, _connection))
                     {
@@ -999,7 +1109,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                         moveNumber++;
                         command2.Parameters.Add("@fen_id", DbType.Int32).Value = fenId;
                         command2.Parameters.Add("@game_id", DbType.Int32).Value = gameId;
-                        command2.Parameters.Add("@moveNumber", DbType.Int32).Value = moveNumber / 2;
+                        command2.Parameters.Add("@moveNumber", DbType.Int32).Value = moveNumber;
                         command2.ExecuteNonQuery();
                     }
                 }
@@ -1034,33 +1144,13 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             _sqLiteTransaction = null;
             _connection?.Close();
         }
-
-
+        
         public void DeleteGame(int id)
         {
             if (_connection.State == ConnectionState.Closed)
             {
                 _connection.Open();
-                var pragma = "pragma journal_mode = memory;";
-                using (var command2 = new SQLiteCommand(pragma, _connection))
-                {
-                    command2.ExecuteNonQuery();
-                }
-                pragma = "pragma synchronous = normal;";
-                using (var command2 = new SQLiteCommand(pragma, _connection))
-                {
-                    command2.ExecuteNonQuery();
-                }
-                pragma = "pragma temp_store = memory;";
-                using (var command2 = new SQLiteCommand(pragma, _connection))
-                {
-                    command2.ExecuteNonQuery();
-                }
-                pragma = "pragma mmap_size = 30000000000;";
-                using (var command2 = new SQLiteCommand(pragma, _connection))
-                {
-                    command2.ExecuteNonQuery();
-                }
+                SetDBPragmas();
             }
             var sqLiteTransaction = _connection.BeginTransaction(IsolationLevel.Serializable);
             try
@@ -1112,6 +1202,49 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             }
         }
 
+
+        private void UpdateByteXML(byte[] bytes, int gameId)
+        {
+            try
+            {
+                const string sql = "UPDATE games SET byteXML=@BYTEXML WHERE id=@ID;";
+                using (var cmd = new SQLiteCommand(sql, _connection))
+                {
+                    cmd.Parameters.Add("@ID", DbType.Int32).Value = gameId;
+                    cmd.Parameters.Add("@BYTEXML", DbType.Object).Value = bytes;
+                    cmd.ExecuteNonQuery();                    
+                }
+            }
+            catch (Exception ex)
+            {
+                _logging?.LogError(ex);
+            }
+        }
+        private byte[] GetByteXML(int gameId)
+        {
+            var result = new byte[0];
+            try
+            {
+                const string sql = "SELECT byteXML FROM games WHERE id=@ID;";
+                using (var cmd = new SQLiteCommand(sql, _connection))
+                {
+                    cmd.Parameters.Add("@ID", DbType.Int32).Value = gameId;
+                    using (var rdr = cmd.ExecuteReader())
+                    {
+                        if (rdr.Read())
+                        {
+                            result = rdr.GetValue(0) as byte[];
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logging?.LogError(ex);
+            }
+            return result;
+        }
+
         public DatabaseGame LoadGame(int id, PgnConfiguration pgnConfiguration)
         {
             if (!_dbExists)
@@ -1121,9 +1254,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     return null;
                 }
             }
-
             DatabaseGame databaseGame = null;
-           
             try
             {
                 _connection.Open();
@@ -1159,26 +1290,30 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                             else
                             {
                                 var bf = new BinaryFormatter();
-                                using (var memoryStream = new MemoryStream(rdr.GetValue(9) as byte[]))
+                                var decomp = Decompress(rdr.GetValue(9) as byte[]);
+                                using (var memoryStream = new MemoryStream(decomp))
                                 {
                                     databaseGame = bf.Deserialize(memoryStream) as DatabaseGame;
-                                    databaseGame.Id = id;
+                                    if (databaseGame != null)
+                                    {
+                                        databaseGame.Id = id;
 
-                                    var pgnCreator = databaseGame.CurrentGame == null
-                                        ? new PgnCreator(pgnConfiguration)
-                                        : new PgnCreator(databaseGame.CurrentGame.StartPosition, pgnConfiguration);
-                                    foreach (var databaseGameAllMove in databaseGame.AllMoves)
-                                    {
-                                        pgnCreator.AddMove(databaseGameAllMove);
-                                    }
-                                    databaseGame.PgnGame.ClearMoveList();
-                                    foreach (var move in pgnCreator.GetAllMoves())
-                                    {
-                                        databaseGame.PgnGame.AddMove(move);
+                                        var pgnCreator = databaseGame.CurrentGame == null
+                                            ? new PgnCreator(pgnConfiguration)
+                                            : new PgnCreator(databaseGame.CurrentGame.StartPosition, pgnConfiguration);
+                                        foreach (var databaseGameAllMove in databaseGame.AllMoves)
+                                        {
+                                            pgnCreator.AddMove(databaseGameAllMove);
+                                        }
+
+                                        databaseGame.PgnGame.ClearMoveList();
+                                        foreach (var move in pgnCreator.GetAllMoves())
+                                        {
+                                            databaseGame.PgnGame.AddMove(move);
+                                        }
                                     }
                                 }
                             }
-
                         }
 
                         rdr.Close();
@@ -1194,12 +1329,28 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             return databaseGame;
         }
 
+        private static byte[] Decompress(byte[] data)
+        {
+            using (var compressedStream = new MemoryStream(data))
+            {
+                using (var gzipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
+                {
+                    using (var decompressedStream = new MemoryStream())
+                    {
+                        gzipStream.CopyTo(decompressedStream);
+                        var decompressedBytes = decompressedStream.ToArray();
+                        return decompressedBytes;
+                    }
+                }
+            }
+        }
+
         public DatabaseGameSimple[] GetGames(GamesFilter gamesFilter)
         {
             return GetGames(gamesFilter, string.Empty);
         }
 
-        private DatabaseGameSimple[] FilterByFen(string fen)
+        protected DatabaseGameSimple[] FilterByFen(string fen)
         {
             if (_inError)
             {
@@ -1208,13 +1359,12 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
             if (fen.StartsWith("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"))
             {
-                // g.id, g.white, g.black, g.event, g.site, g.result, g.gameDate, g.pgn, g.pgnXml, g.pgnHash, g.round, g.white_elo, g.black_elo
                 return GetBySql(
                     "SELECT id, white, black, event, site, result, gameDate, pgn, pgnXml, pgnHash, round, white_elo, black_elo, gameHash,0,0 FROM games ORDER BY ID;");
             }
             var fastBoard = new FastChessBoard();
             fastBoard.Init(fen, Array.Empty<string>());
-            DatabaseGameSimple[] allGames = null;
+            DatabaseGameSimple[] allGames;
             _connection.Open();
             using (var cmd = new SQLiteCommand(
                 "SELECT g.id, g.white, g.black, g.event, g.site, g.result, g.gameDate, g.pgn, g.pgnXml, g.pgnHash, g.round, g.white_elo, g.black_elo, g.gameHash, 0, 0" +
@@ -1297,7 +1447,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                              " JOIN fens as f ON (fg.fen_id = f.id)";
                     filterSQl += " AND (f.shortFen=@shortFen) ";
                 }
-                DatabaseGameSimple[] allGames = null;
+                DatabaseGameSimple[] allGames;
                 _connection.Open();
                 using (var cmd = new SQLiteCommand(
                     "SELECT g.id, g.white, g.black, g.event, g.site, g.result, g.gameDate, g.pgn, g.pgnXml, g.pgnHash, g.round, g.white_elo, g.black_elo, g.gameHash, 0, 0 " +
@@ -1369,7 +1519,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             }
         }
 
-        private DatabaseGameSimple[] GetByReader(SQLiteDataReader rdr)
+        protected DatabaseGameSimple[] GetByReader(SQLiteDataReader rdr)
         {
 
             var allGames = new List<DatabaseGameSimple>(10000);
@@ -1402,9 +1552,9 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
         }
 
         
-        private DatabaseGameSimple[] GetBySql(string sql)
+        protected DatabaseGameSimple[] GetBySql(string sql)
         {
-            DatabaseGameSimple[] allGames = null;
+            DatabaseGameSimple[] allGames;
             _connection.Open();
             using (var cmd = new SQLiteCommand(sql, _connection))
             {
@@ -1470,7 +1620,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 }
             }
 
-            var tournamentId = 0;
+            int tournamentId;
             _connection.Open();
 
             try
@@ -1623,9 +1773,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     command.Parameters.Add("@id", DbType.Int32).Value = id;
                     command.ExecuteNonQuery();
                 }
-
-
-
             }
             catch (Exception ex)
             {
@@ -1655,7 +1802,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
             try
             {
-
                 var aSerializer = new XmlSerializer(typeof(CurrentDuel));
                 var sb = new StringBuilder();
                 var sw = new StringWriter(sb);
@@ -1759,9 +1905,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     command.Parameters.Add("@gameId", DbType.Int32).Value = gameId;
                     command.ExecuteNonQuery();
                 }
-
-
-
+                
             }
             catch (Exception ex)
             {
@@ -1855,7 +1999,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     {
                         if (rdr.Read())
                         {
-                            CurrentDuel currentDuel = null;
+                            CurrentDuel currentDuel;
                             using (TextReader reader = new StringReader(rdr.GetString(1)))
                             {
                                 currentDuel = (CurrentDuel) xmlSerializer.Deserialize(reader);
@@ -1895,14 +2039,10 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     return null;
                 }
             }
-
             DatabaseDuel dbDuel = null;
-
-
-            var id = 0;
+            int id;
             try
             {
-
                 _connection.Open();
                 var sql = "SELECT duel_id FROM duelGames WHERE game_id = @game_Id";
                 using (var command = new SQLiteCommand(sql, _connection))
@@ -1927,7 +2067,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     {
                         if (rdr.Read())
                         {
-                            CurrentDuel currentDuel = null;
+                            CurrentDuel currentDuel;
                             using (TextReader reader = new StringReader(rdr.GetString(1)))
                             {
                                 currentDuel = (CurrentDuel)xmlSerializer.Deserialize(reader);
@@ -2005,7 +2145,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 return Array.Empty<DatabaseGameSimple>();
             }
 
-            DatabaseGameSimple[] allGames = null;
+            DatabaseGameSimple[] allGames;
             _connection.Open();
             using (var cmd = new SQLiteCommand(
                 "SELECT g.id, g.white, g.black, g.event, g.site, g.result, g.gameDate, g.pgn, g.pgnXml, g.pgnHash, g.round, g.white_elo, g.black_elo,  g.gameHash, 0, 0" +
@@ -2032,7 +2172,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 return true;
             }
 
-            var isDuelGame = false;
+            bool isDuelGame;
             _connection.Open();
             var sql = "SELECT duel_id FROM duelGames WHERE game_id = @game_Id";
             using (var command = new SQLiteCommand(sql, _connection))
@@ -2064,7 +2204,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
             try
             {
-
                 var aSerializer = new XmlSerializer(typeof(CurrentDuel));
                 var sb = new StringBuilder();
                 var sw = new StringWriter(sb);
@@ -2079,14 +2218,10 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     command2.Parameters.Add("@configXML", DbType.String).Value = xmlResult;
                     command2.ExecuteNonQuery();
                 }
-
-             
             }
             catch (Exception ex)
             {
-
                 _logging?.LogError(ex);
-
             }
             finally
             {
@@ -2177,14 +2312,10 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     command2.Parameters.Add("@id",DbType.Int32).Value = id;
                     command2.ExecuteNonQuery();
                 }
-
-               
             }
             catch (Exception ex)
             {
-
                 _logging?.LogError(ex);
-                
             }
             finally
             {
@@ -2209,11 +2340,10 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 }
             }
 
-            var tournamentId = 0;
+            int tournamentId;
             _connection.Open();
             try
             {
-
                 var sql = @"INSERT INTO tournament (event, eventDate, gamesToPlay, configXML)
                            select event, eventDate, gamesToPlay, configXML from tournament where id=@id; ";
                 using (var command2 = new SQLiteCommand(sql, _connection))
@@ -2273,7 +2403,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 }
             }
 
-            var tournamentId = 0;
+            int tournamentId;
             _connection.Open();
 
             try
@@ -2353,7 +2483,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 {
                     command.ExecuteNonQuery();
                 }
-                // if (!TableExists("tournamentPairing"))
+                
                 sql = @"DELETE FROM tournamentPairing; ";
                 using (var command = new SQLiteCommand(sql, _connection))
                 {
@@ -2626,7 +2756,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     {
                         if (rdr.Read())
                         {
-                            CurrentTournament currentTournament = null;
+                            CurrentTournament currentTournament;
                             using (TextReader reader = new StringReader(rdr.GetString(1)))
                             {
                                 currentTournament = (CurrentTournament) xmlSerializer.Deserialize(reader);
@@ -2738,7 +2868,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             }
 
             var localOpen = false;
-            var gameExists = false;
+            bool gameExists;
             if (_connection.State == ConnectionState.Closed)
             {
                 localOpen = true;
@@ -2768,7 +2898,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 return true;
             }
 
-            var isTournamentGame = false;
+            bool isTournamentGame;
             _connection.Open();
             var sql = "SELECT tournament_id FROM tournamentGames WHERE game_id = @game_Id";
             using (var command = new SQLiteCommand(sql, _connection))
@@ -2827,7 +2957,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 return Array.Empty<DatabaseGameSimple>();
             }
 
-            DatabaseGameSimple[] allGames = null;
+            DatabaseGameSimple[] allGames;
             _connection.Open();
             using (var cmd = new SQLiteCommand(
                 "SELECT g.id, g.white, g.black, g.event, g.site, g.result, g.gameDate, g.pgn, g.pgnXml, g.pgnHash, g.round, g.white_elo, g.black_elo,  g.gameHash," +
@@ -2864,7 +2994,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             _connection.Open();
             try
             {
-
                 var sql =
                     @"UPDATE tournamentPairing Set game_id=0 where tournament_id=@tournament_id AND (pair1=@pair OR pair2=@pair); ";
                 using (var command2 = new SQLiteCommand(sql, _connection))
@@ -2874,13 +3003,10 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
                     command2.ExecuteNonQuery();
                 }
-
             }
             catch (Exception ex)
             {
-
                 _logging?.LogError(ex);
-
             }
             finally
             {
@@ -2904,7 +3030,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             _connection.Open();
             try
             {
-
                 var sql =
                     @"UPDATE tournamentPairing Set game_id=0 where tournament_id=@tournament_id AND pair1=@pair1 AND pair2=@pair2; ";
                 using (var command2 = new SQLiteCommand(sql, _connection))
@@ -2915,13 +3040,10 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
 
                     command2.ExecuteNonQuery();
                 }
-
             }
             catch (Exception ex)
             {
-
                 _logging?.LogError(ex);
-
             }
             finally
             {
@@ -2934,7 +3056,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             var exists = false;
             if (_inError)
             {
-                return exists;
+                return false;
             }
             try
             {
@@ -2954,7 +3076,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                         rdr.Close();
                     }
                 }
-
             }
             catch
             {
@@ -2962,7 +3083,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             }
             finally
             {
-
                 _connection.Close();
             }
             return exists;
@@ -2998,7 +3118,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                         rdr.Close();
                     }
                 }
-
             }
             catch
             {
@@ -3006,7 +3125,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             }
             finally
             {
-
                 _connection.Close();
             }
 
@@ -3116,7 +3234,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             {
                 return Array.Empty<TwicDownload>();
             }
-            TwicDownload[] allDownloads = null;
+            TwicDownload[] allDownloads;
             _connection.Open();
             using (var cmd = new SQLiteCommand(
                        "SELECT id, twicNumber, importedPGNFile, numberOfGames, importedUrl, importDate, fileDate " +
@@ -3187,7 +3305,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             {
                 return;
             }
-
             
             _connection.Open();
             var sql = "UPDATE twic set NumberOfGames=@NumberOfGames WHERE id = @twic_id";
@@ -3195,7 +3312,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             {
                 command.Parameters.Add("@twic_id", DbType.Int32).Value = twicId;
                 command.Parameters.Add("@NumberOfGames", DbType.Int32).Value = numberOfGames;
-                var executeScalar = command.ExecuteNonQuery();
+                command.ExecuteNonQuery();
               
             }
             _connection.Close();

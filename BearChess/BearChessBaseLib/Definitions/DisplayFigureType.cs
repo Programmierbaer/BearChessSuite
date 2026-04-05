@@ -1,9 +1,7 @@
-﻿namespace www.SoLaNoSoft.com.BearChessBase.Definitions
-{
-    public enum DisplayFigureType
-    {
-        Symbol,
-        Letter
-    }
+﻿namespace www.SoLaNoSoft.com.BearChessBase.Definitions;
 
+public enum DisplayFigureType
+{
+    Symbol,
+    Letter
 }

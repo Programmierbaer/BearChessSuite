@@ -208,11 +208,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="PuzzleDatabaseWindow.xaml" />
     <Page Include="QueryDialogWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="QuerySelectionWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RepertoireDatabaseWindow.xaml" />
+    <Page Include="RepertoireTrainingStartWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -344,6 +350,7 @@
     <Compile Include="Helper\ArrowLine.cs" />
     <Compile Include="Helper\ArrowLineBase.cs" />
     <Compile Include="Helper\ArrowPolyLine.cs" />
+    <Compile Include="Helper\ExportGames.cs" />
     <Compile Include="Helper\ProgressWorker.cs" />
     <Compile Include="IMoveListPlainWindow.cs" />
     <Compile Include="InfoWindow.xaml.cs">
@@ -401,11 +408,20 @@
     <Compile Include="PublishConfigureWindow.xaml.cs">
       <DependentUpon>PublishConfigureWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PuzzleDatabaseWindow.xaml.cs">
+      <DependentUpon>PuzzleDatabaseWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="QueryDialogWindow.xaml.cs">
       <DependentUpon>QueryDialogWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="QuerySelectionWindow.xaml.cs">
       <DependentUpon>QuerySelectionWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RepertoireDatabaseWindow.xaml.cs">
+      <DependentUpon>RepertoireDatabaseWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RepertoireTrainingStartWindow.xaml.cs">
+      <DependentUpon>RepertoireTrainingStartWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="SelectFigureWindow.xaml.cs">
       <DependentUpon>SelectFigureWindow.xaml</DependentUpon>
@@ -666,6 +682,10 @@
     <ProjectReference Include="..\BearChessCommunication\BearChessCommunication.csproj">
       <Project>{a8118cc3-827d-4635-8613-345b190ee763}</Project>
       <Name>BearChessCommunication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BearChessDatabase\BearChessDatabase.csproj">
+      <Project>{fbc89b8a-e40d-4464-8aeb-ca963f7554ad}</Project>
+      <Name>BearChessDatabase</Name>
     </ProjectReference>
     <ProjectReference Include="..\BearChessEChessBoard\BearChessEChessBoard\BearChessEChessBoard.csproj">
       <Project>{a6bcdc78-1edc-40c7-936f-880423360ba3}</Project>
@@ -963,6 +983,13 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Icons\fill_color.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\database_black.png" />
+    <Resource Include="Assets\Icons\database_blue.png" />
+    <Resource Include="Assets\Icons\database_green.png" />
+    <Resource Include="Assets\Icons\database_red.png" />
+    <Resource Include="Assets\Icons\database_yellow.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

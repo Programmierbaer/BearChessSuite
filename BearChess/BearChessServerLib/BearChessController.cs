@@ -31,6 +31,7 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
         private readonly Dictionary<string, List<string>> _board2Token = new Dictionary<string, List<string>>();
         private GamePublisher _gamePublisher;
         private string _publishPath;
+        private readonly Dictionary<string, GameLogger> _allGameLogger = new Dictionary<string, GameLogger>();
 
         public event EventHandler<IMove> ChessMoveMade;
         public event EventHandler<CurrentGame> NewGame;
@@ -434,12 +435,12 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
         private void _bearChessServer_ClientMessage(object sender, BearChessServerMessage e)
         {
             _logging?.LogDebug($"BCC: received: {e.ActionCode}");
-            if (e.ActionCode.Equals("CONNECT"))
+            if (e.ActionCode.Equals(BCServerConstants.ActionConnect))
             {
                 _logging?.LogDebug($"BCC: Connect: {e.Message}: {e.Address} ");
                 _connectionList.Add(new BearChessClientInformation() { Address = e.Address, Name = e.Message });
             }
-            if (e.ActionCode.Equals("DISCONNECT"))
+            if (e.ActionCode.Equals(BCServerConstants.ActionDisConnect))
             {
                 _logging?.LogDebug($"BCC: Disconnect: {e.Message}: {e.Address} ");
                 var clientInfo = _connectionList.FirstOrDefault(t => t.Address.Equals(e.Address));
@@ -449,15 +450,31 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
                 }
                 _gamePublisher?.StopPublishingFor(e.Address);
             }
-            if (e.ActionCode.Equals("PUBLISH"))
+            if (e.ActionCode.Equals(BCServerConstants.ActionPublish))
             {
                 _gamePublisher?.Publish(e.Address, e.Message);
                 
             }
-            if (e.ActionCode.Equals("PUBLISHFEN"))
+            if (e.ActionCode.Equals(BCServerConstants.ActionPublishFen))
             {
                 _gamePublisher?.PublishFen(e.Address, e.Message);
-                
+            }
+
+            if (e.ActionCode.Equals(BCServerConstants.ActionNewGame))
+            {
+                if (!_allGameLogger.ContainsKey(e.Address))
+                {
+                    _allGameLogger.Add(e.Address, new GameLogger(e.Address, this));
+                }
+            }
+            
+            if (e.ActionCode.Equals(BCServerConstants.ActionStopGame))
+            {
+                if (_allGameLogger.TryGetValue(e.Address, out GameLogger gameLogger))
+                {
+                   // gameLogger.Close();   
+                };
+                _allGameLogger.Remove(e.Address);
             }
             ClientMessage?.Invoke(this, e);
         }
@@ -465,6 +482,7 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
         private void _bearChessServer_ClientDisconnected(object sender, string e)
         {
             _logging?.LogDebug($"BCC: client disconnected: {e}");
+            _allGameLogger.Remove(e);
             ClientDisconnected?.Invoke(this, e);
         }
 
@@ -537,7 +555,6 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
                 int invalidEngines = 0;
                 foreach (var fileName in fileNames)
                 {
-                  
                     _logging?.LogInfo($"BCC:  File: {fileName} ");
                     try
                     {
@@ -568,9 +585,7 @@ namespace www.SoLaNoSoft.com.BearChessServerLib
                         _logging?.LogError("BCC: Add installed engine", ex);
                     }
                 }
-
-
-              
+                
                 _logging?.LogInfo($"BCC: {_installedEngines.Count} installed engines read");
                 if (invalidEngines > 0)
                 {

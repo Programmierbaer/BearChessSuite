@@ -1509,7 +1509,7 @@
   <data name="ErrorUninstallBook" xml:space="preserve">
     <value>Fehler beim Deinstallieren des Eröffnungbuchs</value>
   </data>
-  <data name="AlReadyInstalled" xml:space="preserve">
+  <data name="AlreadyInstalled" xml:space="preserve">
     <value>bereits installiert</value>
   </data>
   <data name="Duels" xml:space="preserve">
@@ -1576,7 +1576,7 @@
     <value>Ausgewähltes Duell löschen?</value>
   </data>
   <data name="DeleteAllSelectedDuels" xml:space="preserve">
-    <value>Alle ausgewählten Duelle löschen</value>
+    <value>Alle ausgewählten Duelle löschen?</value>
   </data>
   <data name="RepeatDuel" xml:space="preserve">
     <value>Duell wiederholen</value>
@@ -2968,7 +2968,7 @@
     <value>Konfigurieren Sie ihren Chess.com Zugang</value>
   </data>
   <data name="Puzzle" xml:space="preserve">
-    <value>Puzzles</value>
+    <value>Puzzle</value>
   </data>
   <data name="PuzzleTitle" xml:space="preserve">
     <value>Titel:</value>
@@ -3086,5 +3086,50 @@
   </data>
   <data name="Combine" xml:space="preserve">
     <value>Kombinieren</value>
+  </data>
+  <data name="RepertoireTraining" xml:space="preserve">
+    <value>Repertoire Training</value>
+  </data>
+  <data name="RepertoireStart" xml:space="preserve">
+    <value>Starte Repertoirtraining</value>
+  </data>
+  <data name="RepertoireStop" xml:space="preserve">
+    <value>Beende Repertoiretraining</value>
+  </data>
+  <data name="ExportAsPGN" xml:space="preserve">
+    <value>Als PGN-Datei exportieren</value>
+  </data>
+  <data name="ExportAsRepertoire" xml:space="preserve">
+    <value>Als Repertoire-Datenbank exportieren</value>
+  </data>
+  <data name="ExportAsPuzzle" xml:space="preserve">
+    <value>Als Puzzle-Datenbank exportieren</value>
+  </data>
+  <data name="Stalemate" xml:space="preserve">
+    <value>Patt</value>
+  </data>
+  <data name="SelectPuzzleDatabase" xml:space="preserve">
+    <value>Puzzle-Datenbank auswählen</value>
+  </data>
+  <data name="PuzzleDatabase" xml:space="preserve">
+    <value>Puzzle-Datenbank</value>
+  </data>
+  <data name="DeletePuzzle" xml:space="preserve">
+    <value>Puzzle löschen</value>
+  </data>
+  <data name="ImportPuzzle" xml:space="preserve">
+    <value>Puzzles importieren</value>
+  </data>
+  <data name="ExportSelectedPuzzle" xml:space="preserve">
+    <value>Ausgewählte Puzzles exportieren</value>
+  </data>
+  <data name="DeleteSelectedPuzzle" xml:space="preserve">
+    <value>Ausgewähltes Puzzle löschen?</value>
+  </data>
+  <data name="DeleteAllSelectedPuzzle" xml:space="preserve">
+    <value>Alle ausgewählten Puzzle löschen?</value>
+  </data>
+  <data name="FenCol" xml:space="preserve">
+    <value>FEN</value>
   </data>
 </root>

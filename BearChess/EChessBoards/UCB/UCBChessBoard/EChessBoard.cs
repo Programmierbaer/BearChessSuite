@@ -37,6 +37,7 @@ namespace www.SoLaNoSoft.com.BearChess.UCBChessBoard
             BatteryStatus = "";
             PieceRecognition = false;
             ValidForAnalyse = false;
+            ValidForTraining = false;
             SelfControlled = true;
             _serialCommunication = new SerialCommunication(logger, portName, false);
             IsConnected = EnsureConnection();
@@ -54,6 +55,7 @@ namespace www.SoLaNoSoft.com.BearChess.UCBChessBoard
             BatteryStatus = "";
             PieceRecognition = false;
             ValidForAnalyse = false;
+            ValidForTraining = false;
             SelfControlled = true;
             Information = Constants.UCB;
             _lastMove = string.Empty;

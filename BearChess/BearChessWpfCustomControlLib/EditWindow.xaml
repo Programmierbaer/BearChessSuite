@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib"
         xmlns:p="clr-namespace:www.SoLaNoSoft.com.BearChessWpfCustomControlLib.Properties"        
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
-        mc:Ignorable="d"
-        Title="Comment" Height="120" Width="250" >
+        mc:Ignorable="d" SizeToContent="Height"
+        Title="Comment" Height="140" Width="250" >
     <DockPanel >
         <DockPanel DockPanel.Dock="Bottom">
             <Button  Margin="5" HorizontalAlignment="Left" Name="buttonOk" 
@@ -20,6 +20,10 @@
                 <Image Source="Assets/Icons/cancel.png" Width="32" Height="32" />
             </Button>
         </DockPanel>
-        <TextBox DockPanel.Dock="Top" Margin="5,10,5,5"  Height="20" Name="textBoxComment" ></TextBox>
+        <StackPanel DockPanel.Dock="Top" Orientation="Vertical">
+            <TextBlock Margin="5" Name="textBlockComment" Visibility="Collapsed" />
+            <TextBox  Margin="5"  Height="20" Name="textBoxComment"/>            
+        </StackPanel>
+ 
     </DockPanel>
 </Window>

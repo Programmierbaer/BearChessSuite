@@ -145,6 +145,7 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Sentio.ChessBoard
             BatteryStatus = _rm.GetString("Full");
             PieceRecognition = false;
             ValidForAnalyse = false;
+            ValidForTraining = true;
             MultiColorLEDs = true;
             SendArray[0] = 255;
             SendArray[1] = 85;
@@ -184,6 +185,7 @@ namespace www.SoLaNoSoft.com.BearChess.Tabutronic.Sentio.ChessBoard
             Information = Constants.TabutronicSentioSpectrum;
             PieceRecognition = false;
             ValidForAnalyse = false;
+            ValidForTraining = true;
         }
 
         public override void Reset()

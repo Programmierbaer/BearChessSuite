@@ -1509,7 +1509,7 @@
   <data name="ErrorUninstallBook" xml:space="preserve">
     <value>Error on uninstall opening book</value>
   </data>
-  <data name="AlReadyInstalled" xml:space="preserve">
+  <data name="AlreadyInstalled" xml:space="preserve">
     <value>already installed</value>
   </data>
   <data name="Duels" xml:space="preserve">
@@ -3086,5 +3086,50 @@
   </data>
   <data name="Combine" xml:space="preserve">
     <value>Combine</value>
+  </data>
+  <data name="RepertoireTraining" xml:space="preserve">
+    <value>Repertoire Training</value>
+  </data>
+  <data name="RepertoireStart" xml:space="preserve">
+    <value>Start repertoire training</value>
+  </data>
+  <data name="RepertoireStop" xml:space="preserve">
+    <value>Stop repertoire training</value>
+  </data>
+  <data name="ExportAsPGN" xml:space="preserve">
+    <value>Export as PGN file</value>
+  </data>
+  <data name="ExportAsRepertoire" xml:space="preserve">
+    <value>Export as repertoire database</value>
+  </data>
+  <data name="ExportAsPuzzle" xml:space="preserve">
+    <value>Export as puzzle database</value>
+  </data>
+  <data name="Stalemate" xml:space="preserve">
+    <value>Stalemate</value>
+  </data>
+  <data name="SelectPuzzleDatabase" xml:space="preserve">
+    <value>Select your puzzle database</value>
+  </data>
+  <data name="PuzzleDatabase" xml:space="preserve">
+    <value>Puzzle database</value>
+  </data>
+  <data name="DeletePuzzle" xml:space="preserve">
+    <value>Delete puzzle</value>
+  </data>
+  <data name="ImportPuzzle" xml:space="preserve">
+    <value>Import puzzles</value>
+  </data>
+  <data name="ExportSelectedPuzzle" xml:space="preserve">
+    <value>Export selected puzzles</value>
+  </data>
+  <data name="DeleteSelectedPuzzle" xml:space="preserve">
+    <value>Deleted selected puzzle?</value>
+  </data>
+  <data name="DeleteAllSelectedPuzzle" xml:space="preserve">
+    <value>Delete all selected puzzle?</value>
+  </data>
+  <data name="FenCol" xml:space="preserve">
+    <value>FEN</value>
   </data>
 </root>

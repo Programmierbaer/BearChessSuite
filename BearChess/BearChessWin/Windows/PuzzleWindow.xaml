@@ -58,10 +58,10 @@
                             <Image Name="imageDatabase" Source="../Assets/Icons/tick.png" Visibility="Hidden" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Name="menuItemImportPuzzle" Click="MenuItemImportPuzzle_OnClick"
-                              Header="{x:Static p:Resources.PuzzleImport}">
+                    <MenuItem Name="menuItemSelectPuzzleDB" Click="MenuItemSelectPuzzleDB_OnClick"
+                              Header="{x:Static p:Resources.SelectPuzzleDatabase}">
                         <MenuItem.Icon>
-                            <Image Source="../Assets/Icons/saved_imports.png" />
+                            <Image Source="../Assets/Icons/database_green.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
@@ -99,7 +99,9 @@
                 </Hyperlink>
             </TextBlock>
             <TextBlock Margin="5" Grid.Column="0" Grid.Row="3" FontWeight="SemiBold" Text="{x:Static p:Resources.Fen}" />
-            <TextBlock Margin="5" Name="textBlockFen" TextWrapping="Wrap" Grid.Column="1" Grid.Row="3"></TextBlock>
+            <Button Margin="5" Name="buttonFen" HorizontalContentAlignment="Left" Background="WhiteSmoke"   ToolTip="{x:Static p:Resources.CopyToClipboard}" Grid.Column="1" Grid.Row="3" Click="ButtonFen_OnClick">
+              <TextBlock Margin="5" TextAlignment="Left" Name="textBlockFen" TextWrapping="Wrap" ></TextBlock>
+            </Button>
             <TextBlock Margin="5" Grid.Column="0" Grid.Row="4" FontWeight="SemiBold"
                        Text="{x:Static p:Resources.SolutionMoves}" />
             <TextBlock Margin="5" Name="textBlockMoveCount" TextWrapping="Wrap" Grid.Column="1" Grid.Row="4"></TextBlock>

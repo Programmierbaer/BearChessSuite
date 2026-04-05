@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
@@ -9,11 +10,15 @@ using www.SoLaNoSoft.com.BearChessBase.Interfaces;
 
 namespace www.SoLaNoSoft.com.BearChessDatabase
 {
-    public class PuzzleDatabase : IDatabase
+  
+
+    public class PuzzleDatabase : IPuzzleDatabase
     {
 
-        public static string BearChessDbFileName = "puzzle_7040F19DE68142369C2368FC0A6D585F.db";
-        public static string ImportDbFileName = "puzzle_5D3926EBE6A84D32AD5F66A3FD2989A6.db";
+        public static string BearChessDBFileName = "puzzle_7040F19DE68142369C2368FC0A6D585F.puz";
+        public static string ImportDBFileName = "puzzles.db";
+        public static string BearChessDBFileNameOld = "puzzle_7040F19DE68142369C2368FC0A6D585F.db";
+        public static string ImportDBFileNameOld = "puzzle_5D3926EBE6A84D32AD5F66A3FD2989A6.db";
 
         public bool InError => _inError;
 
@@ -41,7 +46,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 {
                     return;
                 }
-                var sourceFile = Path.Combine(binPath, PuzzleDatabase.BearChessDbFileName);
+                var sourceFile = Path.Combine(binPath, PuzzleDatabase.BearChessDBFileName);
                 fileLogger?.LogDebug($"Check for origin BearChess-DB: {sourceFile}");
                 if (!File.Exists(sourceFile))
                 {
@@ -49,7 +54,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     return;
                 }
 
-                var targetFile = Path.Combine(dbPath, PuzzleDatabase.BearChessDbFileName);
+                var targetFile = Path.Combine(dbPath, PuzzleDatabase.BearChessDBFileName);
                 if (File.Exists(targetFile))
                 {
                     fileLogger?.LogDebug($"Target database {targetFile} already exists. No copy");
@@ -64,8 +69,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 fileLogger?.LogError(ex);
             }
         }
-
-
 
         public bool Open()
         {
@@ -89,14 +92,59 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             }
             catch (Exception ex)
             {
+                ErrorMessage  = ex.Message;
                 _inError = true;
-                _logging?.LogError(ex);
+                _logging?.LogError(ErrorMessage);
             }
 
             return false;
         }
 
+        public DatabasePuzzle[] GetPuzzles()
+        {
+            List<DatabasePuzzle> allPuzzles = new List<DatabasePuzzle>();
+            if (!_dbExists)
+            {
+                if (!CreateTables())
+                {
+                    return allPuzzles.ToArray();
+                }
+            }
+            try
+            {
 
+                Open();
+                var sql = @"SELECT id, label, event, pgn, playCount, solved from puzzles order by id;";                
+                using (var cmd = new SQLiteCommand(sql, _connection))
+                {
+                    
+                    using (var rdr = cmd.ExecuteReader())
+                    {
+                        while (rdr.Read())
+                        {
+                            var puzzle = new DatabasePuzzle();
+                            var pgnLoader = new PgnLoader();
+                            var pgn = rdr.GetString(3);
+                            puzzle.Id = rdr.GetInt32(0);
+                            puzzle.Label = rdr.GetString(1);
+                            puzzle.PgnGame = pgnLoader.GetGame(pgn);
+                            puzzle.PlayCount = rdr.GetInt32(4);
+                            puzzle.IsSolved = rdr.GetBoolean(5);
+                            allPuzzles.Add(puzzle);
+                        }
+                        rdr.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logging?.LogError(ex);
+            }
+
+            _connection.Close();
+        
+            return allPuzzles.ToArray();
+        }
         public DatabasePuzzle LoadPuzzle(int id)
         {
             if (!_dbExists)
@@ -113,7 +161,7 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             {
 
                 Open();
-                string sql = @"SELECT id, label, event, pgn, playCount, solved from puzzles WHERE id=@id;";                
+                var sql = @"SELECT id, label, event, pgn, playCount, solved from puzzles WHERE id=@id;";                
                 using (var cmd = new SQLiteCommand(sql, _connection))
                 {
                     cmd.Parameters.Add("@id", DbType.Int32).Value = id;
@@ -287,7 +335,6 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 var sql = @"INSERT INTO puzzles (label, event, pgn, playCount, solved) VALUES (@label, @event, @pgn, @playCount, @solved); ";
                 using (var command2 = new SQLiteCommand(sql, _connection))
                 {
-
                     command2.Parameters.Add("@label", DbType.String).Value = label;
                     command2.Parameters.Add("@event", DbType.String).Value = pgnEvent;
                     command2.Parameters.Add("@pgn", DbType.String).Value = pgn;
@@ -319,6 +366,38 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             return success;
         }
 
+          public void DeletePuzzle(int id)
+        {
+            if (_connection.State == ConnectionState.Closed)
+            {
+                _connection.Open();
+
+            }
+            var sqLiteTransaction = _connection.BeginTransaction(IsolationLevel.Serializable);
+            try
+            {
+             
+
+                var sql = @"DELETE FROM puzzles WHERE id=@id; ";
+                using (var command = new SQLiteCommand(sql, _connection))
+                {
+                    command.Parameters.Add("@id", DbType.Int32).Value = id;
+                    command.ExecuteNonQuery();
+                }
+
+                sqLiteTransaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                sqLiteTransaction.Rollback();
+                _logging?.LogError(ex);
+            }
+            finally
+            {
+                _connection.Close();
+            }
+        }
+        
         public void Close()
         {
             _connection?.Close();
@@ -367,6 +446,12 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                 _inError = true;
                 _logging?.LogError(ex);
             }
+        }
+
+        public string ErrorMessage
+        {
+            get;
+            private set;
         }
 
         public int GetTotalPuzzlesCount()
@@ -506,12 +591,11 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             }
         }
 
-        private void LoadDb()
+        public bool LoadDb()
         {
-            LoadDb(FileName);
+            return LoadDb(FileName);
         }
-
-
+        
         private bool TableExists(string tableName)
         {
             var sql = $"SELECT name FROM sqlite_master WHERE type = 'table' AND name = '{tableName}' COLLATE NOCASE";
@@ -570,18 +654,20 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
             }
             catch (Exception ex)
             {
+                ErrorMessage = ex.Message;
                 _inError = true;
-                _logging?.LogError(ex);
+                _logging?.LogError(ErrorMessage);
             }
 
             return false;
         }
 
-        private void LoadDb(string fileName)
+        private bool LoadDb(string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName))
             {
-                _logging?.LogError("Load with empty file name");
+                ErrorMessage = "Load with empty file name";
+                _logging?.LogError(ErrorMessage);
                 _inError = true;
             }
             _dbExists = File.Exists(fileName);
@@ -592,23 +678,29 @@ namespace www.SoLaNoSoft.com.BearChessDatabase
                     SQLiteConnection.CreateFile(fileName);
                 }
                 _connection = new SQLiteConnection($"Data Source = {fileName}; Version = 3;");
-                CreateTables();
-                _inError = false;
+                if (CreateTables())
+                {
+                    _inError = false;
+                }
             }
             catch (Exception ex)
             {
-                _logging?.LogError(ex);
+                ErrorMessage = ex.Message;
+                _logging?.LogError(ErrorMessage);
                 _inError = true;
             }
+
+            return _inError;
         }
+        
         public void Dispose()
         {
             _connection?.Dispose();
         }
 
-        void IDatabase.LoadDb(string fileName)
+        bool IDatabase.LoadDb(string fileName)
         {
-            LoadDb(fileName);
+            return LoadDb(fileName);
         }
 
         public void CommitAndClose()
